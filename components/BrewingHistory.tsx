@@ -239,7 +239,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({ isOpen, onOptimizingCha
     };
 
     // 修改新建笔记处理函数
-    const handleAddNote = () => {
+    const _handleAddNote = () => {
         setCurrentEditingNote({
             coffeeBeanInfo: {
                 name: '',
@@ -653,29 +653,6 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({ isOpen, onOptimizingCha
                             </div>
                         )}
                     </div>
-
-                    {/* 添加笔记按钮 */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -5 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="bottom-action-bar"
-                    >
-                        <div className="absolute bottom-full left-0 right-0 h-12 bg-gradient-to-t from-neutral-50 dark:from-neutral-900 to-transparent pointer-events-none"></div>
-                        <div className="relative flex items-center bg-neutral-50 dark:bg-neutral-900 py-4">
-                            <div className="flex-grow border-t border-neutral-200 dark:border-neutral-800"></div>
-                            <motion.button
-                                onClick={handleAddNote}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="flex items-center justify-center text-[11px] text-neutral-500 dark:text-neutral-400 mx-3"
-                            >
-                                <span className="mr-1">+</span> 添加笔记
-                            </motion.button>
-                            <div className="flex-grow border-t border-neutral-200 dark:border-neutral-800"></div>
-                        </div>
-                    </motion.div>
                 </motion.div>
             )}
 

@@ -27,6 +27,9 @@ import textZoomUtils from '@/lib/textZoom'
 import { navigateFromHistoryToBrewing } from '@/lib/brewing/navigation'
 import type { BrewingNote } from '@/lib/config'
 import { BREWING_EVENTS } from '@/lib/brewing/constants'
+import BottomNavigationBar from '@/components/BottomNavigationBar'
+import BrewingNoteFormModalNew from '@/components/BrewingNoteFormModalNew'
+import type { BrewingNoteData } from '@/app/types'
 
 // 添加内容转换状态类型
 interface TransitionState {
@@ -130,6 +133,10 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
     const [selectedBeanForAI, setSelectedBeanForAI] = useState<CoffeeBean | null>(null);
     // 添加一个标志，跟踪是否是从AI方案跳转过来
     const [isFromAIRecipe, setIsFromAIRecipe] = useState(false);
+
+    // 添加笔记表单状态
+    const [showNoteFormModal, setShowNoteFormModal] = useState(false);
+    const [currentEditingNote, setCurrentEditingNote] = useState<Partial<BrewingNoteData>>({});
 
     // 添加一个状态来跟踪是否已经自动跳转过
     const [hasAutoNavigatedToNotes, setHasAutoNavigatedToNotes] = useState(false);
@@ -1335,7 +1342,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             {/* 使用 NavigationBar 组件替换原有的导航栏 */}
             <NavigationBar
                 activeMainTab={activeMainTab}
-                setActiveMainTab={handleMainTabClick}
+                _setActiveMainTab={handleMainTabClick}
                 activeBrewingStep={activeBrewingStep}
                 setActiveBrewingStep={handleBrewingStepClickWrapper}
                 parameterInfo={parameterInfo}
@@ -1347,7 +1354,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                 selectedEquipment={selectedEquipment}
                 selectedMethod={currentBrewingMethod}
                 handleParamChange={handleParamChangeWrapper}
-                setShowHistory={setShowHistory}
+                _setShowHistory={setShowHistory}
                 setActiveTab={setActiveTab}
                 onTitleDoubleClick={handleTitleDoubleClick}
                 settings={settings}
@@ -1437,7 +1444,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                             key={beanListKey}
                             isOpen={activeMainTab === '咖啡豆'}
                             showBeanForm={handleBeanForm}
-                            onShowImport={() => setShowImportBeanForm(true)}
+                            _onShowImport={() => setShowImportBeanForm(true)}
                             onGenerateAIRecipe={handleGenerateAIRecipe}
                         />
                     </m.div>
@@ -1622,6 +1629,77 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                     />
                 )
             }
+
+            {/* 底部导航栏 */}
+            <BottomNavigationBar 
+                activeMainTab={activeMainTab}
+                onTabChange={(tab) => {
+                    console.log(`切换到标签: ${tab}`); // 添加调试信息
+                    try {
+                        handleMainTabClick(tab);
+                    } catch (err) {
+                        console.error('标签切换出错:', err);
+                    }
+                }}
+                hapticFeedback={settings.hapticFeedback}
+                onAddCoffeeBean={() => {
+                    console.log('添加咖啡豆被触发'); // 添加调试信息
+                    try {
+                        // 调用相同的添加咖啡豆方法
+                        handleBeanForm(null);
+                    } catch (err) {
+                        console.error('添加咖啡豆出错:', err);
+                    }
+                }}
+                onImportCoffeeBean={() => {
+                    console.log('导入咖啡豆被触发'); // 添加调试信息
+                    try {
+                        setShowImportBeanForm(true);
+                    } catch (err) {
+                        console.error('导入咖啡豆出错:', err);
+                    }
+                }}
+                onAddNote={() => {
+                    console.log('添加笔记被触发'); // 添加调试信息
+                    try {
+                        // 显示笔记表单模态框
+                        setShowNoteFormModal(true);
+                        setCurrentEditingNote({
+                            coffeeBeanInfo: {
+                                name: '',
+                                roastLevel: '中度烘焙',
+                                roastDate: ''
+                            },
+                            taste: {
+                                acidity: 3,
+                                sweetness: 3,
+                                bitterness: 3,
+                                body: 3
+                            },
+                            rating: 3,
+                            notes: ''
+                        });
+                    } catch (err) {
+                        console.error('添加笔记出错:', err);
+                    }
+                }}
+            />
+
+            {/* 添加BrewingNoteFormModalNew组件 */}
+            <BrewingNoteFormModalNew
+                showForm={showNoteFormModal}
+                onClose={() => {
+                    setShowNoteFormModal(false);
+                    setCurrentEditingNote({});
+                }}
+                initialNote={currentEditingNote}
+                onSave={(note) => {
+                    // 处理保存笔记的逻辑
+                    console.log('保存笔记:', note);
+                    setCurrentEditingNote(note);
+                    setShowNoteFormModal(false);
+                }}
+            />
         </div>
     )
 }

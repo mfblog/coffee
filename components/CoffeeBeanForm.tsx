@@ -2,12 +2,12 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Crop } from 'lucide-react'
 import { CoffeeBean } from '@/app/types'
 import AutoResizeTextarea from './AutoResizeTextarea'
 import AutocompleteInput from './AutocompleteInput'
 import Image from 'next/image'
-// 移除Capacitor导入
+import ImageBoundaryEditor from './ImageBoundaryEditor'
 
 // 添加拼配成分接口定义
 interface BlendComponent {
@@ -717,8 +717,33 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
         }));
     };
 
-    // 渲染步骤内容
+    // 添加边界编辑状态
+    const [isEditingBoundary, setIsEditingBoundary] = useState(false);
+    const [originalImage, setOriginalImage] = useState<string | undefined>(undefined);
+
+    // 修改渲染步骤内容
     const renderStepContent = () => {
+        // 如果正在编辑边界，显示边界编辑器
+        if (isEditingBoundary && originalImage) {
+            return (
+                <ImageBoundaryEditor 
+                    image={originalImage}
+                    onSave={(processedImage) => {
+                        setBean(prev => ({
+                            ...prev,
+                            image: processedImage
+                        }));
+                        setIsEditingBoundary(false);
+                        setOriginalImage(undefined);
+                    }}
+                    onCancel={() => {
+                        setIsEditingBoundary(false);
+                        setOriginalImage(undefined);
+                    }}
+                />
+            );
+        }
+
         switch (currentStep) {
             case 'basic':
                 return (
@@ -737,7 +762,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                             </label>
                             <div className="flex items-center justify-center relative">
                                 <div
-                                    className="w-32 h-32 rounded-lg border-2 border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center cursor-pointer overflow-visible relative"
+                                    className="w-32 h-32 rounded-lg border-2 border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center cursor-pointer overflow-hidden relative"
                                     onClick={() => {
                                         const fileInput = document.createElement('input');
                                         fileInput.type = 'file';
@@ -753,11 +778,14 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                                                 reader.onload = () => {
                                                     if (typeof reader.result === 'string') {
                                                         const imageData = reader.result as string;
-
+                                                        
+                                                        // 保存原始图片以便编辑
+                                                        setOriginalImage(imageData);
+                                                        
                                                         // 检查图片大小是否需要压缩
                                                         if (imageData.length > 1024 * 1024) { // 如果大于1MB
                                                             // 压缩图片
-                                                            const img = new globalThis.Image();
+                                                            const img = document.createElement('img');
                                                             img.onload = () => {
                                                                 const canvas = document.createElement('canvas');
                                                                 let width = img.width;
@@ -780,7 +808,8 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
 
                                                                 // 转换为base64，使用较低的质量
                                                                 const compressedImage = canvas.toDataURL('image/jpeg', 0.6);
-
+                                                                setOriginalImage(compressedImage);
+                                                                
                                                                 // 更新豆子图片
                                                                 setBean(prev => ({
                                                                     ...prev,
@@ -799,7 +828,6 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                                                 };
                                                 reader.readAsDataURL(file);
                                             } catch {
-
                                                 alert('上传图片失败，请重试');
                                             }
                                         };
@@ -811,29 +839,50 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                                             <Image
                                                 src={bean.image}
                                                 alt="咖啡豆图片"
-                                                className="object-cover"
+                                                className="object-contain" // 改为object-contain确保完整显示
                                                 fill
                                                 sizes="(max-width: 768px) 100vw, 300px"
                                             />
                                             <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                                                 <span className="text-white text-xs font-medium">点击更换</span>
                                             </div>
-                                            {/* 删除按钮放在图片容器内，定位在右上角 */}
-                                            <button
-                                                type="button"
-                                                className="absolute top-1 right-1 w-6 h-6 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 rounded-full flex items-center justify-center shadow-md hover:bg-red-500 dark:hover:bg-red-500 dark:hover:text-white transition-colors z-10"
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // 阻止冒泡，避免触发父元素的点击事件
-                                                    setBean(prev => ({
-                                                        ...prev,
-                                                        image: undefined
-                                                    }));
-                                                }}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                </svg>
-                                            </button>
+                                            {/* 操作按钮组 */}
+                                            <div className="absolute top-1 right-1 flex space-x-1">
+                                                {/* 编辑边界按钮 */}
+                                                <button
+                                                    type="button"
+                                                    className="w-6 h-6 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 rounded-full flex items-center justify-center shadow-md hover:bg-blue-500 dark:hover:bg-blue-500 dark:hover:text-white transition-colors z-10"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // 阻止冒泡
+                                                        if (originalImage || bean.image) {
+                                                            setIsEditingBoundary(true);
+                                                            // 如果没有原始图片，使用当前图片
+                                                            if (!originalImage) {
+                                                                setOriginalImage(bean.image);
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    <Crop className="h-3 w-3" />
+                                                </button>
+                                                {/* 删除按钮 */}
+                                                <button
+                                                    type="button"
+                                                    className="w-6 h-6 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 rounded-full flex items-center justify-center shadow-md hover:bg-red-500 dark:hover:bg-red-500 dark:hover:text-white transition-colors z-10"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // 阻止冒泡
+                                                        setBean(prev => ({
+                                                            ...prev,
+                                                            image: undefined
+                                                        }));
+                                                        setOriginalImage(undefined);
+                                                    }}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </div>
                                     ) : (
                                         <>

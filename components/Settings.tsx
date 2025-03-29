@@ -14,6 +14,7 @@ export interface SettingsOptions {
     hapticFeedback: boolean
     grindType: "通用" | "幻刺"
     textZoomLevel: number
+    isDarkMode: boolean
 }
 
 // 默认设置
@@ -22,6 +23,7 @@ export const defaultSettings: SettingsOptions = {
     hapticFeedback: true,
     grindType: "通用",
     textZoomLevel: 1.0,
+    isDarkMode: false,
 }
 
 interface SettingsProps {

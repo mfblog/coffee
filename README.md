@@ -1,69 +1,77 @@
-# 咖啡冲泡指南 (Brew Guide)
+# Brew Guide - 咖啡师的得力助手
 
-一个现代化的咖啡冲泡助手应用，帮助咖啡爱好者记录和优化他们的冲泡过程。
+一个优雅、功能丰富的咖啡萃取指南应用，帮助您记录咖啡豆信息、冲泡参数和咖啡风味。提供咖啡师专业级的计时器、咖啡知识分享和个性化推荐。
 
-![版本](https://img.shields.io/badge/版本-1-blue)
+## 功能特性
 
-## 功能特点
+- **咖啡豆管理**：记录咖啡豆信息，包括产地、处理法、烘焙度等
+- **冲煮指南**：支持多种萃取方法，包括V60、爱乐压、虹吸壶等
+- **计时器**：专业级分阶段咖啡冲泡计时器
+- **冲煮日志**：记录每次冲泡的参数和结果
+- **咖啡AI助手**：根据咖啡豆特性智能推荐冲泡参数
 
--   🧰 多种冲泡滤杯支持 (V60, 聪明杯等)
--   📋 丰富的冲泡方案库
--   ⏱️ 精确的冲泡计时器
--   📊 可视化注水过程
--   📝 详细的冲泡记录
--   🔄 自定义冲泡方案
--   🌓 深色/浅色模式
+## UI/UX 特性
 
-## 开始使用
+### 滑动手势支持
 
-首先，运行开发服务器:
+本应用集成了丰富的滑动手势支持，提供类似原生应用的交互体验：
 
-```bash
-npm run dev
-# 或
-yarn dev
-# 或
-pnpm dev
-# 或
-bun dev
-```
+- **边缘滑动返回**：从屏幕左侧边缘右滑返回上一页
+- **模态框滑动关闭**：在模态框中右滑关闭
+- **触感反馈**：滑动时提供触觉反馈增强体验
 
-在浏览器中打开 [http://localhost:3000](http://localhost:3000) 查看应用。
+详细文档请查看 [docs/SwipeGestures.md](docs/SwipeGestures.md)
 
-## 使用指南
+### 主题切换
 
-1. 在首页选择您的冲泡滤杯（如 V60、聪明杯等）
-2. 选择合适的冲泡方案或创建自定义方案
-3. 按照指导进行注水操作
-4. 记录您的冲泡体验和口感评价
+应用支持亮色/暗色模式自动切换，也可手动设置
+
+### 无缝动画
+
+使用 Framer Motion 提供流畅的页面过渡和元素动画
 
 ## 技术栈
 
--   [Next.js 15](https://nextjs.org/) - React 框架
--   [React 19](https://react.dev/) - 用户界面库
--   [Tailwind CSS 4](https://tailwindcss.com/) - 样式解决方案
--   [Framer Motion](https://www.framer.com/motion/) - 动画库
--   [TypeScript](https://www.typescriptlang.org/) - 类型安全
+- **框架**: Next.js 15 (App Router)
+- **移动端**: Capacitor
+- **状态管理**: React Hooks
+- **样式**: Tailwind CSS
+- **动画**: Framer Motion
+- **存储**: LocalStorage 和 IndexedDB
+- **部署**: Vercel / PWA / 原生应用
 
-## 贡献
+## 开发指南
 
-欢迎提交问题和功能请求！如果您想贡献代码，请先开一个 issue 讨论您想要更改的内容。
+### 安装依赖
 
-## 许可
+```bash
+# 安装项目依赖
+npm install
 
-[MIT](https://choosealicense.com/licenses/mit/)
+# 启动开发服务器
+npm run dev
+```
 
-## Learn More
+### 构建原生应用
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# 构建 Web 应用
+npm run build
 
--   [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
--   [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 同步到 Capacitor
+npx cap sync
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 打开 iOS 项目
+npx cap open ios
 
-## Deploy on Vercel
+# 打开 Android 项目
+npx cap open android
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 贡献指南
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+欢迎提交问题和功能请求，或通过 Pull Requests 参与贡献。
+
+## 许可证
+
+本项目采用 MIT 许可证 

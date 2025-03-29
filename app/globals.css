@@ -5,7 +5,7 @@
 
 :root {
   --foreground: #000;
-  --background: #FAFAFA;
+  --background: #FFF;
   --rsbs-backdrop-bg: rgba(0, 0, 0, 0.3);
   --rsbs-bg: var(--background);
   --rsbs-handle-bg: rgba(0, 0, 0, 0.14);
@@ -22,7 +22,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground: #000;
-    --background: #FAFAFA;
+    --background: #FFF;
     --rsbs-backdrop-bg: rgba(0, 0, 0, 0.3);
   }
 }
