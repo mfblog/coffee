@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef } from 'react';
+import React, { useRef } from 'react';
 import { useSwipeGesture, SwipeDirection } from '@/lib/hooks';
 
 interface SwipeBackOptions {
@@ -65,60 +65,47 @@ export function withSwipeBack<P extends object>(
   Component: React.ComponentType<P>,
   options: SwipeBackOptions
 ) {
-  const { 
-    onSwipeBack, 
-    hapticFeedback = true, 
-    threshold = 75,
-    edgeWidth = 20,
-    disabled = false,
-    onSwipe
-  } = options;
-  
-  // 使用forwardRef确保ref正确传递
-  const WithSwipeGesture = forwardRef<HTMLDivElement, P>((props, ref) => {
-    // 使用滑动手势钩子
-    const { ref: swipeRef } = useSwipeGesture((direction) => {
-      // 右滑触发返回
+  const WithSwipeGesture = React.forwardRef<HTMLDivElement, P>((props, ref) => {
+    const swipeRef = useRef<HTMLDivElement | null>(null);
+    const {
+      onSwipeBack,
+      hapticFeedback = true,
+      threshold = 75,
+      edgeWidth = 20,
+      disabled = false,
+      onSwipe
+    } = options;
+
+    const { ref: gestureRef } = useSwipeGesture((direction) => {
       if (direction === SwipeDirection.RIGHT) {
         onSwipeBack();
-      }
-      
-      // 如果提供了onSwipe回调，处理所有方向的滑动
-      if (onSwipe) {
+      } else if (onSwipe) {
         onSwipe(direction);
       }
     }, {
-      hapticFeedback,
       threshold,
       edgeWidth,
-      edgeOnly: true,
-      disabled
+      disabled,
+      hapticFeedback,
+      edgeOnly: true
     });
-    
-    // 合并refs
-    const combinedRef = (node: HTMLDivElement) => {
-      // 处理传入的ref
+
+    const combinedRef = (node: HTMLDivElement | null) => {
       if (ref) {
         if (typeof ref === 'function') {
           ref(node);
         } else {
-          (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          ref.current = node;
         }
       }
-      
-      // 处理滑动手势的ref
-      if (swipeRef && node) {
-        (swipeRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      if (gestureRef.current !== node) {
+        gestureRef.current = node;
       }
+      swipeRef.current = node;
     };
-    
-    // 为了解决类型问题，使用React.createElement
-    return React.createElement(Component, Object.assign(
-      {}, 
-      // @ts-ignore - 由于泛型约束，我们需要绕过类型检查
-      props, 
-      { ref: combinedRef }
-    ));
+
+    // @ts-expect-error - React.createElement 在处理泛型组件时的类型推导限制
+    return <Component {...props} ref={combinedRef} />;
   });
   
   // 设置displayName以便调试
