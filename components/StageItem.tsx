@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Method } from '@/lib/config'
 
 interface StageItemProps {
@@ -119,10 +118,7 @@ const StageItem: React.FC<StageItemProps> = ({
     }, [onEdit, activeTab, index, selectedEquipment, customMethods])
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.26, ease: "easeOut" }}
+        <div
             className={`group relative border-l ${isWaitingStage ? 'border-dashed' : ''} border-neutral-200 pl-6 dark:border-neutral-800 ${activeTab === '注水' && index === currentStage
                 ? 'text-neutral-800 dark:text-neutral-100'
                 : activeTab === '注水' && index < currentStage
@@ -131,11 +127,8 @@ const StageItem: React.FC<StageItemProps> = ({
                 }`}
         >
             {activeTab === '注水' && index === currentStage && (
-                <motion.div
+                <div
                     className={`absolute -left-px top-0 h-full w-px ${isWaitingStage ? 'bg-neutral-500 dark:bg-neutral-400' : 'bg-neutral-800 dark:bg-neutral-100'}`}
-                    initial={{ scaleY: 0, transformOrigin: "top" }}
-                    animate={{ scaleY: 1 }}
-                    transition={{ duration: 0.26, ease: 'linear' }}
                 />
             )}
             <div className={activeTab !== '注水' ? 'cursor-pointer' : ''} onClick={onClick}>
@@ -154,14 +147,9 @@ const StageItem: React.FC<StageItemProps> = ({
                     </div>
                     {onEdit && onDelete && (
                         <div className="flex items-baseline ml-2 shrink-0">
-                            <AnimatePresence mode="wait">
                                 {showActions ? (
-                                    <motion.div
+                                    <div
                                         key="action-buttons"
-                                        initial={{ opacity: 0, scale: 0.9, x: 10 }}
-                                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.26, ease: "easeOut" }}
                                         className="flex items-baseline space-x-3"
                                     >
                                         <button
@@ -179,14 +167,11 @@ const StageItem: React.FC<StageItemProps> = ({
                                         >
                                             {copySuccess ? '已复制' : '分享'}
                                             {copySuccess && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: -10 }}
+                                                <div
                                                     className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-neutral-800 dark:bg-neutral-700 text-white px-2 py-1 rounded text-[10px] whitespace-nowrap"
                                                 >
                                                     已复制到剪贴板
-                                                </motion.div>
+                                                </div>
                                             )}
                                         </button>
                                         <button
@@ -211,14 +196,10 @@ const StageItem: React.FC<StageItemProps> = ({
                                         >
                                             ×
                                         </button>
-                                    </motion.div>
+                                    </div>
                                 ) : (
-                                    <motion.button
+                                    <button
                                         key="more-button"
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.26, ease: "easeOut" }}
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             // 更新全局状态对象，打开当前卡片的菜单
@@ -230,9 +211,8 @@ const StageItem: React.FC<StageItemProps> = ({
                                         className="w-7 h-7 flex items-center justify-center text-xs text-neutral-500 dark:text-neutral-400"
                                     >
                                         ···
-                                    </motion.button>
-                                )}
-                            </AnimatePresence>
+                                    </button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -250,7 +230,7 @@ const StageItem: React.FC<StageItemProps> = ({
                     )}
                 </div>
             </div>
-        </motion.div>
+        </div>
     )
 }
 

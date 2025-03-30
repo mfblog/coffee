@@ -1505,12 +1505,8 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             {/* 内容区域 */}
             <AnimatePresence mode="wait">
                 {activeMainTab === '冲煮' && (
-                    <m.div
+                    <div
                         key="brew-content"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
                         className="h-full overflow-y-auto"
                     >
                         <TabContent
@@ -1547,7 +1543,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                             resetBrewingState={resetBrewingState}
                             expandedStages={expandedStagesRef.current}
                         />
-                    </m.div>
+                    </div>
                 )}
                 {activeMainTab === '笔记' && (
                     <div className="flex-1 overflow-auto">
@@ -1580,37 +1576,21 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             <AnimatePresence mode="wait" initial={false}>
                 {/* 方案类型选择器 */}
                 {activeMainTab === '冲煮' && activeBrewingStep === 'method' && selectedEquipment && (
-                    <m.div
+                    <div
                         key="method-selector"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{
-                            duration: 0.28,
-                            ease: "easeOut",
-                            exit: { duration: 0.2 }
-                        }}
                     >
                         <MethodTypeSelector
                             methodType={methodType}
                             settings={settings}
                             onSelectMethodType={handleMethodTypeChange}
                         />
-                    </m.div>
+                    </div>
                 )}
 
                 {/* 计时器 */}
                 {activeMainTab === '冲煮' && activeBrewingStep === 'brewing' && currentBrewingMethod && !showHistory && (
-                    <m.div
+                    <div
                         key="brewing-timer"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{
-                            duration: 0.28,
-                            ease: "easeOut",
-                            exit: { duration: 0.2 }
-                        }}
                     >
                         <BrewingTimer
                             currentBrewingMethod={currentBrewingMethod}
@@ -1663,7 +1643,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                             selectedEquipment={selectedEquipment}
                             isCoffeeBrewed={isCoffeeBrewed}
                         />
-                    </m.div>
+                    </div>
                 )}
             </AnimatePresence>
 
@@ -1771,4 +1751,4 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
 }
 
 // 导出AppContainer而不是PourOverRecipes，确保初始化逻辑正确执行
-export default AppContainer; 
+export default AppContainer;

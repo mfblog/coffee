@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { CoffeeBean } from '@/app/types'
 import { CoffeeBeanManager } from '@/lib/coffeeBeanManager'
 
@@ -157,13 +156,8 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
 
     return (
         <div className="space-y-5 pb-12">
-            {/* 添加"不选择咖啡豆"选项 */}
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-            >
+            {/* 不选择咖啡豆选项 */}
+            <div>
                 <div
                     className={`group relative border-l border-neutral-200 dark:border-neutral-800 pl-6 cursor-pointer text-neutral-500 dark:text-neutral-400`}
                     onClick={() => onSelect(null, null)}
@@ -181,7 +175,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                         </div>
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
             {beans.map((bean, index) => {
                 // 获取赏味期状态（添加到咖啡豆名称后面）
@@ -259,17 +253,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                 }
 
                 return (
-                    <motion.div
-                        key={bean.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        transition={{
-                            duration: 0.3,
-                            delay: index * 0.03,
-                            ease: "easeOut"
-                        }}
-                    >
+                    <div key={bean.id}>
                         <div
                             className={`group relative border-l border-neutral-200 dark:border-neutral-800 pl-6 cursor-pointer text-neutral-500 dark:text-neutral-400`}
                             onClick={() => onSelect(bean.id, bean)}
@@ -293,7 +277,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
                 );
             })}
         </div>

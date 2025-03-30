@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { Method, equipmentList } from '@/lib/config';
 import StageItem from '@/components/StageItem';
@@ -8,12 +7,6 @@ import { TabType, MainTabType, Content, Step } from '@/lib/hooks/useBrewingState
 import { CoffeeBean } from '@/app/types';
 import type { BrewingNoteData } from '@/app/types';
 import { CoffeeBeanManager } from '@/lib/coffeeBeanManager';
-
-// 添加TransitionState接口
-interface TransitionState {
-    isTransitioning: boolean;
-    source: string;
-}
 
 // 动态导入客户端组件
 const PourVisualizer = dynamic(() => import('@/components/PourVisualizer'), {
@@ -62,7 +55,6 @@ interface TabContentProps {
     onCoffeeBeanSelect?: (beanId: string, bean: CoffeeBean) => void;
     onEditMethod: (method: Method) => void;
     onDeleteMethod: (method: Method) => void;
-    transitionState: TransitionState;
     setActiveMainTab?: (tab: MainTabType) => void;  // 添加切换主标签页的函数
     resetBrewingState?: (shouldReset: boolean) => void;  // 添加重置brewing状态的函数
     expandedStages?: {
@@ -109,7 +101,6 @@ const TabContent: React.FC<TabContentProps> = ({
     onCoffeeBeanSelect,
     onEditMethod,
     onDeleteMethod,
-    transitionState,
     setActiveMainTab,  // 获取切换主标签页的函数
     resetBrewingState,  // 获取重置brewing状态的函数
     expandedStages
@@ -208,207 +199,138 @@ const TabContent: React.FC<TabContentProps> = ({
     // 显示当前标签页内容
     return (
         <div className="relative h-full px-6 py-6">
-            <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                    key={`content-${activeTab}`}
-                    initial={transitionState.source === 'main-tab-click'
-                        ? { opacity: 0, y: 10 }
-                        : transitionState.source === 'method-type-change'
-                            ? { opacity: 0, y: 5 }
-                            : { opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={transitionState.source === 'main-tab-click'
-                        ? { opacity: 0, y: 5 }
-                        : transitionState.source === 'method-type-change'
-                            ? { opacity: 0, y: -5 }
-                            : { opacity: 0, y: -5 }}
-                    transition={{
-                        duration: 0.3,
-                        ease: "easeOut"
-                    }}
-                    className="relative h-full"
-                >
-                    {/* 添加咖啡豆步骤 */}
-                    {activeTab === ('咖啡豆' as TabType) ? (
-                        <CoffeeBeanList
-                            onSelect={(beanId: string | null, bean: CoffeeBean | null) => {
-                                if (onCoffeeBeanSelect) onCoffeeBeanSelect(beanId!, bean!);
+            <div key={`content-${activeTab}`} className="relative h-full">
+                {activeTab === ('咖啡豆' as TabType) ? (
+                    <CoffeeBeanList
+                        onSelect={(beanId: string | null, bean: CoffeeBean | null) => {
+                            if (onCoffeeBeanSelect) onCoffeeBeanSelect(beanId!, bean!);
+                        }}
+                    />
+                ) : activeTab === ('记录' as TabType) && currentBrewingMethod ? (
+                    <div className='brewing-form h-full'>
+                        <BrewingNoteForm
+                            id="brewingNoteForm"
+                            isOpen={true}
+                            onClose={handleCloseNoteForm}
+                            onSave={handleSaveNote}
+                            initialData={{
+                                equipment: selectedEquipment ? equipmentList.find(e => e.id === selectedEquipment)?.name || selectedEquipment : '',
+                                method: currentBrewingMethod.name,
+                                params: currentBrewingMethod.params,
+                                totalTime: showComplete ? currentBrewingMethod.params.stages[currentBrewingMethod.params.stages.length - 1].time : 0,
+                                coffeeBean: selectedCoffeeBeanData || undefined
                             }}
                         />
-                    ) : activeTab === ('记录' as TabType) && currentBrewingMethod ? (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 5 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
-                            className='brewing-form h-full'
-                        >
-                            <BrewingNoteForm
-                                id="brewingNoteForm"
-                                isOpen={true}
-                                onClose={handleCloseNoteForm}
-                                onSave={handleSaveNote}
-                                initialData={{
-                                    equipment: selectedEquipment ? equipmentList.find(e => e.id === selectedEquipment)?.name || selectedEquipment : '',
-                                    method: currentBrewingMethod.name,
-                                    params: currentBrewingMethod.params,
-                                    totalTime: showComplete ? currentBrewingMethod.params.stages[currentBrewingMethod.params.stages.length - 1].time : 0,
-                                    coffeeBean: selectedCoffeeBeanData || undefined
-                                }}
+                    </div>
+                ) : isTimerRunning && !showComplete && currentBrewingMethod ? (
+                    <div className="flex items-center justify-center w-full h-full">
+                        <div className="w-full max-w-[300px]">
+                            <PourVisualizer
+                                isRunning={isTimerRunning && countdownTime === null}
+                                currentStage={countdownTime !== null ? -1 : currentStage}
+                                stages={expandedStages || []}
+                                countdownTime={countdownTime}
+                                equipmentId={selectedEquipment || 'V60'}
+                                isWaiting={countdownTime !== null ? true : isWaiting}
+                                key={countdownTime !== null ?
+                                    'countdown' : // 倒计时阶段
+                                    `pour-${currentStage}-${isTimerRunning}`} // 注水阶段
                             />
-                        </motion.div>
-                    ) : isTimerRunning && !showComplete && currentBrewingMethod ? (
-                        <div className="flex items-center justify-center w-full h-full">
-                            <div className="w-full max-w-[300px]">
-                                <PourVisualizer
-                                    isRunning={isTimerRunning && countdownTime === null}
-                                    currentStage={countdownTime !== null ? -1 : currentStage}
-                                    stages={expandedStages || []}
-                                    countdownTime={countdownTime}
-                                    equipmentId={selectedEquipment || 'V60'}
-                                    isWaiting={countdownTime !== null ? true : isWaiting}
-                                    key={countdownTime !== null ?
-                                        'countdown' : // 倒计时阶段
-                                        `pour-${currentStage}-${isTimerRunning}`} // 注水阶段
-                                />
-                            </div>
                         </div>
-                    ) : (
-                        <div className="space-y-5">
-                            {activeTab === '方案' ? (
-                                <div className="space-y-5 pb-6">
-                                    <AnimatePresence mode="wait" initial={false}>
-                                        <motion.div
-                                            key={`method-type-${methodType}`}
-                                            initial={{ opacity: 0, y: 5 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -5 }}
-                                            transition={{
-                                                duration: 0.3,
-                                                ease: "easeOut"
-                                            }}
-                                            className="space-y-5"
-                                        >
-                                            {methodType === 'custom' && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: 5 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: -5 }}
-                                                    transition={{ duration: 0.3, ease: "easeOut" }}
-                                                    className="flex space-x-2 mb-4"
-                                                >
-                                                    <motion.button
-                                                        onClick={() => setShowCustomForm(true)}
-                                                        whileHover={{ scale: 1.02 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-300 rounded-md text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400 transition-colors"
-                                                    >
-                                                        <span className="mr-1">+</span> 新建方案
-                                                    </motion.button>
-                                                    <motion.button
-                                                        onClick={() => setShowImportForm(true)}
-                                                        whileHover={{ scale: 1.02 }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-300 rounded-md text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400 transition-colors"
-                                                    >
-                                                        <span className="mr-1">↓</span> 导入方案
-                                                    </motion.button>
-                                                </motion.div>
-                                            )}
+                    </div>
+                ) : (
+                    <div className="space-y-5">
+                        {activeTab === '方案' ? (
+                            <div className="space-y-5 pb-6">
+                                <div key={`method-type-${methodType}`} className="space-y-5">
+                                    {methodType === 'custom' && (
+                                        <div className="flex space-x-2 mb-4">
+                                            <button
+                                                onClick={() => setShowCustomForm(true)}
+                                                className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-300 rounded-md text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400 transition-colors"
+                                            >
+                                                <span className="mr-1">+</span> 新建方案
+                                            </button>
+                                            <button
+                                                onClick={() => setShowImportForm(true)}
+                                                className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-300 rounded-md text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400 transition-colors"
+                                            >
+                                                <span className="mr-1">↓</span> 导入方案
+                                            </button>
+                                        </div>
+                                    )}
 
-                                            <div className="space-y-5">
-                                                {content[activeTab]?.steps.map((step: Step, index: number) => (
-                                                    <motion.div
-                                                        key={step.methodId || `${step.title}-${index}`}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        exit={{ opacity: 0, y: 5 }}
-                                                        transition={{
-                                                            duration: 0.3,
-                                                            delay: index * 0.03,
-                                                            ease: "easeOut"
-                                                        }}
-                                                    >
-                                                        <StageItem
-                                                            step={step}
-                                                            index={index}
-                                                            onClick={() => {
-                                                                if (activeTab === '器具' as TabType) {
-                                                                    onEquipmentSelect(step.title);
-                                                                } else if (activeTab === '方案' as TabType) {
-                                                                    onMethodSelect(index);
-                                                                }
-                                                            }}
-                                                            activeTab={activeTab}
-                                                            selectedMethod={selectedMethod}
-                                                            currentStage={currentStage}
-                                                            onEdit={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
-                                                                const method = customMethods[selectedEquipment!][index];
-                                                                onEditMethod(method);
-                                                            } : undefined}
-                                                            onDelete={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
-                                                                const method = customMethods[selectedEquipment!][index];
-                                                                onDeleteMethod(method);
-                                                            } : undefined}
-                                                            actionMenuStates={actionMenuStates}
-                                                            setActionMenuStates={setActionMenuStates}
-                                                            selectedEquipment={selectedEquipment}
-                                                            customMethods={customMethods}
-                                                        />
-                                                    </motion.div>
-                                                ))}
+                                    <div className="space-y-5">
+                                        {content[activeTab]?.steps.map((step: Step, index: number) => (
+                                            <div key={step.methodId || `${step.title}-${index}`}>
+                                                <StageItem
+                                                    step={step}
+                                                    index={index}
+                                                    onClick={() => {
+                                                        if (activeTab === '器具' as TabType) {
+                                                            onEquipmentSelect(step.title);
+                                                        } else if (activeTab === '方案' as TabType) {
+                                                            onMethodSelect(index);
+                                                        }
+                                                    }}
+                                                    activeTab={activeTab}
+                                                    selectedMethod={selectedMethod}
+                                                    currentStage={currentStage}
+                                                    onEdit={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
+                                                        const method = customMethods[selectedEquipment!][index];
+                                                        onEditMethod(method);
+                                                    } : undefined}
+                                                    onDelete={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
+                                                        const method = customMethods[selectedEquipment!][index];
+                                                        onDeleteMethod(method);
+                                                    } : undefined}
+                                                    actionMenuStates={actionMenuStates}
+                                                    setActionMenuStates={setActionMenuStates}
+                                                    selectedEquipment={selectedEquipment}
+                                                    customMethods={customMethods}
+                                                />
                                             </div>
-                                        </motion.div>
-                                    </AnimatePresence>
+                                        ))}
+                                    </div>
                                 </div>
-                            ) : (
-                                <div className="space-y-5 pb-6">
-                                    {content[activeTab]?.steps.map((step: Step, index: number) => (
-                                        <motion.div
-                                            key={step.methodId || `${step.title}-${index}`}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 5 }}
-                                            transition={{
-                                                duration: 0.3,
-                                                delay: index * 0.03,
-                                                ease: "easeOut"
+                            </div>
+                        ) : (
+                            <div className="space-y-5 pb-6">
+                                {content[activeTab]?.steps.map((step: Step, index: number) => (
+                                    <div key={step.methodId || `${step.title}-${index}`}>
+                                        <StageItem
+                                            step={step}
+                                            index={index}
+                                            onClick={() => {
+                                                if (activeTab === '器具' as TabType) {
+                                                    onEquipmentSelect(step.title);
+                                                } else if (activeTab === '方案' as TabType) {
+                                                    onMethodSelect(index);
+                                                }
                                             }}
-                                        >
-                                            <StageItem
-                                                step={step}
-                                                index={index}
-                                                onClick={() => {
-                                                    if (activeTab === '器具' as TabType) {
-                                                        onEquipmentSelect(step.title);
-                                                    } else if (activeTab === '方案' as TabType) {
-                                                        onMethodSelect(index);
-                                                    }
-                                                }}
-                                                activeTab={activeTab}
-                                                selectedMethod={selectedMethod}
-                                                currentStage={currentStage}
-                                                onEdit={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
-                                                    const method = customMethods[selectedEquipment!][index];
-                                                    onEditMethod(method);
-                                                } : undefined}
-                                                onDelete={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
-                                                    const method = customMethods[selectedEquipment!][index];
-                                                    onDeleteMethod(method);
-                                                } : undefined}
-                                                actionMenuStates={actionMenuStates}
-                                                setActionMenuStates={setActionMenuStates}
-                                                selectedEquipment={selectedEquipment}
-                                                customMethods={customMethods}
-                                            />
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </motion.div>
-            </AnimatePresence>
+                                            activeTab={activeTab}
+                                            selectedMethod={selectedMethod}
+                                            currentStage={currentStage}
+                                            onEdit={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
+                                                const method = customMethods[selectedEquipment!][index];
+                                                onEditMethod(method);
+                                            } : undefined}
+                                            onDelete={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
+                                                const method = customMethods[selectedEquipment!][index];
+                                                onDeleteMethod(method);
+                                            } : undefined}
+                                            actionMenuStates={actionMenuStates}
+                                            setActionMenuStates={setActionMenuStates}
+                                            selectedEquipment={selectedEquipment}
+                                            customMethods={customMethods}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

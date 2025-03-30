@@ -2,7 +2,7 @@
 
 一个现代化的咖啡冲泡助手应用，帮助咖啡爱好者记录和优化他们的冲泡过程。
 
-![版本](https://img.shields.io/badge/版本-1-blue)
+![版本](https://img.shields.io/badge/版本-1.0.8-blue)
 
 ## 功能特点
 
@@ -14,9 +14,21 @@
 -   🔄 自定义冲泡方案
 -   🌓 深色/浅色模式
 
-## 开始使用
+## 开发指南
 
-首先，运行开发服务器:
+### 安装依赖
+
+```bash
+npm install
+# 或
+yarn install
+# 或
+pnpm install
+# 或
+bun install
+```
+
+### 启动开发服务器
 
 ```bash
 npm run dev
@@ -29,6 +41,26 @@ bun dev
 ```
 
 在浏览器中打开 [http://localhost:3000](http://localhost:3000) 查看应用。
+
+### 版本更新
+
+当需要更新应用版本时，使用以下命令：
+
+```bash
+npm run update-version <新版本号>
+```
+
+例如，更新到版本 1.0.9：
+```bash
+npm run update-version 1.0.9
+```
+
+该命令会自动更新：
+- package.json 中的版本号
+- lib/config.ts 中的 APP_VERSION
+- Android 应用版本号
+
+> 注意：iOS 版本号需要在 Xcode 中手动更新
 
 ## 使用指南
 
@@ -44,6 +76,7 @@ bun dev
 -   [Tailwind CSS 4](https://tailwindcss.com/) - 样式解决方案
 -   [Framer Motion](https://www.framer.com/motion/) - 动画库
 -   [TypeScript](https://www.typescriptlang.org/) - 类型安全
+-   [Capacitor](https://capacitorjs.com/) - 跨平台应用开发
 
 ## 贡献
 
