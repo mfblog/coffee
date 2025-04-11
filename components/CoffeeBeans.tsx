@@ -7,7 +7,6 @@ import { CoffeeBeanManager } from '@/lib/coffeeBeanManager'
 import CoffeeBeanFormModal from './CoffeeBeanFormModal'
 import CoffeeBeanRatingModal from './CoffeeBeanRatingModal'
 import CoffeeBeanRanking from './CoffeeBeanRanking'
-import AIRecipeModal from './AIRecipeModal'
 import {
     Select,
     SelectContent,
@@ -16,8 +15,11 @@ import {
     SelectValue,
 } from './ui/select'
 import { SORT_OPTIONS as RANKING_SORT_OPTIONS, RankingSortOption } from './CoffeeBeanRanking'
-import { useToast } from './GlobalToast'
-import { getBloggerBeans } from '@/lib/csvUtils' // 导入博主榜单豆子函数
+import { getBloggerBeans } from '@/lib/csvUtils'
+import BottomActionBar from '@/components/BottomActionBar'
+import ActionMenu from './ui/action-menu'
+import { useCopy } from "@/lib/hooks/useCopy"
+import CopyFailureModal from "./ui/copy-failure-modal"
 
 // 添加ExtendedCoffeeBean类型
 interface BlendComponent {
@@ -197,7 +199,10 @@ const globalCache: {
     beans: ExtendedCoffeeBean[];
     ratedBeans: ExtendedCoffeeBean[];
     filteredBeans: ExtendedCoffeeBean[];
-    bloggerBeans: ExtendedCoffeeBean[]; // 添加博主榜单豆子
+    bloggerBeans: { // Make bloggerBeans year-indexed
+        2024: ExtendedCoffeeBean[];
+        2025: ExtendedCoffeeBean[];
+    };
     varieties: string[];
     selectedVariety: string | null;
     showEmptyBeans: boolean;
@@ -206,7 +211,7 @@ const globalCache: {
     beans: [],
     ratedBeans: [],
     filteredBeans: [],
-    bloggerBeans: [], // 初始化博主榜单豆子
+    bloggerBeans: { 2024: [], 2025: [] }, // Initialize bloggerBeans for both years
     varieties: [],
     selectedVariety: null,
     showEmptyBeans: false,
@@ -236,17 +241,18 @@ const saveShowEmptyBeansPreference = (value: boolean): void => {
 // 初始化全局缓存的已用完状态
 globalCache.showEmptyBeans = getShowEmptyBeansPreference();
 
-const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowImport, onGenerateAIRecipe }) => {
-    const { showToast } = useToast()
+// const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowImport, onGenerateAIRecipe }) => {
+const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowImport }) => {
+    const { copyText, showFailureModal, failureContent, closeFailureModal } = useCopy()
     // 使用全局缓存的初始状态
     const [beans, setBeans] = useState<ExtendedCoffeeBean[]>(globalCache.beans)
     const [ratedBeans, setRatedBeans] = useState<ExtendedCoffeeBean[]>(globalCache.ratedBeans)
     const [showAddForm, setShowAddForm] = useState(false)
     const [editingBean, setEditingBean] = useState<ExtendedCoffeeBean | null>(null)
-    const [actionMenuStates, setActionMenuStates] = useState<Record<string, boolean>>({})
+    const [actionMenuStates, setActionMenuStates] = useState<Record<string, boolean>>({}) // Keyed by bean.id
     const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.REMAINING_DAYS_ASC)
-    const [showAIRecipeModal, setShowAIRecipeModal] = useState(false)
-    const [selectedBeanForAI, setSelectedBeanForAI] = useState<ExtendedCoffeeBean | null>(null)
+    // const [showAIRecipeModal, setShowAIRecipeModal] = useState(false)
+    // const [selectedBeanForAI, setSelectedBeanForAI] = useState<ExtendedCoffeeBean | null>(null)
     // 新增状态
     const [viewMode, setViewMode] = useState<ViewOption>(VIEW_OPTIONS.INVENTORY)
     const [showRatingModal, setShowRatingModal] = useState(false)
@@ -264,12 +270,17 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
     // 榜单视图的筛选状态
     const [rankingBeanType, setRankingBeanType] = useState<'all' | 'espresso' | 'filter'>('all')
     const [rankingEditMode, setRankingEditMode] = useState<boolean>(false)
+    // ** Add state for selected blogger year **
+    const [bloggerYear, setBloggerYear] = useState<2024 | 2025>(2025)
     // 使用useRef避免不必要的重新渲染
     const [_isFirstLoad, setIsFirstLoad] = useState<boolean>(!globalCache.initialized)
     const unmountTimeoutRef = useRef<NodeJS.Timeout | null>(null)
     const isLoadingRef = useRef<boolean>(false)
     // 添加强制刷新的key
     const [forceRefreshKey, setForceRefreshKey] = useState(0)
+    // 方案管理模态框状态 - Removed as no longer needed
+    // const [showMethodsModal, setShowMethodsModal] = useState(false)
+    // const [selectedBeanForMethods, setSelectedBeanForMethods] = useState<ExtendedCoffeeBean | null>(null)
 
     // 添加引用，用于点击外部关闭操作菜单
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -528,18 +539,18 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
         if (viewMode !== VIEW_OPTIONS.BLOGGER) return;
         
         try {
-            // 直接调用 csvUtils 中的函数，而不是通过 CoffeeBeanManager
-            const bloggerBeansData = getBloggerBeans(rankingBeanType);
+            // Directly call the function from csvUtils with the selected year
+            const bloggerBeansData = getBloggerBeans(rankingBeanType, bloggerYear); // Pass bloggerYear
             
-            // 更新全局缓存
-            globalCache.bloggerBeans = bloggerBeansData;
+            // Update the correct year in global cache
+            globalCache.bloggerBeans[bloggerYear] = bloggerBeansData;
             
-            // 触发更新
+            // Trigger update (no direct state set for bloggerBeans, rely on global cache)
             setForceRefreshKey(prev => prev + 1);
         } catch (error) {
-            console.error("加载博主榜单咖啡豆失败:", error);
+            console.error(`加载博主榜单咖啡豆 (${bloggerYear}) 失败:`, error);
         }
-    }, [viewMode, rankingBeanType]);
+    }, [viewMode, rankingBeanType, bloggerYear]); // Add bloggerYear dependency
 
     // 根据isOpen状态和排序选项加载数据
     useEffect(() => {
@@ -552,7 +563,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
             
             loadBeans();
             loadRatedBeans();
-            loadBloggerBeans(); // 添加加载博主榜单的调用
+            loadBloggerBeans(); // Call loadBloggerBeans
         } else {
             // 组件关闭时，不立即清空状态，而是延迟重置
             // 这样在切换页面时数据会保留一段时间，避免闪烁
@@ -561,7 +572,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
                 // 仍然使用全局缓存的数据
             }, 5000); // 5秒后再考虑重置，通常用户已经看不到了
         }
-    }, [isOpen, sortOption, selectedVariety, loadBeans, loadRatedBeans, loadBloggerBeans, rankingBeanType]); // 添加rankingBeanType依赖
+    }, [isOpen, sortOption, selectedVariety, loadBeans, loadRatedBeans, loadBloggerBeans, rankingBeanType, bloggerYear]); // Add bloggerYear dependency
 
     // 在视图切换时更新数据
     useEffect(() => {
@@ -720,44 +731,6 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
         }
     }
 
-    // 复制到剪贴板
-    const copyTextToClipboard = async (text: string) => {
-        // 检查是否支持 navigator.clipboard API
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            try {
-                await navigator.clipboard.writeText(text);
-                return Promise.resolve();
-            } catch {
-                // 如果是安全或权限错误，尝试回退方法
-            }
-        }
-
-        // 回退方法：使用document.execCommand
-        try {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-
-            if (successful) {
-                return Promise.resolve();
-            } else {
-                return Promise.reject(new Error('复制命令执行失败'));
-            }
-        } catch {
-            // 如果是在安全上下文中不支持clipboard，则提供用户可以手动复制的选项
-            alert('自动复制不可用，请手动复制以下内容:\n\n' + text);
-            return Promise.reject(new Error('复制到剪贴板失败'));
-        }
-    };
-
     // 保存咖啡豆评分 - 优化为立即更新UI
     const handleSaveRating = async (id: string, ratings: Partial<ExtendedCoffeeBean>) => {
         try {
@@ -824,58 +797,21 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
             import('@/lib/jsonUtils').then(({ beanToReadableText }) => {
                 // @ts-expect-error - 我们知道这个对象结构与函数期望的类型兼容
                 const readableText = beanToReadableText(shareableBean);
-
-                copyTextToClipboard(readableText)
-                    .then(() => {
-                        showToast({
-                            type: 'success',
-                            title: '已复制到剪贴板',
-                            duration: 2000
-                        });
-                        // 关闭操作菜单
-                        setActionMenuStates(prev => ({
-                            ...prev,
-                            [bean.id]: false
-                        }));
-                    })
-                    .catch(() => {
-                        showToast({
-                            type: 'error',
-                            title: '复制失败，请手动复制',
-                            duration: 2000
-                        });
-                    });
+                copyText(readableText);
+                // 关闭操作菜单
+                setActionMenuStates(prev => ({
+                    ...prev,
+                    [bean.id]: false
+                }));
             }).catch(() => {
                 // 转换失败时回退到JSON格式
                 const jsonString = JSON.stringify(shareableBean, null, 2);
-                copyTextToClipboard(jsonString)
-                    .catch(() => {
-                        showToast({
-                            type: 'error',
-                            title: '复制失败，请手动复制',
-                            duration: 2000
-                        });
-                    });
+                copyText(jsonString);
             });
-        } catch {
-            // 忽略异常
+        } catch (error) {
+            console.error('分享咖啡豆信息时出错:', error);
         }
     };
-
-    // 添加方法处理AI方案生成
-    const handleGenerateAIRecipe = (bean: ExtendedCoffeeBean) => {
-        if (onGenerateAIRecipe) {
-            onGenerateAIRecipe(bean);
-        } else {
-            setSelectedBeanForAI(bean);
-            setShowAIRecipeModal(true);
-        }
-        // 关闭操作菜单
-        setActionMenuStates(prev => ({
-            ...prev,
-            [bean.id]: false
-        }));
-    }
 
     // 处理咖啡豆评分
     const handleShowRatingForm = (bean: ExtendedCoffeeBean, onRatingSaved?: () => void) => {
@@ -1020,19 +956,18 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
         };
     }, [actionMenuStates]);
 
+    const _matchesSearch = (bean: ExtendedCoffeeBean, parameter: string): boolean => {
+        if (!parameter) return true;
+        
+        // 检查name字段是否匹配
+        const name = generateBeanTitle(bean);
+        return name.toLowerCase().includes(parameter.toLowerCase());
+    };
+
     if (!isOpen) return null
 
     return (
         <>
-            {/* AI方案生成模态框 - 只在没有提供 onGenerateAIRecipe 时才显示 */}
-            {!onGenerateAIRecipe && (
-                <AIRecipeModal
-                    showModal={showAIRecipeModal}
-                    onClose={() => setShowAIRecipeModal(false)}
-                    coffeeBean={selectedBeanForAI}
-                />
-            )}
-
             {/* 咖啡豆表单弹出框 */}
             <CoffeeBeanFormModal
                 showForm={showAddForm || editingBean !== null}
@@ -1097,14 +1032,15 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
                                     if (viewMode === VIEW_OPTIONS.INVENTORY) {
                                         return `${selectedVariety ? `${filteredBeans.length}/${beans.length}` : beans.length} 款咖啡豆`;
                                     } else if (viewMode === VIEW_OPTIONS.BLOGGER) {
-                                        // 博主榜单视图
+                                        // Blogger view - use globalCache for the selected year
+                                        const currentYearBeans = globalCache.bloggerBeans[bloggerYear] || [];
                                         const filteredCount = rankingBeanType === 'all' 
-                                            ? globalCache.bloggerBeans.length 
-                                            : globalCache.bloggerBeans.filter(bean => bean.beanType === rankingBeanType).length;
+                                            ? currentYearBeans.length 
+                                            : currentYearBeans.filter(bean => bean.beanType === rankingBeanType).length;
                                         
-                                        return `${filteredCount} 款咖啡豆`;
+                                        return `${filteredCount} 款 (${bloggerYear}) 咖啡豆`; // Show year
                                     } else {
-                                        // 榜单视图
+                                        // Ranking view
                                         const filteredCount = rankingBeanType === 'all' 
                                             ? ratedBeans.length 
                                             : ratedBeans.filter(bean => bean.beanType === rankingBeanType).length;
@@ -1323,7 +1259,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
                     {(viewMode === VIEW_OPTIONS.RANKING || viewMode === VIEW_OPTIONS.BLOGGER) && (
                         <div className="mb-1">
                             {/* 豆子筛选选项卡 */}
-                            <div className="flex justify-between border-b mx-6 border-neutral-200 dark:border-neutral-800">
+                            <div className="flex justify-between border-b px-6 border-neutral-200 dark:border-neutral-800">
                                 <div className="flex">
                                     <button
                                         className={`pb-1.5 mr-3 text-[11px] relative ${rankingBeanType === 'all' ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
@@ -1354,18 +1290,44 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
                                     </button>
                                 </div>
 
-                                {/* 编辑按钮 - 仅在个人榜单视图下显示 */}
-                                {viewMode === VIEW_OPTIONS.RANKING && (
-                                    <button
-                                        onClick={() => setRankingEditMode(!rankingEditMode)}
-                                        className={`pb-1.5 text-[11px] relative ${rankingEditMode ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
-                                    >
-                                        <span className="relative">{rankingEditMode ? '完成' : '编辑'}</span>
-                                        {rankingEditMode && (
-                                            <span className="absolute bottom-0 left-0 w-full h-[1px] bg-neutral-800 dark:bg-white"></span>
-                                        )}
-                                    </button>
-                                )}
+                                <div className="flex items-center">
+                                    {/* Year selector - Only in Blogger view */}
+                                    {viewMode === VIEW_OPTIONS.BLOGGER && (
+                                        <div className="flex items-center ml-3">
+                                            <button
+                                                onClick={() => setBloggerYear(2025)}
+                                                className={`pb-1.5 mx-3 text-[11px] relative ${bloggerYear === 2025 ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
+                                            >
+                                                <span className="relative">2025</span>
+                                                {bloggerYear === 2025 && (
+                                                    <span className="absolute bottom-0 left-0 w-full h-[1px] bg-neutral-800 dark:bg-white"></span>
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => setBloggerYear(2024)}
+                                                className={`pb-1.5 ml-3 text-[11px] relative ${bloggerYear === 2024 ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
+                                            >
+                                                <span className="relative">2024</span>
+                                                {bloggerYear === 2024 && (
+                                                    <span className="absolute bottom-0 left-0 w-full h-[1px] bg-neutral-800 dark:bg-white"></span>
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Edit button - Only in personal Ranking view */}
+                                    {viewMode === VIEW_OPTIONS.RANKING && (
+                                        <button
+                                            onClick={() => setRankingEditMode(!rankingEditMode)}
+                                            className={`pb-1.5 text-[11px] relative ${rankingEditMode ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
+                                        >
+                                            <span className="relative">{rankingEditMode ? '完成' : '编辑'}</span>
+                                            {rankingEditMode && (
+                                                <span className="absolute bottom-0 left-0 w-full h-[1px] bg-neutral-800 dark:bg-white"></span>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -1391,12 +1353,12 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
                                     }
                                 </div>
                             ) : (
-                                <div className="space-y-3 pb-20">
+                                <div className="pb-20">
                                     {filteredBeans.map((bean, index) => {
                                         return (
                                             <div
                                                 key={bean.id}
-                                                className={`group mt-3 space-y-3 px-6 pb-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/70 ${index === filteredBeans.length - 1 ? '' : 'border-b border-neutral-200 dark:border-neutral-800'} ${isBeanEmpty(bean)
+                                                className={`group  space-y-3 px-6 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/70 ${index === filteredBeans.length - 1 ? '' : 'border-b border-neutral-200 dark:border-neutral-800'} ${isBeanEmpty(bean)
                                                     ? 'bg-neutral-100/60 dark:bg-neutral-800/30'
                                                     : ''
                                                     }`}
@@ -1431,80 +1393,26 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-shrink-0 ml-1 relative">
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setActionMenuStates(prev => {
-                                                                                const newStates = { ...prev };
-                                                                                // 关闭所有其他菜单
-                                                                                Object.keys(newStates).forEach(id => {
-                                                                                    newStates[id] = false;
-                                                                                });
-                                                                                // 切换当前菜单
-                                                                                newStates[bean.id] = !prev[bean.id];
-                                                                                return newStates;
-                                                                            });
-                                                                        }}
-                                                                        className="w-8 h-[16.5] flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-400"
-                                                                    >
-                                                                        ···
-                                                                    </button>
-                                                                    
-                                                                    {actionMenuStates[bean.id] && (
-                                                                        <div
-                                                                            className="absolute top-6 right-0 z-50 border border-neutral-200/70 dark:border-neutral-800/70 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-neutral-900/95 rounded-lg overflow-hidden min-w-[100px]"
-                                                                        >
-                                                                            <div className="py-1">
-                                                                                <button
-                                                                                    onClick={() => {
-                                                                                        handleEdit(bean);
-                                                                                        setActionMenuStates(prev => ({
-                                                                                            ...prev,
-                                                                                            [bean.id]: false
-                                                                                        }));
-                                                                                    }}
-                                                                                    className="w-full px-3 py-1.5 text-left text-xs text-neutral-800 dark:text-white"
-                                                                                >
-                                                                                    编辑
-                                                                                </button>
-                                                                                <button
-                                                                                    onClick={() => {
-                                                                                        handleShare(bean);
-                                                                                        setActionMenuStates(prev => ({
-                                                                                            ...prev,
-                                                                                            [bean.id]: false
-                                                                                        }));
-                                                                                    }}
-                                                                                    className="w-full px-3 py-1.5 text-left text-xs text-neutral-800 dark:text-white"
-                                                                                >
-                                                                                    分享
-                                                                                </button>
-                                                                                <button
-                                                                                    onClick={() => {
-                                                                                        handleDelete(bean);
-                                                                                        setActionMenuStates(prev => ({
-                                                                                            ...prev,
-                                                                                            [bean.id]: false
-                                                                                        }));
-                                                                                    }}
-                                                                                    className="w-full px-3 py-1.5 text-left text-xs text-red-500 dark:text-red-400"
-                                                                                >
-                                                                                    删除
-                                                                                </button>
-                                                                                <button
-                                                                                    onClick={() => {
-                                                                                        handleGenerateAIRecipe(bean);
-                                                                                        setActionMenuStates(prev => ({
-                                                                                            ...prev,
-                                                                                            [bean.id]: false
-                                                                                        }));
-                                                                                    }}
-                                                                                    className="w-full px-3 py-1.5 text-left text-xs text-emerald-600 dark:text-emerald-500"
-                                                                                >
-                                                                                    AI方案
-                                                                                </button>
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
+                                                                    <ActionMenu
+                                                                        items={[
+                                                                            {
+                                                                                id: 'edit',
+                                                                                label: '编辑',
+                                                                                onClick: () => handleEdit(bean)
+                                                                            },
+                                                                            {
+                                                                                id: 'share',
+                                                                                label: '分享',
+                                                                                onClick: () => handleShare(bean)
+                                                                            },
+                                                                            {
+                                                                                id: 'delete',
+                                                                                label: '删除',
+                                                                                color: 'danger',
+                                                                                onClick: () => handleDelete(bean)
+                                                                            }
+                                                                        ]}
+                                                                    />
                                                                 </div>
                                                             </div>
 
@@ -1762,6 +1670,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
                                 beanType={rankingBeanType}
                                 editMode={rankingEditMode}
                                 viewMode={viewMode === VIEW_OPTIONS.BLOGGER ? 'blogger' : 'personal'}
+                                year={viewMode === VIEW_OPTIONS.BLOGGER ? bloggerYear : undefined} // Pass year to Ranking component
                             />
                         </div>
                     )}
@@ -1769,36 +1678,37 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({ isOpen, showBeanForm, onShowI
 
                 {/* 添加和导入按钮 - 仅在仓库视图显示 */}
                 {viewMode === VIEW_OPTIONS.INVENTORY && (
-                    <div className="bottom-action-bar">
-                        <div className="absolute bottom-full left-0 right-0 h-12 bg-gradient-to-t from-neutral-50 dark:from-neutral-900 to-transparent pointer-events-none"></div>
-                        <div className="relative flex items-center bg-neutral-50 dark:bg-neutral-900 py-4">
-                            <div className="flex-grow border-t border-neutral-200 dark:border-neutral-800"></div>
-                            <div className="flex items-center space-x-3 mx-3">
-                                <button
-                                    onClick={() => {
-                                        if (showBeanForm) {
-                                            showBeanForm(null);
-                                        } else {
-                                            setShowAddForm(true);
-                                        }
-                                    }}
-                                    className="flex items-center justify-center text-[11px] text-neutral-500 dark:text-neutral-400"
-                                >
-                                    <span className="mr-1">+</span> 添加咖啡豆
-                                </button>
-                                <div className="flex-grow w-4 border-t border-neutral-200 dark:border-neutral-800"></div>
-                                <button
-                                    onClick={onShowImport}
-                                    className="flex items-center justify-center text-[11px] text-neutral-500 dark:text-neutral-400"
-                                >
-                                    <span className="mr-1">↓</span> 导入咖啡豆
-                                </button>
-                            </div>
-                            <div className="flex-grow border-t border-neutral-200 dark:border-neutral-800"></div>
-                        </div>
-                    </div>
+                    <BottomActionBar
+                        buttons={[
+                            {
+                                icon: '+',
+                                text: '添加咖啡豆',
+                                onClick: () => {
+                                    if (showBeanForm) {
+                                        showBeanForm(null);
+                                    } else {
+                                        setShowAddForm(true);
+                                    }
+                                },
+                                highlight: true
+                            },
+                            {
+                                icon: '↓',
+                                text: '导入咖啡豆',
+                                onClick: () => {
+                                    if (onShowImport) onShowImport();
+                                },
+                                highlight: true
+                            }
+                        ]}
+                    />
                 )}
             </div>
+            <CopyFailureModal
+                isOpen={showFailureModal}
+                onClose={closeFailureModal}
+                content={failureContent || ""}
+            />
         </>
     )
 }

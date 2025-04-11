@@ -100,9 +100,8 @@ const TabButton = ({
                         }`}
                 />
                 <span
-                    className={`absolute -bottom-1 left-0 right-0 z-10 h-px bg-neutral-800 dark:bg-neutral-100 ${
-                        isActive ? 'opacity-100 w-full' : 'opacity-0 w-0'
-                    }`}
+                    className={`absolute -bottom-1 left-0 right-0 z-10 h-px bg-neutral-800 dark:bg-neutral-100 ${isActive ? 'opacity-100 w-full' : 'opacity-0 w-0'
+                        }`}
                 />
             </span>
         </div>
@@ -197,15 +196,21 @@ const EditableParameter = ({
     unit,
     className = '',
     prefix = '',
+    isGrindSize = false,  // 标识是否为研磨度参数
+    originalGrindSize = '', // 原始研磨度值（未转换的通用研磨度）
 }: {
     value: string
     onChange: (value: string) => void
     unit: string
     className?: string
     prefix?: string
+    isGrindSize?: boolean
+    originalGrindSize?: string
 }) => {
     const [isEditing, setIsEditing] = useState(false)
-    const [tempValue, setTempValue] = useState(value)
+    // 如果是研磨度且提供了原始值，则使用原始值作为编辑初始值
+    // 这确保编辑的是通用研磨度值，而不是转换后的特定磨豆机研磨度
+    const [tempValue, setTempValue] = useState(isGrindSize && originalGrindSize ? originalGrindSize : value)
     const inputRef = React.useRef<HTMLInputElement>(null)
 
     useEffect(() => {
@@ -216,12 +221,15 @@ const EditableParameter = ({
     }, [isEditing])
 
     useEffect(() => {
-        setTempValue(value)
-    }, [value])
+        // 如果是研磨度且提供了原始值，则使用原始值，否则使用显示值
+        // 这确保编辑表单显示的始终是通用研磨度值
+        setTempValue(isGrindSize && originalGrindSize ? originalGrindSize : value)
+    }, [value, isGrindSize, originalGrindSize])
 
     const handleBlur = () => {
         setIsEditing(false)
-        if (tempValue !== value) {
+        // 确保编辑研磨度时将原始值与通用研磨度值比较
+        if (tempValue !== (isGrindSize && originalGrindSize ? originalGrindSize : value)) {
             onChange(tempValue)
         }
     }
@@ -325,7 +333,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     setActiveTab,
     onTitleDoubleClick, // 接收双击标题的回调函数
     settings, // 接收设置
-    selectedCoffeeBean,
+    selectedCoffeeBean: _selectedCoffeeBean, // 重命名为下划线开头以避免未使用变量警告
     hasCoffeeBeans, // 接收是否有咖啡豆的属性
     navigateToStep, // 接收统一的步骤导航函数
     onStepClick // 接收步骤点击回调
@@ -393,8 +401,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         return disabledSteps;
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const hasCoffeeBean = !!selectedCoffeeBean;
+    // 不再需要这个变量，因为我们直接使用props中的hasCoffeeBeans
 
     // 添加双击计时器和计数器
     const [lastTitleClickTime, setLastTitleClickTime] = useState(0);
@@ -491,7 +498,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     // 修复updateParameterInfo处理逻辑
     useEffect(() => {
         // 定义事件处理函数
-        const handleStepChanged = (detail: {
+        const handleStepChanged = async (detail: {
             step: BrewingStep;
             resetParams?: boolean;
             preserveStates?: string[];
@@ -521,9 +528,28 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                         }))
                     }
                 };
-                updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList);
+
+                try {
+                    // 加载自定义设备并更新参数栏
+                    const { loadCustomEquipments } = await import('@/lib/customEquipments');
+                    const customEquipments = await loadCustomEquipments();
+                    updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList, customEquipments);
+                } catch (error) {
+                    console.error('加载自定义设备失败:', error);
+                    // 出错时使用标准设备列表
+                    updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList);
+                }
             } else {
-                updateParameterInfo(detail.step, selectedEquipment, null, equipmentList);
+                try {
+                    // 即使没有选择方案，也需要加载自定义设备以正确显示器具名称
+                    const { loadCustomEquipments } = await import('@/lib/customEquipments');
+                    const customEquipments = await loadCustomEquipments();
+                    updateParameterInfo(detail.step, selectedEquipment, null, equipmentList, customEquipments);
+                } catch (error) {
+                    console.error('加载自定义设备失败:', error);
+                    // 出错时使用标准设备列表
+                    updateParameterInfo(detail.step, selectedEquipment, null, equipmentList);
+                }
             }
         };
 
@@ -602,18 +628,18 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
             <style jsx global>{noScrollbarStyle}</style>
 
             <AnimatePresence mode="wait">
-                <motion.div 
+                <motion.div
                     key="header"
                     className="overflow-hidden"
                     initial={shouldHideHeader ? { height: 0, opacity: 0 } : { height: "auto", opacity: 1 }}
                     animate={shouldHideHeader ? { height: 0, opacity: 0 } : { height: "auto", opacity: 1 }}
-                    transition={{ 
-                        duration: 0.2, 
+                    transition={{
+                        duration: 0.2,
                         ease: "easeInOut",
-                        opacity: { duration: 0.1 } 
+                        opacity: { duration: 0.1 }
                     }}
                 >
-                    <div className="flex items-center justify-between px-6 px-safe py-4">
+                    <div className="flex items-center justify-between px-6 px-safe pb-4">
                         <h1
                             className="text-base font-light tracking-wide cursor-pointer"
                             onClick={handleTitleClick}
@@ -658,8 +684,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ 
-                            duration: 0.25, 
+                        transition={{
+                            duration: 0.25,
                             ease: "easeOut",
                             opacity: { duration: 0.15 }
                         }}
@@ -671,9 +697,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    transition={{ 
+                                    transition={{
                                         duration: 0.2,
-                                        ease: "easeOut" 
+                                        ease: "easeOut"
                                     }}
                                     className="overflow-hidden"
                                 >
@@ -705,12 +731,47 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                             setActiveBrewingStep('method');
                                                             setActiveTab('方案');
                                                             if (selectedEquipment && selectedMethod) {
-                                                                const equipmentName = equipmentList.find(e => e.id === selectedEquipment)?.name || selectedEquipment;
-                                                                setParameterInfo({
-                                                                    equipment: equipmentName,
-                                                                    method: selectedMethod.name,
-                                                                    params: null,
-                                                                });
+                                                                // 尝试从标准设备列表中获取设备名称
+                                                                const standardEquipment = equipmentList.find(e => e.id === selectedEquipment);
+                                                                if (standardEquipment) {
+                                                                    setParameterInfo({
+                                                                        equipment: standardEquipment.name,
+                                                                        method: selectedMethod.name,
+                                                                        params: null,
+                                                                    });
+                                                                } else {
+                                                                    // 如果不是标准设备，尝试加载自定义设备
+                                                                    import('@/lib/customEquipments').then(async ({ loadCustomEquipments }) => {
+                                                                        try {
+                                                                            const customEquipments = await loadCustomEquipments();
+                                                                            // 先尝试通过ID查找自定义器具
+                                                                            const customEquipment = customEquipments.find(e => e.id === selectedEquipment);
+                                                                            if (customEquipment) {
+                                                                                setParameterInfo({
+                                                                                    equipment: customEquipment.name,
+                                                                                    method: selectedMethod.name,
+                                                                                    params: null,
+                                                                                });
+                                                                            } else {
+                                                                                // 如果通过ID找不到，尝试通过名称查找
+                                                                                const equipmentByName = customEquipments.find(e => e.name === selectedEquipment);
+                                                                                setParameterInfo({
+                                                                                    equipment: equipmentByName?.name || selectedEquipment,
+                                                                                    method: selectedMethod.name,
+                                                                                    params: null,
+                                                                                });
+                                                                            }
+                                                                        } catch (error) {
+                                                                            console.error('加载自定义设备失败:', error);
+                                                                            // 出错时尝试使用已有的参数信息中的器具名称
+                                                                            setParameterInfo({
+                                                                                equipment: parameterInfo?.equipment || selectedEquipment,
+                                                                                method: selectedMethod.name,
+                                                                                params: null,
+                                                                            });
+                                                                        }
+                                                                    });
+                                                                }
                                                             }
                                                         }}
                                                     >
@@ -741,11 +802,19 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                         {parameterInfo.params?.grindSize && (
                                                             <>
                                                                 <span className="flex-shrink-0">·</span>
+                                                                {/* 
+                                                                  * 研磨度显示和编辑处理：
+                                                                  * - value属性传入转换后的研磨度(formatGrindSize)用于显示
+                                                                  * - 传入isGrindSize=true标记这是研磨度参数
+                                                                  * - originalGrindSize传入原始通用研磨度，用于编辑时显示和提交
+                                                                  */}
                                                                 <EditableParameter
-                                                                    value={editableParams.grindSize}
+                                                                    value={formatGrindSize(editableParams.grindSize, settings.grindType)}
                                                                     onChange={(v) => handleParamChange('grindSize', v)}
                                                                     unit=""
                                                                     className="border-b border-dashed border-neutral-200 dark:border-neutral-700"
+                                                                    isGrindSize={true}
+                                                                    originalGrindSize={editableParams.grindSize}
                                                                 />
                                                             </>
                                                         )}
@@ -781,6 +850,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                         <span className="whitespace-nowrap">{parameterInfo.params.ratio}</span>
                                                         <span className="flex-shrink-0">·</span>
                                                         <span className="whitespace-nowrap">
+                                                            {/* 显示时使用formatGrindSize将通用研磨度转换为特定磨豆机的研磨度 */}
                                                             {formatGrindSize(parameterInfo.params.grindSize || "", settings.grindType)}
                                                         </span>
                                                         <span className="flex-shrink-0">·</span>
@@ -810,4 +880,4 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     );
 };
 
-export default NavigationBar; 
+export default NavigationBar;

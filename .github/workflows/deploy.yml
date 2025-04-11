@@ -1,25 +1,85 @@
-name: Deploy to Server
+name: Deploy to Windows Server
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   deploy:
-    name: Build on Server
     runs-on: ubuntu-latest
+
     steps:
-      - name: Execute build via SSH
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH to Windows Server
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
-            cd ~/brew-guide  # 替换为你的服务器项目路径
-            export http_proxy=http://127.0.0.1:47890                                                                   
-            export https_proxy=http://127.0.0.1:47890
-            export PATH=$PATH:~/node-v20.9.0-linux-x64/bin/
-            git pull origin main   # 如果需要同步最新代码
-            npm install
-            npm run build
+            powershell -Command "
+              $ErrorActionPreference = 'Stop'
+              try {
+                Write-Host '💻 Connecting to server...'
+                Set-Location 'C:\websites\brew-guide'
+                
+                Write-Host '📂 Current location:'
+                Get-Location
+                
+                Write-Host '👤 Current user:'
+                $env:USERNAME
+                
+                Write-Host '📝 Writing deploy log...'
+                Add-Content -Path 'C:\websites\brew-guide\deploy-log.txt' -Value ('✅ Deploy triggered via GitHub Actions at ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))
+                
+                Write-Host '🔒 Configuring Git...'
+                git config --global --add safe.directory 'C:/websites/brew-guide'
+                
+                # 配置 Git 使用正确的 SSH 密钥
+                $env:GIT_SSH_COMMAND = 'ssh -i C:/Users/Administrator/.ssh/id_ed25519 -o StrictHostKeyChecking=no'
+                
+                Write-Host '🧹 Cleaning Git working directory...'
+                git reset --hard HEAD
+                git clean -fd
+                
+                Write-Host '🔄 Fetching latest changes...'
+                git fetch origin main
+                
+                Write-Host '📥 Pulling latest code...'
+                git pull origin main
+                if ($LASTEXITCODE -ne 0) {
+                  throw 'Git pull failed'
+                }
+                
+                Write-Host '🛑 Stopping app via PM2...'
+                $env:PM2_HOME = 'C:\pm2'
+                pm2 stop brew-guide
+                
+                Write-Host '📦 Installing dependencies...'
+                npm install --no-audit --no-fund
+                if ($LASTEXITCODE -ne 0) {
+                  throw 'npm install failed'
+                }
+                
+                Write-Host '🔨 Building project...'
+                npm run build
+                if ($LASTEXITCODE -ne 0) {
+                  throw 'npm build failed'
+                }
+                
+                Write-Host '🚀 Restarting app...'
+                pm2 restart brew-guide
+                
+                Write-Host '✅ Deploy completed successfully at ' (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+                Add-Content -Path 'C:\websites\brew-guide\deploy-log.txt' -Value ('✅ Deploy completed successfully at ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))
+              }
+              catch {
+                Write-Error ('❌ Deploy failed: ' + $_.Exception.Message)
+                Add-Content -Path 'C:\websites\brew-guide\deploy-log.txt' -Value ('❌ Deploy failed at ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + ': ' + $_.Exception.Message)
+                exit 1
+              }
+            "

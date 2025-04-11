@@ -154,24 +154,28 @@ export function useBrewingContent({
 			});
 			
 			setContent((prev) => {
-				// 检查是否是自定义器具
-				console.log('选中的器具:', selectedEquipment);
-				console.log('自定义器具列表:', customEquipments);
-				console.log('自定义器具的 ID:', customEquipments.map(e => e.id));
+				// 首先，尝试通过ID查找自定义器具（优先使用ID匹配）
+				const customEquipmentById = customEquipments?.find(e => e.id === selectedEquipment);
 				
-				// 尝试通过 ID 或名称匹配自定义器具
-				const isCustomEquipment = customEquipments?.some(e => 
-					e.id === selectedEquipment || 
-					e.name === selectedEquipment
-				);
+				// 如果通过ID没找到，再尝试通过名称查找
+				const customEquipmentByName = !customEquipmentById 
+					? customEquipments?.find(e => e.name === selectedEquipment) 
+					: null;
+				
+				// 合并结果，优先使用ID匹配的结果
+				const customEquipment = customEquipmentById || customEquipmentByName;
+				
+				// 确认是否为自定义器具
+				const isCustomEquipment = !!customEquipment;
 				
 				// 检查是否是自定义预设器具（animationType === 'custom'）
-				const customEquipment = customEquipments?.find(e => 
-					e.id === selectedEquipment || 
-					e.name === selectedEquipment
-				);
 				const isCustomPresetEquipment = customEquipment?.animationType === 'custom';
 				
+				// 为调试目的记录信息
+				console.log('选中的器具:', selectedEquipment);
+				console.log('通过ID找到的自定义器具:', customEquipmentById?.name);
+				console.log('通过名称找到的自定义器具:', customEquipmentByName?.name);
+				console.log('最终使用的自定义器具:', customEquipment?.name);
 				console.log('是否是自定义器具:', isCustomEquipment);
 				console.log('是否是自定义预设器具:', isCustomPresetEquipment);
 				console.log('当前方案类型:', methodType);
@@ -227,6 +231,30 @@ export function useBrewingContent({
 					} else {
 						// 对于预定义器具，直接使用其通用方案
 						methodsForEquipment = commonMethods[selectedEquipment as keyof typeof commonMethods] || [];
+						
+						// 如果未找到方法但是使用自定义器具ID，尝试从ID推断基础器具类型
+						if (methodsForEquipment.length === 0 && selectedEquipment && selectedEquipment.startsWith('custom-')) {
+							// 尝试解析自定义器具类型
+							let baseEquipmentId = '';
+							
+							// 从自定义器具ID中识别其基础类型
+							if (selectedEquipment.includes('-v60-')) {
+								baseEquipmentId = 'V60';
+							} else if (selectedEquipment.includes('-clever-')) {
+								baseEquipmentId = 'CleverDripper';
+							} else if (selectedEquipment.includes('-kalita-')) {
+								baseEquipmentId = 'Kalita';
+							} else if (selectedEquipment.includes('-origami-')) {
+								baseEquipmentId = 'Origami';
+							}
+							
+							// 如果识别出基础器具类型，使用对应的通用方法
+							if (baseEquipmentId && commonMethods[baseEquipmentId]) {
+								console.log(`使用${baseEquipmentId}的通用方法列表`);
+								methodsForEquipment = commonMethods[baseEquipmentId] || [];
+							}
+						}
+						
 						console.log('预定义器具的通用方案:', methodsForEquipment);
 					}
 				}
@@ -363,7 +391,7 @@ export function useBrewingContent({
 						type: "wait",
 						label: "等待",
 						water: stage.water, // 水量与前一阶段相同
-						detail: "保持耐心，等待咖啡萃取",
+						detail: "",
 						startTime: prevStageTime + stagePourTime,
 						endTime: stage.time,
 						time: stage.time - (prevStageTime + stagePourTime),
@@ -378,7 +406,7 @@ export function useBrewingContent({
 					type: "wait",
 					label: "等待",
 					water: stage.water,
-					detail: "保持耐心，等待咖啡萃取",
+					detail: "",
 					startTime: prevStageTime,
 					endTime: stage.time,
 					time: stage.time - prevStageTime,

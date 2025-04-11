@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import BrewingNoteForm from '@/components/BrewingNoteForm'
 import type { BrewingNoteData, CoffeeBean } from '@/app/types'
 import { equipmentList, brewingMethods } from '@/lib/config'
@@ -91,10 +91,44 @@ const BrewingNoteFormModalNew: React.FC<BrewingNoteFormModalNewProps> = ({
         }
     }, [showForm]);
 
-    // 根据选择的器具和方案类型生成可用的方案列表
-    const availableMethods = selectedEquipment ?
-        (methodType === 'common' ? brewingMethods[selectedEquipment] || [] :
-            customMethods) : [];
+    // 使用 useMemo 重写 availableMethods 的计算逻辑
+    const availableMethods = useMemo(() => {
+        if (!selectedEquipment) {
+            return [];
+        }
+
+        const customEquipment = customEquipments.find(e => e.id === selectedEquipment || e.name === selectedEquipment);
+        const isCustomEquipment = !!customEquipment;
+        const isCustomPresetEquipment = isCustomEquipment && customEquipment.animationType === 'custom';
+
+        if (methodType === 'common') {
+            if (isCustomPresetEquipment) {
+                // 自定义预设器具没有通用方案
+                return [];
+            } else if (isCustomEquipment) {
+                // 基于预设的自定义器具
+                let baseEquipmentId = '';
+                if (customEquipment) {
+                    const animationType = customEquipment.animationType.toLowerCase();
+                    switch (animationType) {
+                        case 'v60': baseEquipmentId = 'V60'; break;
+                        case 'clever': baseEquipmentId = 'CleverDripper'; break;
+                        // 可以添加更多 case 如 'kalita', 'origami' 等，如果 brewingMethods 支持
+                        default: baseEquipmentId = 'V60'; // 默认 V60
+                    }
+                }
+                return brewingMethods[baseEquipmentId] || [];
+            } else {
+                // 预定义器具
+                return brewingMethods[selectedEquipment] || [];
+            }
+        } else if (methodType === 'custom') {
+            // 对于自定义方案，直接使用已加载的当前设备的自定义方案列表
+            return customMethods;
+        }
+
+        return [];
+    }, [selectedEquipment, methodType, customEquipments, brewingMethods, customMethods]);
 
     // 加载自定义方案
     useEffect(() => {
@@ -267,9 +301,18 @@ const BrewingNoteFormModalNew: React.FC<BrewingNoteFormModalNewProps> = ({
         // 检查通用方案是否可用
         const commonMethodsAvailable = !isCustomPresetEquipment && brewingMethods[equipmentId]?.length > 0;
 
-        // 加载该设备的自定义方案
+        // 加载该设备的自定义方案 - 使用新的API loadCustomMethodsForEquipment
         const loadCustomMethods = async () => {
             try {
+                // 直接使用设备ID加载方案，而不是依赖自定义方法对象
+                const methodsModule = await import('@/lib/customMethods');
+                const methods = await methodsModule.loadCustomMethodsForEquipment(equipmentId);
+                if (methods && methods.length > 0) {
+                    setCustomMethods(methods);
+                    return true;
+                }
+                
+                // 如果直接通过ID找不到方案，检查旧版存储
                 const customMethodsStr = await Storage.get('customMethods');
                 if (customMethodsStr) {
                     const parsedData = JSON.parse(customMethodsStr);
@@ -278,9 +321,13 @@ const BrewingNoteFormModalNew: React.FC<BrewingNoteFormModalNewProps> = ({
                         return parsedData[equipmentId].length > 0;
                     }
                 }
+                
+                // 如果都没找到，清空当前自定义方案
+                setCustomMethods([]);
                 return false;
             } catch (error) {
                 console.error('加载设备自定义方案失败:', error);
+                setCustomMethods([]);
                 return false;
             }
         };
@@ -289,8 +336,8 @@ const BrewingNoteFormModalNew: React.FC<BrewingNoteFormModalNewProps> = ({
         loadCustomMethods().then(customMethodsAvailable => {
             // 如果是自定义预设器具，只能使用自定义方案
             if (isCustomPresetEquipment) {
-                if (customMethodsAvailable) {
-                    setSelectedMethod(customMethods[0].id || customMethods[0].name);
+                if (customMethodsAvailable && customMethods.length > 0) {
+                    setSelectedMethod(customMethods[0]?.id || customMethods[0]?.name || '');
                 } else {
                     setSelectedMethod('');
                 }
@@ -303,19 +350,19 @@ const BrewingNoteFormModalNew: React.FC<BrewingNoteFormModalNewProps> = ({
                 if (commonMethodsAvailable) {
                     // 选择第一个通用方案
                     setSelectedMethod(brewingMethods[equipmentId][0].name);
-                } else if (customMethodsAvailable) {
+                } else if (customMethodsAvailable && customMethods.length > 0) {
                     // 如果没有通用方案但有自定义方案，切换到自定义方案
                     setMethodType('custom');
-                    setSelectedMethod(customMethods[0].id || customMethods[0].name);
+                    setSelectedMethod(customMethods[0]?.id || customMethods[0]?.name || '');
                 } else {
                     // 如果都没有，清空选择
                     setSelectedMethod('');
                 }
             } else {
                 // 当前是自定义方案模式
-                if (customMethodsAvailable) {
+                if (customMethodsAvailable && customMethods.length > 0) {
                     // 选择第一个自定义方案
-                    setSelectedMethod(customMethods[0].id || customMethods[0].name);
+                    setSelectedMethod(customMethods[0]?.id || customMethods[0]?.name || '');
                 } else if (commonMethodsAvailable) {
                     // 如果没有自定义方案但有通用方案，切换到通用方案
                     setMethodType('common');
@@ -360,7 +407,7 @@ const BrewingNoteFormModalNew: React.FC<BrewingNoteFormModalNewProps> = ({
             } else {
                 // 切换到自定义方案
                 if (customMethods.length > 0) {
-                    setSelectedMethod(customMethods[0].id || customMethods[0].name);
+                    setSelectedMethod(customMethods[0]?.id || customMethods[0]?.name || '');
                 } else {
                     setSelectedMethod(''); // 没有自定义方案，清空选择
                 }
@@ -728,30 +775,71 @@ const BrewingNoteFormModalNew: React.FC<BrewingNoteFormModalNewProps> = ({
                                             <div className="text-xs font-medium mb-2 text-white dark:text-neutral-800">
                                                 调整参数
                                             </div>
-                                            <div className="grid grid-cols-2 gap-3 mt-1">
-                                                <div>
-                                                    <label className="block text-[10px] tracking-widest text-white dark:text-neutral-800 mb-1 opacity-80">
-                                                        咖啡粉量 (g)
-                                                    </label>
+                                            <div className="space-y-4 mt-4">
+                                                {/* 咖啡粉量 */}
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-gray-700">咖啡粉量</label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
                                                         value={coffeeAmount}
                                                         onChange={(e) => handleCoffeeAmountChange(e.target.value, method)}
-                                                        className="w-full border border-neutral-300 dark:border-neutral-700 bg-neutral-700/50 dark:bg-white/50 p-1.5 text-[11px] rounded-md outline-none text-white dark:text-neutral-800"
+                                                        className="w-24 px-2 py-1 border rounded text-right"
                                                         placeholder="15"
                                                     />
+                                                    <span className="ml-1">g</span>
                                                 </div>
-                                                <div>
-                                                    <label className="block text-[10px] tracking-widest text-white dark:text-neutral-800 mb-1 opacity-80">
-                                                        水粉比 (1:X)
-                                                    </label>
+                                                
+                                                {/* 粉水比 */}
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-gray-700">粉水比</label>
+                                                    <div className="flex items-center">
+                                                        <span className="mr-1">1:</span>
+                                                        <input
+                                                            type="text"
+                                                            value={ratioAmount}
+                                                            onChange={(e) => handleRatioAmountChange(e.target.value, method)}
+                                                            className="w-16 px-2 py-1 border rounded text-right"
+                                                            placeholder="15"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* 研磨度 */}
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-gray-700">研磨度</label>
+                                                    <select
+                                                        value={method.params.grindSize}
+                                                        onChange={(e) => {
+                                                            method.params.grindSize = e.target.value;
+                                                            setSelectedMethod(methodType === 'common' ? method.name : (method.id || method.name));
+                                                        }}
+                                                        className="w-32 px-2 py-1 border rounded text-right"
+                                                    >
+                                                        <option value="极细">极细</option>
+                                                        <option value="特细">特细</option>
+                                                        <option value="细">细</option>
+                                                        <option value="中细">中细</option>
+                                                        <option value="中细偏粗">中细偏粗</option>
+                                                        <option value="中粗">中粗</option>
+                                                        <option value="粗">粗</option>
+                                                        <option value="特粗">特粗</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                {/* 水温 */}
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-gray-700">水温</label>
                                                     <input
-                                                        type="number"
-                                                        value={ratioAmount}
-                                                        onChange={(e) => handleRatioAmountChange(e.target.value, method)}
-                                                        className="w-full border border-neutral-300 dark:border-neutral-700 bg-neutral-700/50 dark:bg-white/50 p-1.5 text-[11px] rounded-md outline-none text-white dark:text-neutral-800"
-                                                        placeholder="15"
+                                                        type="text"
+                                                        value={method.params.temp.replace('°C', '')}
+                                                        onChange={(e) => {
+                                                            method.params.temp = `${e.target.value}°C`;
+                                                            setSelectedMethod(methodType === 'common' ? method.name : (method.id || method.name));
+                                                        }}
+                                                        className="w-24 px-2 py-1 border rounded text-right"
+                                                        placeholder="92"
                                                     />
+                                                    <span className="ml-1">°C</span>
                                                 </div>
                                             </div>
                                             <div className="mt-2 flex items-center gap-1 text-[10px] text-white dark:text-neutral-800 opacity-80">

@@ -7,7 +7,7 @@ Web版（支持PWA）：
 - 🔗 （国内） [https://coffee.chu3.top/](http://coffee.chu3.top/)
 - 🔗 （海外） [https://brew-guide.vercel.app/](https://brew-guide.vercel.app/)
 
-![版本](https://img.shields.io/badge/版本-1.1.0-blue)
+![版本](https://img.shields.io/badge/版本-1.2.0-blue)
 
 ## 功能特点
 
@@ -93,3 +93,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 测试自动部署 - 2025年 4月10日 星期四 15时18分49秒 CST
+# 再次测试自动部署 - 2025年 4月10日 星期四 15时20分32秒 CST
+# 测试自动部署修复 - 2025年 4月10日 星期四 15时37分11秒 CST
+# 最终测试自动部署 - 2025年 4月10日 星期四 15时41分06秒 CST
+# 最终确认测试 - 2025年 4月10日 星期四 15时51分27秒 CST
+
+## 部署测试
+- 测试时间：2024-04-10
+- 目的：验证 GitHub Actions 自动部署功能
