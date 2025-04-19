@@ -6,6 +6,7 @@ import { SettingsOptions, defaultSettings } from '@/components/Settings'
 import hapticsUtils from '@/lib/haptics'
 import textZoomUtils from '@/lib/textZoom'
 import confetti from 'canvas-confetti'
+import { availableGrinders } from '@/lib/config'
 
 // 引导步骤类型
 export type OnboardingStep = 'welcome' | 'settings' | 'complete'
@@ -34,8 +35,6 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
     const previous = useRef(currentStep)
     // 检查TextZoom功能是否可用
     const [isTextZoomEnabled, setIsTextZoomEnabled] = useState(false)
-    // 幻刺切换按钮引用
-    const phanciToggleRef = useRef<HTMLDivElement>(null)
 
     // 初始化音频环境
     useEffect(() => {
@@ -106,10 +105,12 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
 
     // 触发彩带特效
     const showConfetti = () => {
-        if (!phanciToggleRef.current) return;
+        // Find the select element wrapper
+        const grinderSelectWrapper = document.getElementById('onboarding-grinder-select-wrapper');
+        if (!grinderSelectWrapper) return;
         
-        // 获取按钮元素的位置信息
-        const rect = phanciToggleRef.current.getBoundingClientRect();
+        // 获取元素的位置信息
+        const rect = grinderSelectWrapper.getBoundingClientRect();
         const x = (rect.left + rect.width / 2) / window.innerWidth;
         const y = (rect.top + rect.height / 2) / window.innerHeight;
         
@@ -163,7 +164,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
         }
 
         // 当选择幻刺时触发彩带特效
-        if (key === 'grindType' && value === '幻刺') {
+        if (key === 'grindType' && value === 'phanci_pro') {
             showConfetti()
             // 选择幻刺时也提供轻触感反馈
             if (settings.hapticFeedback) {
@@ -293,7 +294,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                         <span className="text-3xl">☕</span>
                                     </div>
                                 </div>
-                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                                     欢迎使用手冲咖啡指南
                                 </h2>
                                 <p className="text-sm mt-2 text-neutral-500 dark:text-neutral-400">
@@ -341,7 +342,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                     <span className="text-3xl">⚙️</span>
                                 </div>
                             </div>
-                            <h2 className="text-xl font-bold mb-6 text-neutral-900 dark:text-white text-center">
+                            <h2 className="text-xl font-bold mb-6 text-neutral-900 dark:text-neutral-100 text-center">
                                 偏好设置
                             </h2>
                         </div>
@@ -349,7 +350,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                         <div className="w-full space-y-5 mb-4">
                             <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl">
                                 <div className="flex flex-col">
-                                    <label className="text-sm font-medium text-neutral-900 dark:text-white">
+                                    <label className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                         声音提示
                                     </label>
                                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
@@ -368,7 +369,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
 
                             <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl">
                                 <div className="flex flex-col">
-                                    <label className="text-sm font-medium text-neutral-900 dark:text-white">
+                                    <label className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                         震动反馈
                                     </label>
                                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
@@ -384,32 +385,38 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                     />
                                 </div>
                             </div>
-
-                            <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl">
-                                <div className="flex flex-col">
-                                    <label className="text-sm font-medium text-neutral-900 dark:text-white">
-                                        幻刺研磨度
-                                    </label>
-                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                                        使用幻刺(Pro)磨豆机专用刻度
-                                    </p>
+                            
+                            {/* Updated Grinder Selection */}
+                            <div id="onboarding-grinder-select-wrapper" className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl">
+                                <label className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1 block">
+                                    磨豆机类型
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={settings.grindType}
+                                        onChange={(e) => handleSettingChange('grindType', e.target.value)}
+                                        className="w-full py-2 px-3 text-sm font-medium rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 appearance-none focus:outline-none focus:ring-2 focus:ring-neutral-500"
+                                    >
+                                        {availableGrinders.map((grinder) => (
+                                            <option key={grinder.id} value={grinder.id}>
+                                                {grinder.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neutral-700 dark:text-neutral-300">
+                                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                    </div>
                                 </div>
-                                <div
-                                    ref={phanciToggleRef}
-                                    className={`relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out ${settings.grindType === '幻刺' ? 'bg-neutral-900 dark:bg-white' : 'bg-neutral-200 dark:bg-neutral-800'}`}
-                                    onClick={() => handleSettingChange('grindType', settings.grindType === '幻刺' ? '通用' : '幻刺')}
-                                >
-                                    <div
-                                        className={`absolute top-1 left-1 bg-white dark:bg-black w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ease-in-out ${settings.grindType === '幻刺' ? 'translate-x-6' : ''}`}
-                                    />
-                                </div>
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
+                                    选择你的磨豆机，方便查看研磨度参考
+                                </p>
                             </div>
 
                             {/* 文本缩放选项 - 仅在原生应用中显示 */}
                             {isTextZoomEnabled && (
                                 <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl">
                                     <div className="flex flex-col">
-                                        <label className="text-sm font-medium text-neutral-900 dark:text-white">
+                                        <label className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                             文本大小
                                         </label>
                                         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
@@ -427,7 +434,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                         <button
                                             onClick={() => handleSettingChange('textZoomLevel', 1.0)}
                                             className={`px-2 py-1 text-xs rounded-md transition-colors ${Math.abs(settings.textZoomLevel - 1.0) < 0.05
-                                                ? 'bg-neutral-900 dark:bg-white text-white dark:text-black'
+                                                ? 'bg-neutral-900 dark:bg-white text-neutral-100 dark:text-black'
                                                 : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
                                                 }`}
                                         >
@@ -459,7 +466,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                     <span className="text-3xl">✨</span>
                                 </div>
                             </div>
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                                 准备就绪！
                             </h2>
                             <p className="text-sm mt-2 text-neutral-500 dark:text-neutral-400">
@@ -529,7 +536,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                             {/* 下一步/完成按钮 */}
                             <button
                                 onClick={currentStep === 'complete' ? handleComplete : goToNextStep}
-                                className="w-full py-3 px-4 bg-neutral-900 dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+                                className="w-full py-3 px-4 bg-neutral-900 dark:bg-white text-neutral-100 dark:text-black rounded-lg font-medium hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
                             >
                                 {currentStep === 'complete' ? '开始使用' : '继续'}
                             </button>

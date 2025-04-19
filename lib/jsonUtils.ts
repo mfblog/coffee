@@ -67,7 +67,7 @@ interface BrewingNote {
 
 // 定义BlendComponent接口
 interface BlendComponent {
-	percentage: string;
+	percentage?: number | string;
 	origin?: string;
 	process?: string;
 	variety?: string;
@@ -201,7 +201,7 @@ export function cleanJsonString(jsonString: string): string {
 export function extractJsonFromText(
 	text: string,
 	customEquipment?: CustomEquipment
-): Method | CoffeeBean | BrewingNote | CustomEquipment | null {
+): Method | CoffeeBean | BrewingNote | CustomEquipment | CoffeeBean[] | null {
 	try {
 		// 首先检查是否为自然语言格式的文本
 		const originalText = text.trim();
@@ -229,6 +229,17 @@ export function extractJsonFromText(
 		
 		// 尝试解析JSON
 		const data = JSON.parse(cleanedJson);
+		
+		// 检查是否是咖啡豆数组
+		if (Array.isArray(data)) {
+			// 验证每个元素是否都是咖啡豆数据
+			if (data.every(item => typeof item === 'object' && item !== null && 'roastLevel' in item)) {
+				console.log("检测到咖啡豆数组格式");
+				return data as CoffeeBean[];
+			}
+			console.log('无法识别的数组JSON结构:', data);
+			return null;
+		}
 		
 		// 如果数据不是对象，返回null
 		if (typeof data !== 'object' || data === null) {
@@ -684,8 +695,7 @@ export function methodToReadableText(method: Method, customEquipment?: CustomEqu
 	// 构建可读文本
 	let text = `【冲煮方案】${name}\n\n`;
 	text += `咖啡粉量: ${params.coffee || "未设置"}\n`;
-	text += `水量: ${params.water || "未设置"}\n`;
-	text += `比例: ${params.ratio || "未设置"}\n`;
+	text += `粉水比: ${params.ratio || "未设置"}\n`;
 	text += `研磨度: ${params.grindSize || "未设置"}\n`;
 	text += `水温: ${params.temp || "未设置"}\n`;
 

@@ -83,6 +83,7 @@ interface CoffeeBeanRankingProps {
     beanType?: 'all' | 'espresso' | 'filter'
     editMode?: boolean
     viewMode?: 'personal' | 'blogger'
+    year?: 2024 | 2025
 }
 
 const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
@@ -93,7 +94,8 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
     hideFilters = false,
     beanType: externalBeanType,
     editMode: externalEditMode,
-    viewMode = 'personal'
+    viewMode = 'personal',
+    year: externalYear
 }) => {
     const [ratedBeans, setRatedBeans] = useState<(CoffeeBean | BloggerBean)[]>([])
     const [unratedBeans, setUnratedBeans] = useState<CoffeeBean[]>([])
@@ -102,6 +104,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
     const [editMode, setEditMode] = useState(externalEditMode || false)
     const [showUnrated, setShowUnrated] = useState(false)
     const [refreshTrigger, setRefreshTrigger] = useState(0)
+    const [year, setYear] = useState<2024 | 2025>(externalYear || 2025)
 
     // 监听外部传入的ID变化
     useEffect(() => {
@@ -131,27 +134,34 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
         }
     }, [externalEditMode]);
 
+    // 监听外部传入的年份变化
+    useEffect(() => {
+        if (externalYear !== undefined) {
+            setYear(externalYear);
+        }
+    }, [externalYear]);
+
     // 加载咖啡豆数据的函数
     const loadBeans = useCallback(async () => {
         if (!isOpen) return;
 
         try {
-            let ratedBeansData: CoffeeBean[];
+            let ratedBeansData: (CoffeeBean | BloggerBean)[] = [];
             let unratedBeansData: CoffeeBean[] = [];
 
             if (viewMode === 'blogger') {
-                // 直接使用 CSV 工具函数
-                ratedBeansData = getBloggerBeans(beanType);
-                unratedBeansData = []; // 博主榜单模式下不显示未评分的豆子
+                // Use CSV utility function with the current year state
+                ratedBeansData = getBloggerBeans(beanType, year);
+                unratedBeansData = []; // Blogger view doesn't show unrated
             } else {
-                // 加载个人评分的咖啡豆
+                // Load personal rated beans
                 if (beanType === 'all') {
                     ratedBeansData = await CoffeeBeanManager.getRatedBeans();
                 } else {
                     ratedBeansData = await CoffeeBeanManager.getRatedBeansByType(beanType);
                 }
 
-                // 加载所有咖啡豆，过滤出未评分的
+                // Load all beans, filter out unrated
                 const allBeans = await CoffeeBeanManager.getAllBeans();
                 const ratedIds = new Set(ratedBeansData.map(bean => bean.id));
 
@@ -171,7 +181,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
             setRatedBeans([]);
             setUnratedBeans([]);
         }
-    }, [isOpen, beanType, sortOption, viewMode]);
+    }, [isOpen, beanType, sortOption, viewMode, year]);
 
     // 在组件挂载、isOpen变化、beanType变化、sortOption变化或refreshTrigger变化时重新加载数据
     useEffect(() => {
@@ -301,7 +311,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                     <div className="flex justify-between border-b border-neutral-200 dark:border-neutral-800 px-3">
                         <div className="flex">
                             <button
-                                className={`pb-1.5 px-3 text-[11px] relative ${beanType === 'all' ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
+                                className={`pb-1.5 px-3 text-[11px] relative ${beanType === 'all' ? 'text-neutral-800 dark:text-neutral-100' : 'text-neutral-600 dark:text-neutral-400'}`}
                                 onClick={() => setBeanType('all')}
                             >
                                 <span className="relative">全部豆子</span>
@@ -310,7 +320,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                 )}
                             </button>
                             <button
-                                className={`pb-1.5 px-3 text-[11px] relative ${beanType === 'espresso' ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
+                                className={`pb-1.5 px-3 text-[11px] relative ${beanType === 'espresso' ? 'text-neutral-800 dark:text-neutral-100' : 'text-neutral-600 dark:text-neutral-400'}`}
                                 onClick={() => setBeanType('espresso')}
                             >
                                 <span className="relative">意式豆</span>
@@ -319,7 +329,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                 )}
                             </button>
                             <button
-                                className={`pb-1.5 px-3 text-[11px] relative ${beanType === 'filter' ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
+                                className={`pb-1.5 px-3 text-[11px] relative ${beanType === 'filter' ? 'text-neutral-800 dark:text-neutral-100' : 'text-neutral-600 dark:text-neutral-400'}`}
                                 onClick={() => setBeanType('filter')}
                             >
                                 <span className="relative">手冲豆</span>
@@ -333,7 +343,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                         {viewMode === 'personal' && (
                             <button
                                 onClick={toggleEditMode}
-                                className={`pb-1.5 px-3 text-[11px] relative ${editMode ? 'text-neutral-800 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`}
+                                className={`pb-1.5 px-3 text-[11px] relative ${editMode ? 'text-neutral-800 dark:text-neutral-100' : 'text-neutral-600 dark:text-neutral-400'}`}
                             >
                                 <span className="relative">{editMode ? '完成' : '编辑'}</span>
                                 {editMode && (
@@ -367,8 +377,8 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                     {/* 咖啡豆信息 */}
                                     <div className="cursor-pointer">
                                         <div className="flex items-center">
-                                            <div className="text-[11px] text-neutral-800 dark:text-white">{bean.name}</div>
-                                            <div className="ml-2 text-[11px] text-neutral-800 dark:text-white">
+                                            <div className="text-[11px] text-neutral-800 dark:text-neutral-100">{bean.name}</div>
+                                            <div className="ml-2 text-[11px] text-neutral-800 dark:text-neutral-100">
                                                 +{bean.overallRating !== undefined ? bean.overallRating : 0}
                                             </div>
                                         </div>
@@ -382,15 +392,20 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                                     infoArray.push(bean.beanType === 'espresso' ? '意式豆' : '手冲豆');
                                                 }
                                                 
-                                                // 烘焙度
-                                                if (bean.roastLevel) {
+                                                // Roast Level - Conditionally display
+                                                if (bean.roastLevel && bean.roastLevel !== '未知') {
                                                     infoArray.push(bean.roastLevel);
                                                 }
                                                 
                                                 // 视频期数 - 博主榜单模式下显示
                                                 if (viewMode === 'blogger' && (bean as BloggerBean).videoEpisode) {
                                                     const episode = (bean as BloggerBean).videoEpisode;
-                                                    const videoUrl = getVideoUrlFromEpisode(episode, bean.beanType);
+                                                    // Extract brand and bean name from the full bean name (e.g., "Joker 摆脱冷气")
+                                                    const nameParts = bean.name.split(' ');
+                                                    const brand = nameParts[0]; // Assuming first part is brand
+                                                    const beanNameOnly = nameParts.slice(1).join(' '); // Rest is bean name
+                                                    
+                                                    const videoUrl = getVideoUrlFromEpisode(episode, brand, beanNameOnly);
                                                     
                                                     if (videoUrl) {
                                                         // 有视频链接时，添加可点击的元素
@@ -418,19 +433,20 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                                     infoArray.push(`${pricePerGram}元/克`);
                                                 }
                                                 
-                                                // 意式豆特有信息 - 美式分数和奶咖分数
-                                                if (bean.beanType === 'espresso' && viewMode === 'blogger') {
-                                                    if (bean.ratingEspresso !== undefined && bean.ratingMilkBased !== undefined) {
-                                                        infoArray.push(`美式/奶咖:${bean.ratingEspresso}/${bean.ratingMilkBased}`);
-                                                    } else if (bean.ratingEspresso !== undefined) {
-                                                        infoArray.push(`美式:${bean.ratingEspresso}`);
-                                                    } else if (bean.ratingMilkBased !== undefined) {
-                                                        infoArray.push(`奶咖:${bean.ratingMilkBased}`);
+                                                // 意式豆特有信息 - 美式分数和奶咖分数 (Only for 2025 data)
+                                                if (bean.beanType === 'espresso' && viewMode === 'blogger' && (bean as BloggerBean).year === 2025) {
+                                                    const bloggerBean = bean as BloggerBean;
+                                                    if (bloggerBean.ratingEspresso !== undefined && bloggerBean.ratingMilkBased !== undefined) {
+                                                        infoArray.push(`美式/奶咖:${bloggerBean.ratingEspresso}/${bloggerBean.ratingMilkBased}`);
+                                                    } else if (bloggerBean.ratingEspresso !== undefined) {
+                                                        infoArray.push(`美式:${bloggerBean.ratingEspresso}`);
+                                                    } else if (bloggerBean.ratingMilkBased !== undefined) {
+                                                        infoArray.push(`奶咖:${bloggerBean.ratingMilkBased}`);
                                                     }
                                                 }
                                                 
-                                                // 购买渠道 - 博主榜单模式下显示
-                                                if (viewMode === 'blogger' && bean.purchaseChannel) {
+                                                // 购买渠道 - 博主榜单模式下显示 (Only for 2025 data)
+                                                if (viewMode === 'blogger' && bean.purchaseChannel && (bean as BloggerBean).year === 2025) {
                                                     infoArray.push(bean.purchaseChannel);
                                                 }
                                                 
@@ -455,7 +471,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                 {editMode && (
                                     <button
                                         onClick={() => handleRateBeanClick(bean as CoffeeBean)}
-                                        className="text-[10px] text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-white"
+                                        className="text-[10px] text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100"
                                     >
                                         编辑
                                     </button>
@@ -501,7 +517,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                             {/* 咖啡豆信息 */}
                                             <div className="cursor-pointer">
                                                 <div className="flex items-center">
-                                                    <div className="text-[11px] text-neutral-800 dark:text-white">{bean.name}</div>
+                                                    <div className="text-[11px] text-neutral-800 dark:text-neutral-100">{bean.name}</div>
                                                 </div>
                                                 <div className="text-[10px] text-neutral-600 dark:text-neutral-400 mt-0.5">
                                                     {(() => {
@@ -513,8 +529,8 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                                             infoArray.push(bean.beanType === 'espresso' ? '意式豆' : '手冲豆');
                                                         }
                                                         
-                                                        // 烘焙度
-                                                        if (bean.roastLevel) {
+                                                        // Roast Level - Conditionally display
+                                                        if (bean.roastLevel && bean.roastLevel !== '未知') {
                                                             infoArray.push(bean.roastLevel);
                                                         }
                                                         
@@ -538,7 +554,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                         {/* 添加评分按钮 */}
                                         <button
                                             onClick={() => handleRateBeanClick(bean as CoffeeBean)}
-                                            className="text-[10px] text-neutral-800 dark:text-white hover:opacity-80"
+                                            className="text-[10px] text-neutral-800 dark:text-neutral-100 hover:opacity-80"
                                         >
                                             添加评分
                                         </button>

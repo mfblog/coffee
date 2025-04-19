@@ -144,7 +144,7 @@ const SteppedFormModal: React.FC<SteppedFormModalProps> = ({
                         style={{
                             willChange: "transform"
                         }}
-                        className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-hidden rounded-t-2xl bg-neutral-50 dark:bg-neutral-900 shadow-xl"
+                        className="absolute inset-x-0 bottom-0 max-w-[500px] mx-auto max-h-[80vh] overflow-hidden rounded-t-2xl bg-neutral-50 dark:bg-neutral-900 shadow-xl"
                     >
                         {/* 拖动条 */}
                         <div className="sticky top-0 z-10 flex justify-center py-2 bg-neutral-50 dark:bg-neutral-900">
@@ -207,7 +207,7 @@ const SteppedFormModal: React.FC<SteppedFormModalProps> = ({
                                 </div>
 
                                 {/* 下一步按钮 */}
-                                <div className="flex items-center justify-center my-4 sticky bottom-4">
+                                <div className="modal-bottom-button flex items-center justify-center">
                                     <button
                                         type="button"
                                         onClick={handleNext}
@@ -216,7 +216,7 @@ const SteppedFormModal: React.FC<SteppedFormModalProps> = ({
                         flex items-center justify-center rounded-full
                         ${currentStep.isValid === false ? 'opacity-50 cursor-not-allowed' : ''}
                         ${currentStepIndex === steps.length - 1
-                                                ? 'bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 px-6 py-3 text-sm font-medium'
+                                                ? 'bg-neutral-800 dark:bg-neutral-200 text-neutral-100 dark:text-neutral-800 px-6 py-3 text-sm font-medium'
                                                 : 'p-4 bg-neutral-50/80 dark:bg-neutral-900/80 backdrop-blur-md'
                                             }
                       `}

@@ -1,11 +1,15 @@
 import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Method } from '@/lib/config'
-import ActionMenu from './ui/action-menu'
+import ActionMenu from '@/components/CoffeeBean/ui/action-menu'
 import { Step } from '@/lib/hooks/useBrewingState'
 
 interface StageItemProps {
-    step: Step
+    step: Step & {
+        customParams?: Record<string, string | number | boolean>;
+        icon?: string;
+        isPinned?: boolean;
+    }
     index: number
     onClick: () => void
     activeTab: string
@@ -14,8 +18,11 @@ interface StageItemProps {
     onEdit?: () => void
     onDelete?: () => void
     onShare?: () => void
-    actionMenuStates: Record<string, boolean>
-    setActionMenuStates: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+    isPinned?: boolean
+    actionMenuStates?: Record<string, boolean>
+    setActionMenuStates?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+    showFlowRate?: boolean
+    allSteps?: Step[]
 }
 
 // 辅助函数：格式化时间
@@ -33,6 +40,66 @@ const formatTime = (seconds: number, compact: boolean = false) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
+// 辅助函数：计算流速
+const calculateFlowRate = (waterAmount: string, time: string | number) => {
+    if (!waterAmount || !time) return 0;
+    const water = parseInt(waterAmount);
+    const seconds = typeof time === 'string' ? parseInt(time) : time;
+    if (seconds <= 0) return 0;
+    return water / seconds;
+}
+
+// 改进的流速计算函数：考虑前后阶段的水量差值
+const calculateImprovedFlowRate = (step: Step, allSteps: Step[]) => {
+    if (!step || !step.items || !step.note || step.type !== 'pour') return 0;
+    
+    // 获取当前阶段的水量和时间
+    const currentWater = parseInt(step.items[0]);
+    const currentTime = typeof step.note === 'string' ? parseInt(step.note) : step.note;
+    
+    if (!currentTime || currentTime <= 0) return 0;
+    
+    // 查找相同originalIndex的前一个阶段
+    if (step.originalIndex !== undefined) {
+        // 查找所有具有相同originalIndex的阶段
+        const sameStageSteps = allSteps.filter(s => 
+            s.originalIndex === step.originalIndex && s.type === 'pour');
+        
+        // 找出当前步骤在这些阶段中的位置
+        const stepIndex = sameStageSteps.findIndex(s => s === step);
+        
+        // 如果是该originalIndex的第一个阶段
+        if (stepIndex === 0) {
+            // 查找前一个originalIndex的最后一个阶段
+            const prevOriginalIndex = step.originalIndex - 1;
+            const prevStageSteps = allSteps.filter(s => 
+                s.originalIndex === prevOriginalIndex && s.type === 'pour');
+            
+            // 获取前一个阶段的最后一个步骤的水量
+            let prevWater = 0;
+            if (prevStageSteps.length > 0) {
+                const prevStep = prevStageSteps[prevStageSteps.length - 1];
+                prevWater = prevStep.items ? parseInt(prevStep.items[0]) : 0;
+            }
+            
+            // 计算水量差值
+            const waterDiff = currentWater - prevWater;
+            return waterDiff / currentTime;
+        } else if (stepIndex > 0) {
+            // 如果不是第一个阶段，获取同一originalIndex的前一个阶段的水量
+            const prevStep = sameStageSteps[stepIndex - 1];
+            const prevWater = prevStep.items ? parseInt(prevStep.items[0]) : 0;
+            
+            // 计算水量差值
+            const waterDiff = currentWater - prevWater;
+            return waterDiff / currentTime;
+        }
+    }
+    
+    // 如果无法确定前一个阶段，使用简单的计算方法
+    return currentWater / currentTime;
+}
+
 // StageItem组件
 const StageItem: React.FC<StageItemProps> = ({
     step,
@@ -44,18 +111,12 @@ const StageItem: React.FC<StageItemProps> = ({
     onEdit,
     onDelete,
     onShare,
-    actionMenuStates,
-    setActionMenuStates,
+    isPinned: _isPinned,
+    actionMenuStates: _actionMenuStates,
+    setActionMenuStates: _setActionMenuStates,
+    showFlowRate = false,
+    allSteps = []
 }) => {
-    // 创建一个唯一的ID来标识这个卡片
-    const cardId = useMemo(() => 
-        `${activeTab}-${step.methodId || step.title}-${index}`, 
-        [activeTab, step.methodId, step.title, index]
-    );
-    
-    // 检查这个卡片的菜单是否应该显示
-    const showActions = actionMenuStates[cardId] || false
-
     // 判断是否为等待阶段
     const isWaitingStage = step.type === 'wait';
 
@@ -65,7 +126,7 @@ const StageItem: React.FC<StageItemProps> = ({
     // 获取文本样式
     const textStyle = useMemo(() => 
         isCurrentStage
-            ? 'text-neutral-800 dark:text-white'
+            ? 'text-neutral-800 dark:text-neutral-100'
             : 'text-neutral-600 dark:text-neutral-400',
         [isCurrentStage]
     );
@@ -101,14 +162,6 @@ const StageItem: React.FC<StageItemProps> = ({
         return items;
     }, [onEdit, onDelete, onShare]);
 
-    // 处理菜单开关变更
-    const handleOpenChange = (open: boolean) => {
-        setActionMenuStates(prev => ({
-            ...prev,
-            [cardId]: open
-        }))
-    }
-
     // 渲染阶段内容
     const renderStageContent = () => {
         return (
@@ -124,7 +177,10 @@ const StageItem: React.FC<StageItemProps> = ({
                 <div className={activeTab !== '注水' ? 'cursor-pointer' : ''} onClick={onClick}>
                     <div className="flex items-baseline justify-between">
                         <div className="flex items-baseline gap-3 min-w-0 overflow-hidden">
-                            <h3 className={`text-xs font-normal tracking-wider truncate ${isCurrentStage ? 'text-neutral-800 dark:text-white' : ''}`}>
+                            {step.icon && (
+                                <span className="text-xs mr-1">{step.icon}</span>
+                            )}
+                            <h3 className={`text-xs font-normal tracking-wider truncate ${isCurrentStage ? 'text-neutral-800 dark:text-neutral-100' : ''}`}>
                                 {step.title}
                             </h3>
                             {activeTab === '注水' && selectedMethod && step.originalIndex !== undefined && step.items && step.note && (
@@ -132,12 +188,27 @@ const StageItem: React.FC<StageItemProps> = ({
                                     <span>{step.endTime ? formatTime(step.endTime, true) : formatTime(parseInt(step.note), true)}</span>
                                     <span>·</span>
                                     <span>{step.items[0]}</span>
+                                    {showFlowRate && step.type === 'pour' && (
+                                        <>
+                                            <span>·</span>
+                                            <span>
+                                                {allSteps.length > 0 
+                                                    ? calculateImprovedFlowRate(step, allSteps).toFixed(1) 
+                                                    : calculateFlowRate(step.items[0], step.note).toFixed(1)}g/s
+                                            </span>
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </div>
                         {step.description && (
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
                                 {step.description}
+                            </p>
+                        )}
+                        {step.detail && (
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
+                                {step.detail}
                             </p>
                         )}
                         {onEdit && onDelete && (
@@ -145,8 +216,6 @@ const StageItem: React.FC<StageItemProps> = ({
                                 <ActionMenu
                                     items={actionMenuItems}
                                     showAnimation={false}
-                                    isOpen={showActions}
-                                    onOpenChange={handleOpenChange}
                                     onStop={(e) => e.stopPropagation()}
                                 />
                             </div>
@@ -174,7 +243,7 @@ const StageItem: React.FC<StageItemProps> = ({
         <div
             className={`group relative ${
                 currentStage === index
-                    ? 'text-neutral-800 dark:text-white'
+                    ? 'text-neutral-800 dark:text-neutral-100'
                     : 'text-neutral-600 dark:text-neutral-400'
             }`}
             onClick={onClick}

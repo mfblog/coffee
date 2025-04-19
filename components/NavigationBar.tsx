@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { APP_VERSION, equipmentList, Method } from '@/lib/config'
+import { equipmentList, Method } from '@/lib/config'
 import hapticsUtils from '@/lib/haptics'
 import { SettingsOptions } from '@/components/Settings'
 import { formatGrindSize } from '@/lib/grindUtils'
@@ -10,6 +10,7 @@ import { BREWING_EVENTS } from '@/lib/brewing/constants'
 import { listenToEvent } from '@/lib/brewing/events'
 import { updateParameterInfo } from '@/lib/brewing/parameters'
 import { useTranslations } from 'next-intl'
+import { Equal } from 'lucide-react'
 
 // 定义一个隐藏滚动条的样式
 const noScrollbarStyle = `
@@ -100,9 +101,8 @@ const TabButton = ({
                         }`}
                 />
                 <span
-                    className={`absolute -bottom-1 left-0 right-0 z-10 h-px bg-neutral-800 dark:bg-neutral-100 ${
-                        isActive ? 'opacity-100 w-full' : 'opacity-0 w-0'
-                    }`}
+                    className={`absolute -bottom-1 left-0 right-0 z-10 h-px bg-neutral-800 dark:bg-neutral-100 ${isActive ? 'opacity-100 w-full' : 'opacity-0 w-0'
+                        }`}
                 />
             </span>
         </div>
@@ -172,7 +172,6 @@ const StepIndicator = ({
                             isDisabled={isDisabled}
                             isCompleted={isCompleted}
                             onClick={() => handleStepClick(step.value)}
-                            className="text-[10px] sm:text-xs"
                             dataTab={step.value}
                         />
                         {index < steps.length - 1 && (
@@ -197,15 +196,21 @@ const EditableParameter = ({
     unit,
     className = '',
     prefix = '',
+    isGrindSize = false,  // 标识是否为研磨度参数
+    originalGrindSize = '', // 原始研磨度值（未转换的通用研磨度）
 }: {
     value: string
     onChange: (value: string) => void
     unit: string
     className?: string
     prefix?: string
+    isGrindSize?: boolean
+    originalGrindSize?: string
 }) => {
     const [isEditing, setIsEditing] = useState(false)
-    const [tempValue, setTempValue] = useState(value)
+    // 如果是研磨度且提供了原始值，则使用原始值作为编辑初始值
+    // 这确保编辑的是通用研磨度值，而不是转换后的特定磨豆机研磨度
+    const [tempValue, setTempValue] = useState(isGrindSize && originalGrindSize ? originalGrindSize : value)
     const inputRef = React.useRef<HTMLInputElement>(null)
 
     useEffect(() => {
@@ -216,12 +221,15 @@ const EditableParameter = ({
     }, [isEditing])
 
     useEffect(() => {
-        setTempValue(value)
-    }, [value])
+        // 如果是研磨度且提供了原始值，则使用原始值，否则使用显示值
+        // 这确保编辑表单显示的始终是通用研磨度值
+        setTempValue(isGrindSize && originalGrindSize ? originalGrindSize : value)
+    }, [value, isGrindSize, originalGrindSize])
 
     const handleBlur = () => {
         setIsEditing(false)
-        if (tempValue !== value) {
+        // 确保编辑研磨度时将原始值与通用研磨度值比较
+        if (tempValue !== (isGrindSize && originalGrindSize ? originalGrindSize : value)) {
             onChange(tempValue)
         }
     }
@@ -237,7 +245,7 @@ const EditableParameter = ({
 
     return (
         <span
-            className={`group relative inline-flex items-center ${className} cursor-pointer min-w-0 max-w-[40px] sm:max-w-[50px]`}
+            className={`group relative inline-flex items-center ${className} cursor-pointer min-w-0 max-w-[40px]`}
             onClick={() => setIsEditing(true)}
         >
             {prefix && <span className="flex-shrink-0">{prefix}</span>}
@@ -249,7 +257,7 @@ const EditableParameter = ({
                     onChange={(e) => setTempValue(e.target.value)}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
-                    className="w-full border-b border-neutral-300 bg-transparent text-center text-[10px] outline-none sm:text-xs px-0.5"
+                    className="w-full border-b border-neutral-300 bg-transparent text-center text-[10px] outline-none px-0.5"
                 />
             ) : (
                 <span className="inline-flex items-center whitespace-nowrap">
@@ -325,7 +333,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     setActiveTab,
     onTitleDoubleClick, // 接收双击标题的回调函数
     settings, // 接收设置
-    selectedCoffeeBean,
+    selectedCoffeeBean: _selectedCoffeeBean, // 重命名为下划线开头以避免未使用变量警告
     hasCoffeeBeans, // 接收是否有咖啡豆的属性
     navigateToStep, // 接收统一的步骤导航函数
     onStepClick // 接收步骤点击回调
@@ -393,24 +401,14 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         return disabledSteps;
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const hasCoffeeBean = !!selectedCoffeeBean;
-
-    // 添加双击计时器和计数器
-    const [lastTitleClickTime, setLastTitleClickTime] = useState(0);
-
     // 处理标题点击事件
     const handleTitleClick = () => {
-        const currentTime = new Date().getTime();
         // 每次点击事件只有成功触发时才执行触感反馈
         if (settings.hapticFeedback) {
             hapticsUtils.light(); // 添加轻触感反馈
         }
-        // 如果距离上次点击不超过300毫秒，视为双击
-        if (currentTime - lastTitleClickTime < 300) {
-            onTitleDoubleClick(); // 调用父组件传入的回调函数
-        }
-        setLastTitleClickTime(currentTime);
+        // 直接调用父组件传入的回调函数打开设置
+        onTitleDoubleClick();
     };
 
     // 处理冲煮步骤点击
@@ -491,7 +489,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     // 修复updateParameterInfo处理逻辑
     useEffect(() => {
         // 定义事件处理函数
-        const handleStepChanged = (detail: {
+        const handleStepChanged = async (detail: {
             step: BrewingStep;
             resetParams?: boolean;
             preserveStates?: string[];
@@ -521,9 +519,28 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                         }))
                     }
                 };
-                updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList);
+
+                try {
+                    // 加载自定义设备并更新参数栏
+                    const { loadCustomEquipments } = await import('@/lib/customEquipments');
+                    const customEquipments = await loadCustomEquipments();
+                    updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList, customEquipments);
+                } catch (error) {
+                    console.error('加载自定义设备失败:', error);
+                    // 出错时使用标准设备列表
+                    updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList);
+                }
             } else {
-                updateParameterInfo(detail.step, selectedEquipment, null, equipmentList);
+                try {
+                    // 即使没有选择方案，也需要加载自定义设备以正确显示器具名称
+                    const { loadCustomEquipments } = await import('@/lib/customEquipments');
+                    const customEquipments = await loadCustomEquipments();
+                    updateParameterInfo(detail.step, selectedEquipment, null, equipmentList, customEquipments);
+                } catch (error) {
+                    console.error('加载自定义设备失败:', error);
+                    // 出错时使用标准设备列表
+                    updateParameterInfo(detail.step, selectedEquipment, null, equipmentList);
+                }
             }
         };
 
@@ -602,46 +619,43 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
             <style jsx global>{noScrollbarStyle}</style>
 
             <AnimatePresence mode="wait">
-                <motion.div 
+                <motion.div
                     key="header"
                     className="overflow-hidden"
                     initial={shouldHideHeader ? { height: 0, opacity: 0 } : { height: "auto", opacity: 1 }}
                     animate={shouldHideHeader ? { height: 0, opacity: 0 } : { height: "auto", opacity: 1 }}
-                    transition={{ 
-                        duration: 0.2, 
+                    transition={{
+                        duration: 0.2,
                         ease: "easeInOut",
-                        opacity: { duration: 0.1 } 
+                        opacity: { duration: 0.1 }
                     }}
                 >
-                    <div className="flex items-center justify-between px-6 px-safe py-4">
-                        <h1
-                            className="text-base font-light tracking-wide cursor-pointer"
+                    <div className="flex items-center justify-between px-6 px-safe pb-4">
+                        <div 
                             onClick={handleTitleClick}
+                            className="cursor-pointer text-[12px] tracking-widest text-neutral-500 dark:text-neutral-400 flex items-center"
                         >
-                            {t('title')}
-                            <span className="ml-1 text-[8px] text-neutral-400 dark:text-neutral-600">v{APP_VERSION}</span>
-                        </h1>
+                            <Equal className="w-4 h-4 mr-1" />
+                            <span>{t('title')}</span>
+                        </div>
 
                         <div className="flex items-center space-x-6">
                             <TabButton
                                 tab={t('main.brewing')}
                                 isActive={activeMainTab === '冲煮'}
                                 onClick={() => handleMainTabClick('冲煮')}
-                                className="text-[10px] sm:text-xs"
                                 dataTab="冲煮"
                             />
                             <TabButton
                                 tab={t('main.beans')}
                                 isActive={activeMainTab === '咖啡豆'}
                                 onClick={() => handleMainTabClick('咖啡豆')}
-                                className="text-[10px] sm:text-xs"
                                 dataTab="咖啡豆"
                             />
                             <TabButton
                                 tab={t('main.notes')}
                                 isActive={activeMainTab === '笔记'}
                                 onClick={() => handleMainTabClick('笔记')}
-                                className="text-[10px] sm:text-xs"
                                 dataTab="笔记"
                             />
                         </div>
@@ -658,8 +672,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ 
-                            duration: 0.25, 
+                        transition={{
+                            duration: 0.25,
                             ease: "easeOut",
                             opacity: { duration: 0.15 }
                         }}
@@ -671,13 +685,13 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    transition={{ 
+                                    transition={{
                                         duration: 0.2,
-                                        ease: "easeOut" 
+                                        ease: "easeOut"
                                     }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="px-6 py-2 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 relative">
+                                    <div className="px-6 py-2 mb-3 bg-neutral-100 dark:bg-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 relative">
                                         <div className="flex items-center min-w-0 overflow-x-auto no-scrollbar max-w-full">
                                             {parameterInfo.equipment && (
                                                 <span
@@ -685,11 +699,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                     onClick={() => {
                                                         setActiveBrewingStep('equipment');
                                                         setActiveTab('器具');
-                                                        setParameterInfo({
-                                                            equipment: parameterInfo.equipment,
-                                                            method: null,
-                                                            params: null,
-                                                        });
                                                     }}
                                                 >
                                                     {parameterInfo.equipment}
@@ -704,14 +713,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                         onClick={() => {
                                                             setActiveBrewingStep('method');
                                                             setActiveTab('方案');
-                                                            if (selectedEquipment && selectedMethod) {
-                                                                const equipmentName = equipmentList.find(e => e.id === selectedEquipment)?.name || selectedEquipment;
-                                                                setParameterInfo({
-                                                                    equipment: equipmentName,
-                                                                    method: selectedMethod.name,
-                                                                    params: null,
-                                                                });
-                                                            }
                                                         }}
                                                     >
                                                         {parameterInfo.method}
@@ -741,11 +742,19 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                         {parameterInfo.params?.grindSize && (
                                                             <>
                                                                 <span className="flex-shrink-0">·</span>
+                                                                {/* 
+                                                                  * 研磨度显示和编辑处理：
+                                                                  * - value属性传入转换后的研磨度(formatGrindSize)用于显示
+                                                                  * - 传入isGrindSize=true标记这是研磨度参数
+                                                                  * - originalGrindSize传入原始通用研磨度，用于编辑时显示和提交
+                                                                  */}
                                                                 <EditableParameter
-                                                                    value={editableParams.grindSize}
+                                                                    value={formatGrindSize(editableParams.grindSize, settings.grindType)}
                                                                     onChange={(v) => handleParamChange('grindSize', v)}
                                                                     unit=""
                                                                     className="border-b border-dashed border-neutral-200 dark:border-neutral-700"
+                                                                    isGrindSize={true}
+                                                                    originalGrindSize={editableParams.grindSize}
                                                                 />
                                                             </>
                                                         )}
@@ -781,6 +790,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                         <span className="whitespace-nowrap">{parameterInfo.params.ratio}</span>
                                                         <span className="flex-shrink-0">·</span>
                                                         <span className="whitespace-nowrap">
+                                                            {/* 显示时使用formatGrindSize将通用研磨度转换为特定磨豆机的研磨度 */}
                                                             {formatGrindSize(parameterInfo.params.grindSize || "", settings.grindType)}
                                                         </span>
                                                         <span className="flex-shrink-0">·</span>
@@ -795,7 +805,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                         </AnimatePresence>
 
                         {/* 步骤指示器 - 内部不再单独有动画 */}
-                        <div className="px-6 px-safe py-3">
+                        <div className="mx-6 px-safe mb-3">
                             <StepIndicator
                                 currentStep={activeBrewingStep}
                                 onStepClick={handleBrewingStepClick}
@@ -810,4 +820,4 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     );
 };
 
-export default NavigationBar; 
+export default NavigationBar;

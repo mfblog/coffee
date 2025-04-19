@@ -138,7 +138,7 @@ const TopNav: React.FC<TopNavProps> = ({ title, onBack, onSave, saveDisabled = f
                 <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
         </button>
-        <h3 className="font-medium text-neutral-800 dark:text-white">{title}</h3>
+        <h3 className="font-medium text-neutral-800 dark:text-neutral-100">{title}</h3>
         {onSave ? (
             <button
                 onClick={onSave}
@@ -778,7 +778,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                             type="text"
                             value={currentEditingAnimation.name}
                             onChange={handlePourAnimationNameChange}
-                            className="mt-1 block w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-white"
+                            className="mt-1 block w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-neutral-100"
                             placeholder="请输入注水动画名称"
                             readOnly={currentEditingAnimation.isSystemDefault}
                             maxLength={20}
@@ -1124,7 +1124,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14.6 15.5l4.6-4.6c.4-.4.4-1 0-1.4l-4.6-4.6M9.4 15.5L4.8 10.9c-.4-.4-.4-1 0-1.4l4.6-4.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-                        <span className="absolute top-0 right-0 bg-blue-500 dark:bg-blue-600 text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full">
+                        <span className="absolute top-0 right-0 bg-blue-500 dark:bg-blue-600 text-neutral-100 text-[8px] w-4 h-4 flex items-center justify-center rounded-full">
                             {valveEditMode === 'closed' ? 'O' : 'C'}
                         </span>
                     </button>
@@ -1202,7 +1202,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                 type="text"
                                 value={equipment.name || ''}
                                 onChange={(e) => handleChange('name', e.target.value)}
-                                className="block w-full rounded-md border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-white transition-colors"
+                                className="block w-full rounded-md border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-neutral-100 transition-colors"
                                 placeholder="例如：双层器具"
                             />
                         </FormField>
@@ -1213,7 +1213,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                 value={equipment.description || ''}
                                 onChange={(e) => handleChange('description', e.target.value)}
                                 rows={3}
-                                className="block w-full rounded-md border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-white transition-colors"
+                                className="block w-full rounded-md border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-neutral-100 transition-colors"
                                 placeholder="描述器具的特点和用途"
                             />
                         </FormField>
@@ -1291,34 +1291,24 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                         <div className="w-full aspect-square flex items-center justify-center bg-neutral-50 dark:bg-neutral-900 rounded-md relative">
                                             <div className="absolute inset-0 flex items-center justify-center">
                                                 <div className="w-3/4 h-3/4 relative">
-                                                    {equipment.customShapeSvg ? (
-                                                        <div
-                                                            className="w-full h-full flex items-center justify-center custom-cup-shape outline-only"
-                                                            dangerouslySetInnerHTML={{
-                                                                __html: equipment.customShapeSvg.replace(/<svg/, '<svg width="100%" height="100%"')
-                                                            }}
+                                                    {/* 默认杯型始终显示默认图像，不管customShapeSvg是否存在 */}
+                                                    <Image
+                                                        src="/images/v60-base.svg"
+                                                        alt="杯型背景"
+                                                        fill
+                                                        className="object-contain invert-0 dark:invert"
+                                                        sizes="(max-width: 768px) 100vw, 300px"
+                                                        quality={85}
+                                                    />
+                                                    {equipment.hasValve && (
+                                                        <Image
+                                                            src="/images/valve-closed.svg"
+                                                            alt="阀门背景"
+                                                            fill
+                                                            className="object-contain invert-0 dark:invert"
+                                                            sizes="(max-width: 768px) 100vw, 300px"
+                                                            quality={85}
                                                         />
-                                                    ) : (
-                                                        <>
-                                                            <Image
-                                                                src="/images/v60-base.svg"
-                                                                alt="杯型背景"
-                                                                fill
-                                                                className="object-contain invert-0 dark:invert"
-                                                                sizes="(max-width: 768px) 100vw, 300px"
-                                                                quality={85}
-                                                            />
-                                                            {equipment.hasValve && (
-                                                                <Image
-                                                                    src="/images/valve-closed.svg"
-                                                                    alt="阀门背景"
-                                                                    fill
-                                                                    className="object-contain invert-0 dark:invert"
-                                                                    sizes="(max-width: 768px) 100vw, 300px"
-                                                                    quality={85}
-                                                                />
-                                                            )}
-                                                        </>
                                                     )}
                                                 </div>
                                             </div>
@@ -1438,7 +1428,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                         <div className="w-full aspect-square bg-neutral-50 dark:bg-neutral-900 rounded-md overflow-hidden relative">
                                             {/* 底部显示杯型 */}
                                             <div className="absolute inset-0 flex items-center justify-center opacity-60">
-                                                {equipment.customShapeSvg ? (
+                                                {cupShapeType === 'custom' && equipment.customShapeSvg ? (
                                                     <div
                                                         className="w-full h-full flex items-center justify-center custom-cup-shape outline-only"
                                                         dangerouslySetInnerHTML={{
@@ -1550,7 +1540,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                         {/* 底部显示杯型 */}
                                         <div className="absolute inset-0 flex items-center justify-center">
                                             <div className="w-full h-full relative opacity-60">
-                                                {equipment.customShapeSvg ? (
+                                                {cupShapeType === 'custom' && equipment.customShapeSvg ? (
                                                     <div
                                                         className="w-full h-full flex items-center justify-center"
                                                         dangerouslySetInnerHTML={{
@@ -1611,7 +1601,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 rounded-md transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-neutral-100 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 rounded-md transition-colors"
                 >
                     {isSubmitting ? '保存中...' : '保存'}
                 </button>

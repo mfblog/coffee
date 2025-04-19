@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CoffeeBean } from '@/app/types'
-import StarRating from './ui/StarRating'
+import StarRating from '../ui/StarRating'
 
 interface CoffeeBeanRatingModalProps {
     showModal: boolean
@@ -93,7 +93,7 @@ const CoffeeBeanRatingModal: React.FC<CoffeeBeanRatingModalProps> = ({
                     style={{
                         willChange: "transform"
                     }}
-                    className="absolute inset-x-0 bottom-0 max-h-[90vh] overflow-hidden rounded-t-2xl bg-neutral-50 dark:bg-neutral-900 shadow-xl"
+                    className="absolute inset-x-0 bottom-0 max-w-[500px] mx-auto max-h-[90vh] overflow-hidden rounded-t-2xl bg-neutral-50 dark:bg-neutral-900 shadow-xl"
                 >
                     {/* 拖动条 */}
                     <div className="sticky top-0 z-10 flex justify-center py-2 bg-neutral-50 dark:bg-neutral-900">
@@ -201,7 +201,7 @@ const CoffeeBeanRatingModal: React.FC<CoffeeBeanRatingModalProps> = ({
                                 </button>
                                 <button
                                     onClick={handleSave}
-                                    className="flex-1 py-2 rounded-md bg-neutral-900 dark:bg-neutral-100 text-xs text-white dark:text-neutral-900"
+                                    className="flex-1 py-2 rounded-md bg-neutral-900 dark:bg-neutral-100 text-xs text-neutral-100 dark:text-neutral-900"
                                 >
                                     保存
                                 </button>

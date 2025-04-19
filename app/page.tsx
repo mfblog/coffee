@@ -3,7 +3,7 @@
 // 导入React和必要的hooks
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { equipmentList, APP_VERSION, commonMethods, CustomEquipment } from '@/lib/config'
+import { equipmentList, APP_VERSION, commonMethods, CustomEquipment, type Method } from '@/lib/config'
 import { Storage } from '@/lib/storage'
 import { initCapacitor } from './capacitor'
 // 只导入需要的类型
@@ -19,18 +19,19 @@ import Settings, { SettingsOptions, defaultSettings } from '@/components/Setting
 import TabContent from '@/components/TabContent'
 import MethodTypeSelector from '@/components/MethodTypeSelector'
 import Onboarding from '@/components/Onboarding'
-import CoffeeBeanFormModal from '@/components/CoffeeBeanFormModal'
+import CoffeeBeanFormModal from '@/components/CoffeeBean/Form/Modal'
 import ImportModal from '@/components/ImportModal'
 import { CoffeeBeanManager } from '@/lib/coffeeBeanManager'
-import AIRecipeModal from '@/components/AIRecipeModal'
+// import AIRecipeModal from '@/components/AIRecipeModal'
 import textZoomUtils from '@/lib/textZoom'
 import { navigateFromHistoryToBrewing } from '@/lib/brewing/navigation'
 import type { BrewingNote } from '@/lib/config'
 import type { BrewingNoteData } from '@/app/types'
 import { BREWING_EVENTS } from '@/lib/brewing/constants'
+import { updateParameterInfo } from '@/lib/brewing/parameters'
 import BrewingNoteFormModalNew from '@/components/BrewingNoteFormModalNew'
 import ErrorBoundary from '@/components/ErrorBoundary'
-import CoffeeBeans from '@/components/CoffeeBeans'
+import CoffeeBeans from '@/components/CoffeeBean/List'
 import SwipeBackGesture from '@/components/SwipeBackGesture'
 import { loadCustomEquipments, saveCustomEquipment, deleteCustomEquipment } from '@/lib/customEquipments'
 import CustomEquipmentFormModal from '@/components/CustomEquipmentFormModal'
@@ -45,7 +46,7 @@ declare global {
 
 // 添加ExtendedCoffeeBean类型
 interface BlendComponent {
-    percentage: number;  // 百分比 (1-100)
+    percentage?: number;  // 百分比 (1-100)，改为可选
     origin?: string;     // 产地
     process?: string;    // 处理法
     variety?: string;    // 品种
@@ -145,8 +146,8 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
     const [showImportBeanForm, setShowImportBeanForm] = useState(false);
 
     // AI方案生成器状态
-    const [showAIRecipeModal, setShowAIRecipeModal] = useState(false);
-    const [selectedBeanForAI, setSelectedBeanForAI] = useState<CoffeeBean | null>(null);
+    // const [showAIRecipeModal, setShowAIRecipeModal] = useState(false);
+    // const [selectedBeanForAI, setSelectedBeanForAI] = useState<CoffeeBean | null>(null);
     // 添加一个标志，跟踪是否是从AI方案跳转过来
     const [isFromAIRecipe, setIsFromAIRecipe] = useState(false);
 
@@ -261,6 +262,32 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         // 简化的初始化函数
         const initializeApp = async () => {
             try {
+                console.log('初始化应用...');
+                
+                // 首先修复现有方案数据关联
+                try {
+                    console.log('检查并修复方案关联...');
+                    const methodsModule = await import('@/lib/customMethods');
+                    await methodsModule.repairMethodsAssociation();
+                    console.log('方案修复完成');
+                } catch (error) {
+                    console.error('方案修复出错:', error);
+                }
+                
+                // 继续原有初始化流程
+                // 检查coffee beans而不是直接调用不存在的函数
+                let hasCoffeeBeans = initialHasBeans;
+                try {
+                    const beansStr = await Storage.get('coffeeBeans');
+                    if (beansStr) {
+                        const beans = JSON.parse(beansStr);
+                        hasCoffeeBeans = Array.isArray(beans) && beans.length > 0;
+                    }
+                } catch (error) {
+                    console.error('检查咖啡豆失败:', error);
+                }
+                setHasCoffeeBeans(hasCoffeeBeans);
+
                 // 0. 自动修复可能存在的数据问题
                 try {
                     // 导入数据管理工具
@@ -429,6 +456,21 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             // 重置冲煮完成状态，但保留其他状态
             setShowComplete(false);
             setIsCoffeeBrewed(false);
+            
+            // 确保参数栏中的器具名称显示正确
+            if (selectedEquipment && (currentBrewingMethod || selectedMethod)) {
+                // 使用自定义器具列表和标准器具列表查找正确的器具名称
+                const method = currentBrewingMethod || selectedMethod;
+                
+                // 更新参数栏信息，传入自定义器具列表确保器具名称显示正确
+                updateParameterInfo(
+                    "brewing",
+                    selectedEquipment,
+                    method,
+                    equipmentList,
+                    customEquipments
+                );
+            }
         };
 
         const handleGetParams = () => {
@@ -502,6 +544,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         window.addEventListener('brewing:timerStatus', handleTimerStatusChange as EventListener);
         window.addEventListener('brewing:stageChange', handleStageChange as EventListener);
         window.addEventListener('brewing:countdownChange', handleCountdownChange as EventListener);
+        window.addEventListener('brewing:layoutChange', handleLayoutChange as EventListener);
 
         // 清理函数
         return () => {
@@ -512,8 +555,22 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             window.removeEventListener('brewing:timerStatus', handleTimerStatusChange as EventListener);
             window.removeEventListener('brewing:stageChange', handleStageChange as EventListener);
             window.removeEventListener('brewing:countdownChange', handleCountdownChange as EventListener);
+            window.removeEventListener('brewing:layoutChange', handleLayoutChange as EventListener);
         };
-    }, [setShowComplete, setIsCoffeeBrewed, setHasAutoNavigatedToNotes, setIsTimerRunning, setCurrentStage, setCountdownTime, setIsStageWaiting, currentBrewingMethod, selectedCoffeeBeanData]);
+    }, [setShowComplete, setIsCoffeeBrewed, setHasAutoNavigatedToNotes, setIsTimerRunning, setCurrentStage, setCountdownTime, setIsStageWaiting, currentBrewingMethod, selectedCoffeeBeanData, selectedEquipment, selectedMethod, customEquipments]);
+
+    // 处理布局设置变更
+    const handleLayoutChange = (e: CustomEvent) => {
+        if (e.detail && e.detail.layoutSettings) {
+            console.log('接收到布局设置变更:', e.detail.layoutSettings);
+            const newSettings = {
+                ...settings,
+                layoutSettings: e.detail.layoutSettings
+            };
+            // 更新全局设置
+            handleSettingsChange(newSettings);
+        }
+    };
 
     // 修改处理步骤点击的包装函数，允许在冲煮完成后切换到记录
     const handleBrewingStepClickWrapper = (step: BrewingStep) => {
@@ -564,9 +621,9 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             setIsCoffeeBrewed(false);
         }
 
-        // 将 step 对象传递给 handleMethodSelect
-        await handleMethodSelect(index, step);
-    }, [handleMethodSelect, isCoffeeBrewed, setIsCoffeeBrewed]);
+        // 将正确的参数传递给 handleMethodSelect
+        await handleMethodSelect(selectedEquipment || "", index, methodType, step);
+    }, [handleMethodSelect, isCoffeeBrewed, setIsCoffeeBrewed, selectedEquipment, methodType]);
 
     // 处理冲煮完成后自动切换到笔记页面
     useEffect(() => {
@@ -629,51 +686,67 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                 throw new Error('无法从输入中提取有效数据');
             }
 
-            // 检查数据是单个对象还是数组
+            // 检查是否是咖啡豆数据类型，通过类型守卫确保安全访问属性
+            const isCoffeeBean = (data: any): data is CoffeeBean => 
+                data && typeof data === 'object' && 'roastLevel' in data;
+            
+            // 检查是否是咖啡豆数组
+            const isCoffeeBeanArray = (data: any): data is CoffeeBean[] => 
+                Array.isArray(data) && data.length > 0 && data.every(isCoffeeBean);
+            
+            // 确保提取的数据是咖啡豆或咖啡豆数组
+            if (!isCoffeeBean(extractedData) && !isCoffeeBeanArray(extractedData)) {
+                throw new Error('导入的数据不是有效的咖啡豆信息');
+            }
+
             const beansToImport = Array.isArray(extractedData) ? extractedData : [extractedData];
 
             let importCount = 0;
             let lastImportedBean: ExtendedCoffeeBean | null = null;
-            for (const bean of beansToImport) {
+            for (const beanData of beansToImport) {
+                // 将导入的咖啡豆转换为ExtendedCoffeeBean类型
+                const bean = {
+                    name: beanData.name,
+                    roastLevel: beanData.roastLevel || '浅度烘焙',
+                    capacity: beanData.capacity || '200',
+                    remaining: beanData.remaining || beanData.capacity || '200',
+                    price: beanData.price || '',
+                    roastDate: beanData.roastDate || '',
+                    process: beanData.process || '',
+                    origin: beanData.origin || '',
+                    variety: beanData.variety || '',
+                    flavor: beanData.flavor || [],
+                    notes: beanData.notes || '',
+                    // 确保type是有效值，否则设为'单品'
+                    type: (beanData.type === '单品' || beanData.type === '拼配') ? beanData.type : '单品',
+                    startDay: beanData.startDay,
+                    endDay: beanData.endDay
+                } as Omit<ExtendedCoffeeBean, 'id' | 'timestamp'>;
+
                 // 验证必要的字段
                 if (!bean.name) {
                     console.warn('导入数据缺少咖啡豆名称，跳过');
                     continue;
                 }
 
-                // 确保有容量（默认为200g）
-                if (!bean.capacity) {
-                    bean.capacity = "200";
-                }
-
-                // 确保烘焙度有默认值
-                if (!bean.roastLevel) {
-                    bean.roastLevel = '浅度烘焙';
-                }
-
-                // 处理拼配成分，确保百分比是数字类型
-                if (bean.blendComponents && Array.isArray(bean.blendComponents)) {
-                    // 定义拼配成分接口
-                    interface BlendComponentInput {
-                        percentage?: string | number;
-                        origin?: string;
-                        process?: string;
-                        variety?: string;
-                        [key: string]: unknown;
-                    }
-                    
-                    // 先验证拼配成分的格式是否正确
-                    const validComponents = bean.blendComponents.filter((comp: BlendComponentInput) => 
-                        comp && (typeof comp === 'object') && 
-                        (comp.percentage !== undefined) &&
-                        (comp.origin !== undefined || comp.process !== undefined || comp.variety !== undefined)
-                    );
+                // 处理拼配成分
+                const beanBlendComponents = (beanData as any).blendComponents;
+                if (beanBlendComponents && Array.isArray(beanBlendComponents)) {
+                    // 验证拼配成分的格式是否正确
+                    const validComponents = beanBlendComponents
+                        .filter((comp: any) => 
+                            comp && (typeof comp === 'object') && 
+                            (comp.origin !== undefined || comp.process !== undefined || comp.variety !== undefined)
+                        );
                     
                     if (validComponents.length > 0) {
-                        bean.blendComponents = validComponents.map((comp: { percentage: string | number }) => ({
-                            ...comp,
-                            percentage: typeof comp.percentage === 'string' ?
-                                parseInt(comp.percentage, 10) : comp.percentage
+                        bean.blendComponents = validComponents.map((comp: any) => ({
+                            origin: comp.origin || '',
+                            process: comp.process || '',
+                            variety: comp.variety || '',
+                            percentage: typeof comp.percentage === 'string' ? 
+                                parseInt(comp.percentage, 10) : 
+                                (typeof comp.percentage === 'number' ? comp.percentage : 100)
                         }));
                     } else if (bean.type === '拼配') {
                         console.warn('拼配豆数据格式不正确，重置拼配成分');
@@ -684,9 +757,6 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                             process: bean.process || '',
                             variety: bean.variety || ''
                         }];
-                    } else {
-                        // 非拼配豆，移除无效的拼配成分
-                        delete bean.blendComponents;
                     }
                 }
 
@@ -730,10 +800,10 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
     };
 
     // 处理AI方案生成
-    const handleGenerateAIRecipe = (bean: ExtendedCoffeeBean) => {
-        setSelectedBeanForAI(bean);
-        setShowAIRecipeModal(true);
-    };
+    // const handleGenerateAIRecipe = (bean: ExtendedCoffeeBean) => {
+    //     setSelectedBeanForAI(bean);
+    //     setShowAIRecipeModal(true);
+    // };
 
     // 完全重写checkCoffeeBeans函数，简化逻辑
     const checkCoffeeBeans = useCallback(async () => {
@@ -914,7 +984,21 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
 
     // 处理选择器具但从参数传入设备名称的情况
     const handleEquipmentSelectWithName = useCallback((equipmentName: string) => {
-        const equipment = equipmentList.find(e => e.name === equipmentName)?.id || equipmentName;
+        // 首先，尝试通过名称在标准设备中查找
+        const standardEquipment = equipmentList.find(e => e.name === equipmentName);
+        
+        // 然后，尝试在自定义设备中查找 - 优先找最近添加的（倒序查找）
+        let customEquipment = null;
+        for (let i = customEquipments.length - 1; i >= 0; i--) {
+            if (customEquipments[i].name === equipmentName) {
+                customEquipment = customEquipments[i];
+                console.log(`找到匹配的自定义器具: ${equipmentName}, ID=${customEquipment.id}`);
+                break;
+            }
+        }
+        
+        // 确定最终使用的设备ID
+        const equipmentId = customEquipment?.id || standardEquipment?.id || equipmentName;
 
         // 更新parameterInfo，添加设备信息
         setParameterInfo({
@@ -924,9 +1008,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         });
 
         // 检查是否是自定义预设器具（animationType === 'custom'）
-        const isCustomPresetEquipment = customEquipments.some(
-            e => (e.id === equipment || e.name === equipment) && e.animationType === 'custom'
-        );
+        const isCustomPresetEquipment = customEquipment?.animationType === 'custom';
 
         // 如果是自定义预设器具，强制设置方法类型为'custom'
         if (isCustomPresetEquipment) {
@@ -934,8 +1016,11 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             console.log('检测到自定义预设器具，已自动切换到自定义方案模式');
         }
 
-        handleEquipmentSelect(equipment);
-    }, [handleEquipmentSelect, setParameterInfo, customEquipments, setMethodType]);
+        // 使用确定的equipmentId调用handleEquipmentSelect
+        handleEquipmentSelect(equipmentId);
+        
+        console.log(`设备选择: 名称=${equipmentName}, ID=${equipmentId}, 是否自定义=${!!customEquipment}, 是否预设器具=${isCustomPresetEquipment}`);
+    }, [handleEquipmentSelect, setParameterInfo, customEquipments, equipmentList, setMethodType]);
 
     // 当前页面相关初始化
     useEffect(() => {
@@ -1102,6 +1187,13 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
 
                 const methodIndex = allMethods.findIndex(m => m.name === methodName);
                 if (methodIndex !== -1) {
+                    const selectedMethodObject = allMethods[methodIndex]; // Get the method object
+                    // Update parameterInfo when method is selected
+                    setParameterInfo(prevInfo => ({
+                        ...prevInfo, // Keep existing equipment name
+                        method: selectedMethodObject.name,
+                        params: null // Clear params when method changes
+                    }));
                     handleMethodSelectWrapper(methodIndex);
                 }
             }
@@ -1109,10 +1201,24 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
 
         const handleParamsUpdate = (e: CustomEvent) => {
             // 注意: 暂未实现参数更新逻辑，保留此函数以匹配事件监听需要
-            const { params } = e.detail;
+            const { params } = e.detail; // Assuming params is the full params object
             if (params) {
                 // 将在未来实现
                 console.log("参数更新请求", params);
+                // Update parameterInfo when params change
+                setParameterInfo(prevInfo => ({
+                    ...prevInfo, // Keep existing equipment and method
+                    params: params // Update the params object
+                }));
+            }
+        };
+
+        // 添加方案类型变更事件监听器
+        const handleMethodTypeEvent = (e: CustomEvent) => {
+            const { detail } = e;
+            if (detail) {
+                // 调用方案类型切换函数
+                handleMethodTypeChange(detail);
             }
         };
 
@@ -1123,6 +1229,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         document.addEventListener(BREWING_EVENTS.SELECT_EQUIPMENT, handleEquipmentSelection as EventListener);
         document.addEventListener(BREWING_EVENTS.SELECT_METHOD, handleMethodSelection as EventListener);
         document.addEventListener(BREWING_EVENTS.UPDATE_BREWING_PARAMS, handleParamsUpdate as EventListener);
+        window.addEventListener('methodTypeChange', handleMethodTypeEvent as EventListener);
 
         return () => {
             // 移除事件监听
@@ -1132,6 +1239,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             document.removeEventListener(BREWING_EVENTS.SELECT_EQUIPMENT, handleEquipmentSelection as EventListener);
             document.removeEventListener(BREWING_EVENTS.SELECT_METHOD, handleMethodSelection as EventListener);
             document.removeEventListener(BREWING_EVENTS.UPDATE_BREWING_PARAMS, handleParamsUpdate as EventListener);
+            window.removeEventListener('methodTypeChange', handleMethodTypeEvent as EventListener);
         };
     }, [
         navigateToStep,
@@ -1142,7 +1250,8 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         customMethods,
         handleMethodSelectWrapper,
         setActiveMainTab,
-        setActiveTab
+        setActiveTab,
+        handleMethodTypeChange
     ]);
 
     // 处理从历史记录直接跳转到注水步骤的情况
@@ -1488,9 +1597,9 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
     };
 
     // 处理保存自定义器具
-    const handleSaveEquipment = async (equipment: CustomEquipment) => {
+    const handleSaveEquipment = async (equipment: CustomEquipment, methods?: Method[]) => {
         try {
-            await saveCustomEquipment(equipment);
+            await saveCustomEquipment(equipment, methods);
             // 刷新器具列表
             const updatedEquipments = await loadCustomEquipments();
             setCustomEquipments(updatedEquipments);
@@ -1536,9 +1645,27 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
     }, [selectedEquipment, customEquipments, methodType, setMethodType]);
 
     // 处理导入器具
-    const handleImportEquipment = async (equipment: CustomEquipment) => {
+    const handleImportEquipment = async (equipment: CustomEquipment, methods?: Method[]) => {
         try {
-            await handleSaveEquipment(equipment);
+            // 记录原始ID，确保后续使用正确的ID
+            const originalId = equipment.id;
+            console.log(`导入器具原始ID: ${originalId}`);
+            
+            // 传递methods参数给handleSaveEquipment
+            await handleSaveEquipment(equipment, methods);
+            
+            // 导入完成后，直接选择该设备
+            if (originalId) {
+                console.log(`导入完成，设置选定器具ID: ${originalId}`);
+                // 直接使用ID选择设备
+                handleEquipmentSelect(originalId);
+                
+                // 如果是自定义预设器具，强制设置方法类型为'custom'
+                if (equipment.animationType === 'custom') {
+                    setMethodType('custom');
+                }
+            }
+            
             setShowEquipmentImportForm(false);
         } catch (error) {
             console.error('导入器具失败:', error);
@@ -1546,7 +1673,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden mx-auto max-w-[500px] font-mono text-neutral-800 dark:text-neutral-100">
+        <div className="flex h-full flex-col overflow-hidden mx-auto max-w-[500px] text-neutral-800 dark:text-neutral-100">
             {/* 使用 NavigationBar 组件替换原有的导航栏 */}
             <NavigationBar
                 activeMainTab={activeMainTab}
@@ -1640,7 +1767,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                         isOpen={activeMainTab === '咖啡豆'}
                         showBeanForm={handleBeanForm}
                         onShowImport={() => setShowImportBeanForm(true)}
-                        onGenerateAIRecipe={handleGenerateAIRecipe}
+                        // onGenerateAIRecipe={handleGenerateAIRecipe}
                     />
                 </ErrorBoundary>
             )}
@@ -1790,11 +1917,11 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             />
 
             {/* AI 方案生成器模态框组件 */}
-            <AIRecipeModal
+            {/* <AIRecipeModal
                 showModal={showAIRecipeModal}
                 onClose={() => setShowAIRecipeModal(false)}
                 coffeeBean={selectedBeanForAI}
-            />
+            /> */}
 
             {/* 冲煮笔记表单模态框组件 */}
             <BrewingNoteFormModalNew

@@ -70,13 +70,13 @@ const EquipmentShareModal: React.FC<EquipmentShareModalProps> = ({
                     selectedMethods.includes(method.id || method.name)
                 ).map(method => ({
                     ...method,
-                    // Remove id as it will be regenerated on import
-                    id: undefined
+                    // 不再删除id，保留原有ID以确保关联性
+                    // id: undefined
                 })) : []
             };
 
-            // Remove id from equipment as it will be regenerated on import
-            delete (exportData.equipment as Partial<CustomEquipment>).id;
+            // 不再删除设备ID，保留原始ID
+            // delete (exportData.equipment as Partial<CustomEquipment>).id;
 
             // Convert to JSON
             const jsonData = JSON.stringify(exportData, null, 2);
@@ -190,7 +190,7 @@ const EquipmentShareModal: React.FC<EquipmentShareModalProps> = ({
                         style={{
                             willChange: "transform"
                         }}
-                        className={`absolute inset-x-0 bottom-0 max-h-[85vh] overflow-auto rounded-t-2xl bg-neutral-50 dark:bg-neutral-900 shadow-xl ${isAndroid ? 'android-modal' : ''} ${isIOS ? 'ios-modal' : ''}`}
+                        className={`absolute inset-x-0 bottom-0 max-w-[500px] mx-auto max-h-[85vh] overflow-auto rounded-t-2xl bg-neutral-50 dark:bg-neutral-900 shadow-xl ${isAndroid ? 'android-modal' : ''} ${isIOS ? 'ios-modal' : ''}`}
                     >
                         {/* 拖动条 */}
                         <div className="sticky top-0 z-10 flex justify-center py-2 bg-neutral-50 dark:bg-neutral-900">
@@ -266,7 +266,7 @@ const EquipmentShareModal: React.FC<EquipmentShareModalProps> = ({
                                 disabled={isSharing}
                                 className={`w-full mt-6 py-2.5 px-4 rounded-lg transition-colors ${isSharing
                                     ? 'bg-neutral-400 dark:bg-neutral-700 cursor-not-allowed'
-                                    : 'bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-800 hover:opacity-80'
+                                    : 'bg-neutral-800 dark:bg-neutral-200 text-neutral-100 dark:text-neutral-800 hover:opacity-80'
                                     }`}
                             >
                                 {isSharing ? '导出中...' : '导出为文件'}

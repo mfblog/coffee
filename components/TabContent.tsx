@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Method, equipmentList, CustomEquipment, commonMethods } from '@/lib/config';
 import StageItem from '@/components/StageItem';
+import StageDivider from '@/components/StageDivider';
 import { SettingsOptions } from './Settings';
-import { TabType, MainTabType, Content, Step } from '@/lib/hooks/useBrewingState';
+import { TabType, MainTabType, Content, Step as BaseStep } from '@/lib/hooks/useBrewingState';
 import { CoffeeBean } from '@/app/types';
 import type { BrewingNoteData } from '@/app/types';
 import { CoffeeBeanManager } from '@/lib/coffeeBeanManager';
@@ -11,15 +12,19 @@ import { v4 as _uuidv4 } from 'uuid';
 import { copyMethodToClipboard } from "@/lib/customMethods";
 import { showToast } from "@/components/ui/toast";
 import EquipmentShareModal from '@/components/EquipmentShareModal';
+import { getEquipmentName } from '@/lib/brewing/parameters';
+import BottomActionBar from '@/components/BottomActionBar';
+import CoffeeBeanList from '@/components/CoffeeBean/List/ListView';
+
+// 扩展Step类型，增加固定方案所需的字段
+interface Step extends BaseStep {
+    customParams?: Record<string, string | number | boolean>;
+    icon?: string;
+    isPinned?: boolean;
+}
 
 // 动态导入客户端组件
 const PourVisualizer = dynamic(() => import('@/components/PourVisualizer'), {
-    ssr: false,
-    loading: () => null
-});
-
-// 动态导入CoffeeBeanList组件
-const CoffeeBeanList = dynamic(() => import('@/components/CoffeeBeanList'), {
     ssr: false,
     loading: () => null
 });
@@ -128,6 +133,61 @@ const TabContent: React.FC<TabContentProps> = ({
 }) => {
     // 笔记表单状态
     const [noteSaved, setNoteSaved] = React.useState(false);
+
+    const [_showNoteForm, _setShowNoteForm] = React.useState(false);
+    const [_noteFormData, _setNoteFormData] = React.useState<Partial<BrewingNoteData> | null>(null);
+    
+    // 添加本地流速显示设置状态
+    const [localShowFlowRate, setLocalShowFlowRate] = React.useState(settings.showFlowRate);
+    
+    // 监听流速设置变化
+    React.useEffect(() => {
+        // 从props更新本地状态
+        setLocalShowFlowRate(settings.showFlowRate);
+        
+        // 监听计时器组件发出的设置变更事件
+        const handleSettingsChange = (e: CustomEvent<{showFlowRate?: boolean}>) => {
+            if (e.detail && e.detail.showFlowRate !== undefined) {
+                setLocalShowFlowRate(e.detail.showFlowRate);
+            }
+        };
+        
+        window.addEventListener('brewing:settingsChange', handleSettingsChange as EventListener);
+        
+        return () => {
+            window.removeEventListener('brewing:settingsChange', handleSettingsChange as EventListener);
+        };
+    }, [settings.showFlowRate]);
+
+    // 获取器具名称的函数
+    const _getEquipmentDisplayName = (equipmentId: string): string => {
+        // 先在预设器具中查找
+        const predefinedEquipment = equipmentList.find(e => e.id === equipmentId);
+        if (predefinedEquipment) return predefinedEquipment.name;
+
+        // 再在自定义器具中查找
+        const customEquipment = customEquipments.find(e => e.id === equipmentId);
+        if (customEquipment) return customEquipment.name;
+
+        return '未知器具';
+    };
+
+    // 处理方案类型切换
+    const handleMethodTypeChange = (type: 'common' | 'custom') => {
+        if (settings?.hapticFeedback) {
+            (async () => {
+                const hapticsUtils = await import('@/lib/haptics');
+                hapticsUtils.default.light(); 
+            })();
+        }
+        
+        // 触发方案类型变更
+        const event = new CustomEvent('methodTypeChange', { detail: type });
+        window.dispatchEvent(event);
+        
+        // 存储当前方案类型
+        localStorage.setItem('methodType', type);
+    };
 
     // 处理保存笔记
     const handleSaveNote = async (note: BrewingNoteData) => {
@@ -252,10 +312,63 @@ const TabContent: React.FC<TabContentProps> = ({
         }
     };
 
+    // 获取设备名称的辅助函数
+    const getEquipmentNameForNote = async (equipmentId: string): Promise<string> => {
+        // 首先尝试在标准设备列表中查找
+        const standardEquipment = equipmentList.find(e => e.id === equipmentId);
+        if (standardEquipment) return standardEquipment.name;
+
+        // 如果没找到，加载自定义设备列表并查找
+        try {
+            const { loadCustomEquipments } = await import('@/lib/customEquipments');
+            const customEquipments = await loadCustomEquipments();
+
+            // 使用工具函数获取设备名称
+            const equipmentName = getEquipmentName(equipmentId, equipmentList, customEquipments);
+            return equipmentName || equipmentId;
+        } catch (error) {
+            console.error('加载自定义设备失败:', error);
+            return equipmentId; // 出错时返回原始ID
+        }
+    };
+
     // 分享器具相关状态
     const [showShareModal, setShowShareModal] = useState(false);
     const [sharingEquipment, setSharingEquipment] = useState<CustomEquipment | null>(null);
     const [sharingMethods, setSharingMethods] = useState<Method[]>([]);
+
+    // 笔记表单包装组件，用于异步加载设备名称
+    const NoteFormWrapper = () => {
+        const [equipmentName, setEquipmentName] = useState<string>('');
+
+        // 在组件挂载时加载设备名称
+        useEffect(() => {
+            const loadEquipmentName = async () => {
+                if (selectedEquipment) {
+                    const name = await getEquipmentNameForNote(selectedEquipment);
+                    setEquipmentName(name);
+                }
+            };
+
+            loadEquipmentName();
+        }, [selectedEquipment]);
+
+        return (
+            <BrewingNoteForm
+                id="brewingNoteForm"
+                isOpen={true}
+                onClose={handleCloseNoteForm}
+                onSave={handleSaveNote}
+                initialData={{
+                    equipment: equipmentName || (selectedEquipment || ''),
+                    method: currentBrewingMethod!.name,
+                    params: currentBrewingMethod!.params,
+                    totalTime: showComplete ? currentBrewingMethod!.params.stages[currentBrewingMethod!.params.stages.length - 1].time : 0,
+                    coffeeBean: selectedCoffeeBeanData || undefined
+                }}
+            />
+        );
+    };
 
     // 处理分享器具
     const handleShareEquipment = async (equipment: CustomEquipment) => {
@@ -304,19 +417,8 @@ const TabContent: React.FC<TabContentProps> = ({
                     }}
                 />
             ) : activeTab === ('记录' as TabType) && currentBrewingMethod ? (
-                <BrewingNoteForm
-                    id="brewingNoteForm"
-                    isOpen={true}
-                    onClose={handleCloseNoteForm}
-                    onSave={handleSaveNote}
-                    initialData={{
-                        equipment: selectedEquipment ? equipmentList.find(e => e.id === selectedEquipment)?.name || selectedEquipment : '',
-                        method: currentBrewingMethod.name,
-                        params: currentBrewingMethod.params,
-                        totalTime: showComplete ? currentBrewingMethod.params.stages[currentBrewingMethod.params.stages.length - 1].time : 0,
-                        coffeeBean: selectedCoffeeBeanData || undefined
-                    }}
-                />
+                <NoteFormWrapper />
+
             ) : isTimerRunning && !showComplete && currentBrewingMethod ? (
                 <div className="flex items-center justify-center h-full">
                     <div className="w-full max-w-[300px]">
@@ -336,96 +438,145 @@ const TabContent: React.FC<TabContentProps> = ({
                 </div>
             ) : (
                 <>
+                    {/* 列表内容容器，添加适当的底部padding */}
+                    <div className="space-y-4 content-area">
+                        {/* 常规方案列表 */}
+                        {content[activeTab]?.steps.map((step: Step, index: number) => {
+                            // 如果是注水标签，检查originalIndex变化来添加阶段分隔线
+                            const showStageDivider = activeTab === '注水' as TabType && 
+                                index > 0 && 
+                                step.originalIndex !== undefined && 
+                                content[activeTab]?.steps[index-1]?.originalIndex !== undefined &&
+                                step.originalIndex !== content[activeTab]?.steps[index-1]?.originalIndex &&
+                                (settings?.layoutSettings?.showStageDivider !== false); // 根据设置决定是否显示分隔线
+
+                            return (
+                            <React.Fragment key={step.methodId ? `${step.methodId}-${index}` : `${step.title}-${index}`}>
+                                {/* 在注水标签页中，检测originalIndex变化添加分隔线 */}
+                                {showStageDivider && (
+                                    <StageDivider stageNumber={step.originalIndex! + 1} key={`divider-${index}`} />
+                                )}
+                                <StageItem
+                                    step={step}
+                                    index={index}
+                                    onClick={() => {
+                                        if (activeTab === '器具' as TabType) {
+                                            onEquipmentSelect(step.title);
+                                        } else if (activeTab === '方案' as TabType) {
+                                            // 传递完整的 step 对象给 onMethodSelect 方法
+                                            onMethodSelect(index, step);
+                                        }
+                                    }}
+                                    activeTab={activeTab}
+                                    selectedMethod={selectedMethod}
+                                    currentStage={currentStage}
+                                    onEdit={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
+                                        const method = customMethods[selectedEquipment!][index];
+                                        onEditMethod(method);
+                                    } : step.isCustom ? () => {
+                                        const equipment = customEquipments.find(e => e.name === step.title);
+                                        if (equipment) {
+                                            setEditingEquipment(equipment);
+                                            setShowEquipmentForm(true);
+                                        }
+                                    } : undefined}
+                                    onDelete={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
+                                        const method = customMethods[selectedEquipment!][index];
+                                        onDeleteMethod(method);
+                                    } : step.isCustom ? () => {
+                                        const equipment = customEquipments.find(e => e.name === step.title);
+                                        if (equipment) {
+                                            handleDeleteEquipment(equipment);
+                                        }
+                                    } : undefined}
+                                    onShare={activeTab === '方案' as TabType ? () => {
+                                        if (methodType === 'custom' && customMethods[selectedEquipment!]) {
+                                            const method = customMethods[selectedEquipment!][index];
+                                            handleShareMethod(method);
+                                        } else if (methodType === 'common' && selectedEquipment) {
+                                            const method = commonMethods[selectedEquipment];
+                                            if (method && method[index]) {
+                                                handleShareMethod(method[index]);
+                                            }
+                                        }
+                                    } : step.isCustom ? () => {
+                                        const equipment = customEquipments.find(e => e.name === step.title);
+                                        if (equipment) {
+                                            handleShareEquipment(equipment);
+                                        }
+                                    } : undefined}
+                                    actionMenuStates={actionMenuStates}
+                                    setActionMenuStates={setActionMenuStates}
+                                    showFlowRate={localShowFlowRate}
+                                    allSteps={content[activeTab]?.steps || []}
+                                />
+                            </React.Fragment>
+                            );
+                        })}
+                    </div>
+
+                    {/* 方案标签底部操作栏 - 特殊布局 */}
+                    {activeTab === '方案' && (
+                        <BottomActionBar
+                            buttons={[
+                                // 方案类型选择按钮
+                                { 
+                                    text: '通用方案',
+                                    onClick: () => handleMethodTypeChange('common'),
+                                    active: methodType === 'common',
+                                    highlight: true,
+                                    id: 'common'
+                                },
+                                { 
+                                    text: '自定义方案',
+                                    onClick: () => handleMethodTypeChange('custom'),
+                                    active: methodType === 'custom',
+                                    highlight: true,
+                                    id: 'custom'
+                                },
+                                
+                                // 创建方案按钮（始终显示，但在非自定义方案模式下半透明且不可点击）
+                                {
+                                    icon: '+',
+                                    text: '新建方案',
+                                    onClick: methodType === 'custom' ? () => setShowCustomForm(true) : () => {},
+                                    highlight: methodType === 'custom',
+                                    className: methodType !== 'custom' ? 'opacity-30 pointer-events-none' : '',
+                                    id: 'new'
+                                },
+                                // 导入方案按钮（始终显示，但在非自定义方案模式下半透明且不可点击）
+                                {
+                                    icon: '↓',
+                                    text: '导入方案',
+                                    onClick: methodType === 'custom' ? () => setShowImportForm(true) : () => {},
+                                    highlight: methodType === 'custom',
+                                    className: methodType !== 'custom' ? 'opacity-30 pointer-events-none' : '',
+                                    id: 'import'
+                                }
+                            ]}
+                            customPresetMode={customEquipments.find(e => e.id === selectedEquipment)?.animationType === 'custom'}
+                        />
+                    )}
+
                     {/* 添加器具按钮 */}
                     {activeTab === '器具' && (
-                        <div className="flex space-x-2 mb-4">
-                            <button
-                                onClick={() => setShowEquipmentForm(true)}
-                                className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-md text-xs text-neutral-800 dark:text-white transition-colors hover:opacity-80"
-                            >
-                                <span className="mr-1">+</span> 添加器具
-                            </button>
-                            <button
-                                onClick={() => setShowEquipmentImportForm(true)}
-                                className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-md text-xs text-neutral-800 dark:text-white transition-colors hover:opacity-80"
-                            >
-                                <span className="mr-1">↓</span> 导入器具
-                            </button>
-                        </div>
-                    )}
-
-                    {activeTab === '方案' && methodType === 'custom' && (
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={() => setShowCustomForm(true)}
-                                className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-md text-xs text-neutral-800 dark:text-white transition-colors hover:opacity-80"
-                            >
-                                <span className="mr-1">+</span> 新建方案
-                            </button>
-                            <button
-                                onClick={() => setShowImportForm(true)}
-                                className="flex-1 flex items-center justify-center py-3 border border-dashed border-neutral-200 dark:border-neutral-800 rounded-md text-xs text-neutral-800 dark:text-white transition-colors hover:opacity-80"
-                            >
-                                <span className="mr-1">↓</span> 导入方案
-                            </button>
-                        </div>
-                    )}
-
-                    {content[activeTab]?.steps.map((step: Step, index: number) => (
-                        <StageItem
-                            key={step.methodId ? `${step.methodId}-${index}` : `${step.title}-${index}`}
-                            step={step}
-                            index={index}
-                            onClick={() => {
-                                if (activeTab === '器具' as TabType) {
-                                    onEquipmentSelect(step.title);
-                                } else if (activeTab === '方案' as TabType) {
-                                    // 传递完整的 step 对象给 onMethodSelect 方法
-                                    onMethodSelect(index, step);
+                        <BottomActionBar
+                            buttons={[
+                                {
+                                    icon: '+',
+                                    text: '添加器具',
+                                    onClick: () => setShowEquipmentForm(true),
+                                    highlight: true
+                                },
+                                {
+                                    icon: '↓',
+                                    text: '导入器具',
+                                    onClick: () => setShowEquipmentImportForm(true),
+                                    highlight: true
                                 }
-                            }}
-                            activeTab={activeTab}
-                            selectedMethod={selectedMethod}
-                            currentStage={currentStage}
-                            onEdit={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
-                                const method = customMethods[selectedEquipment!][index];
-                                onEditMethod(method);
-                            } : step.isCustom ? () => {
-                                const equipment = customEquipments.find(e => e.name === step.title);
-                                if (equipment) {
-                                    setEditingEquipment(equipment);
-                                    setShowEquipmentForm(true);
-                                }
-                            } : undefined}
-                            onDelete={activeTab === '方案' as TabType && methodType === 'custom' && customMethods[selectedEquipment!] ? () => {
-                                const method = customMethods[selectedEquipment!][index];
-                                onDeleteMethod(method);
-                            } : step.isCustom ? () => {
-                                const equipment = customEquipments.find(e => e.name === step.title);
-                                if (equipment) {
-                                    handleDeleteEquipment(equipment);
-                                }
-                            } : undefined}
-                            onShare={activeTab === '方案' as TabType ? () => {
-                                if (methodType === 'custom' && customMethods[selectedEquipment!]) {
-                                    const method = customMethods[selectedEquipment!][index];
-                                    handleShareMethod(method);
-                                } else if (methodType === 'common' && selectedEquipment) {
-                                    const method = commonMethods[selectedEquipment];
-                                    if (method && method[index]) {
-                                        handleShareMethod(method[index]);
-                                    }
-                                }
-                            } : step.isCustom ? () => {
-                                const equipment = customEquipments.find(e => e.name === step.title);
-                                if (equipment) {
-                                    handleShareEquipment(equipment);
-                                }
-                            } : undefined}
-                            actionMenuStates={actionMenuStates}
-                            setActionMenuStates={setActionMenuStates}
+                            ]}
                         />
-                    ))}
+                    )}
                 </>
             )}
             {/* 器具分享模态框 */}

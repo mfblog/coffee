@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 
-// 从 types.ts 导入 BrewingNoteData 类型
 import type { BrewingNoteData, CoffeeBean } from '@/app/types'
 import { generateOptimizationJson } from '@/lib/jsonUtils'
 import { brewingMethods, type Method, type Stage } from '@/lib/config'
-// import { Storage } from '@/lib/storage'
 import AutoResizeTextarea from './AutoResizeTextarea'
 import { Capacitor } from '@capacitor/core'
 
@@ -64,21 +62,21 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
         coffeeBeanInfo: initialCoffeeBeanInfo,
         rating: initialData?.rating || 3,
         taste: {
-            acidity: initialData?.taste?.acidity || 3,
-            sweetness: initialData?.taste?.sweetness || 3,
-            bitterness: initialData?.taste?.bitterness || 3,
-            body: initialData?.taste?.body || 3,
+            acidity: initialData?.taste?.acidity || 0,
+            sweetness: initialData?.taste?.sweetness || 0,
+            bitterness: initialData?.taste?.bitterness || 0,
+            body: initialData?.taste?.body || 0,
         },
         notes: initialData?.notes || '',
-    })
+    });
 
     // 添加优化相关状态，初始化理想风味为当前风味
     const [showOptimization, setShowOptimization] = useState(showOptimizationByDefault) // 控制是否显示优化界面，由外部传入默认值
     const [idealTaste, setIdealTaste] = useState<TasteRatings>({
-        acidity: initialData?.taste?.acidity || 3,
-        sweetness: initialData?.taste?.sweetness || 3,
-        bitterness: initialData?.taste?.bitterness || 3,
-        body: initialData?.taste?.body || 3,
+        acidity: initialData?.taste?.acidity || 0,
+        sweetness: initialData?.taste?.sweetness || 0,
+        bitterness: initialData?.taste?.bitterness || 0,
+        body: initialData?.taste?.body || 0,
     })
     const [optimizationNotes, setOptimizationNotes] = useState('')
     const [optimizationPrompt, setOptimizationPrompt] = useState('')
@@ -188,10 +186,10 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                 coffeeBeanInfo: coffeeBeanInfo,
                 rating: initialData.rating || 3,
                 taste: {
-                    acidity: initialData.taste?.acidity || 3,
-                    sweetness: initialData.taste?.sweetness || 3,
-                    bitterness: initialData.taste?.bitterness || 3,
-                    body: initialData.taste?.body || 3,
+                    acidity: initialData.taste?.acidity || 0,
+                    sweetness: initialData.taste?.sweetness || 0,
+                    bitterness: initialData.taste?.bitterness || 0,
+                    body: initialData.taste?.body || 0,
                 },
                 notes: initialData.notes || '',
             })
@@ -206,6 +204,11 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                     temp: initialData.params.temp || '92°C',
                 });
             }
+
+            // Show flavor ratings section if any rating is greater than 0
+            if (initialData.taste && Object.values(initialData.taste).some(value => value > 0)) {
+                setShowFlavorRatings(true);
+            }
         }
     }, [initialData])
 
@@ -214,29 +217,6 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
         // 当外部传入的showOptimizationByDefault变化时，更新内部状态
         setShowOptimization(showOptimizationByDefault)
     }, [showOptimizationByDefault])
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        
-        // 创建完整的笔记数据，确保包含ID（使用现有ID或生成新ID）
-        const noteData: BrewingNoteData = {
-            id: id || Date.now().toString(), // 始终包含ID，如果没有现有ID，则生成新ID
-            timestamp: Date.now(),
-            ...formData,
-            equipment: initialData.equipment,
-            method: initialData.method,
-            params: methodParams, // 使用修改后的方案参数
-            totalTime: initialData.totalTime,
-        };
-
-        // 不再直接保存到Storage，只传递数据给onSave回调
-        try {
-            // 让外层组件处理存储和导航逻辑
-            onSave(noteData);
-        } catch (_error) {
-            alert('保存笔记时出错，请重试');
-        }
-    }
 
     const [isDragging, /*setIsDragging*/] = useState(false)
     const [currentValue, setCurrentValue] = useState<number | null>(null)
@@ -256,7 +236,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
         const width = rect.width
         const x = touch.clientX - rect.left
         const percentage = Math.max(0, Math.min(1, x / width))
-        const newValue = Math.round(percentage * 4) + 1
+        const newValue = Math.round(percentage * 5)
 
         if (newValue !== currentValue) {
             setFormData({
@@ -290,7 +270,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
         const width = rect.width
         const x = touch.clientX - rect.left
         const percentage = Math.max(0, Math.min(1, x / width))
-        const newValue = Math.round(percentage * 4) + 1
+        const newValue = Math.round(percentage * 5)
 
         if (newValue !== currentValue) {
             setIdealTaste({
@@ -458,25 +438,6 @@ stages数组中的每个阶段必须包含以下字段：
         }
     }, [isDragging])
 
-    // 更新咖啡粉量和水量时同步更新水粉比
-    const updateRatio = (coffee: string, water: string) => {
-        // 提取数字部分
-        const coffeeMatch = coffee.match(/(\d+(\.\d+)?)/);
-        const waterMatch = water.match(/(\d+(\.\d+)?)/);
-        
-        if (coffeeMatch && waterMatch) {
-            const coffeeValue = parseFloat(coffeeMatch[0]);
-            const waterValue = parseFloat(waterMatch[0]);
-            
-            if (!isNaN(coffeeValue) && !isNaN(waterValue) && coffeeValue > 0) {
-                const ratio = (waterValue / coffeeValue).toFixed(1);
-                return `1:${ratio}`;
-            }
-        }
-        
-        return methodParams.ratio;
-    };
-
     // 处理咖啡粉量变化
     const handleCoffeeChange = (value: string) => {
         const newMethodParams = {
@@ -484,24 +445,49 @@ stages数组中的每个阶段必须包含以下字段：
             coffee: value,
         };
         
-        // 自动更新水粉比
-        newMethodParams.ratio = updateRatio(value, methodParams.water);
+        // 根据新的咖啡粉量和当前粉水比计算水量
+        const coffeeMatch = value.match(/(\d+(\.\d+)?)/);
+        const ratioMatch = methodParams.ratio.match(/1:(\d+(\.\d+)?)/);
+        
+        if (coffeeMatch && ratioMatch) {
+            const coffeeValue = parseFloat(coffeeMatch[0]);
+            const ratioValue = parseFloat(ratioMatch[1]);
+            
+            if (!isNaN(coffeeValue) && !isNaN(ratioValue) && coffeeValue > 0) {
+                const waterValue = Math.round(coffeeValue * ratioValue);
+                newMethodParams.water = `${waterValue}g`;
+            }
+        }
         
         setMethodParams(newMethodParams);
     };
-    
-    // 处理水量变化
-    const handleWaterChange = (value: string) => {
-        const newMethodParams = {
-            ...methodParams,
-            water: value,
+
+    // Inside the component, add a new state for showing/hiding flavor ratings
+    const [showFlavorRatings, setShowFlavorRatings] = useState(false);
+
+    // 保存笔记的处理函数 - Moved definition higher
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        // 创建完整的笔记数据
+        const noteData: BrewingNoteData = {
+            id: id || Date.now().toString(),
+            timestamp: Date.now(),
+            ...formData,
+            equipment: initialData.equipment,
+            method: initialData.method,
+            params: methodParams,
+            totalTime: initialData.totalTime,
         };
-        
-        // 自动更新水粉比
-        newMethodParams.ratio = updateRatio(methodParams.coffee, value);
-        
-        setMethodParams(newMethodParams);
-    };
+
+        try {
+            // 保存笔记
+            onSave(noteData);
+        } catch (error) {
+            console.error('保存笔记时出错:', error);
+            alert('保存笔记时出错，请重试');
+        }
+    }
 
     if (!isOpen) return null
 
@@ -513,7 +499,7 @@ stages数组中的每个阶段必须包含以下字段：
         <form 
             id={id} 
             ref={formRef}
-            onSubmit={handleSubmit} 
+            onSubmit={handleSubmit} // Correctly referenced now
             className="relative flex h-full flex-col space-y-8"
         >
             {/* 隐藏的返回按钮，仅用于导航栏返回按钮查找 */}
@@ -639,24 +625,33 @@ stages数组中的每个阶段必须包含以下字段：
                             <div>
                                 <input
                                     type="text"
-                                    value={methodParams.water}
-                                    onChange={(e) => handleWaterChange(e.target.value)}
+                                    value={methodParams.ratio}
+                                    onChange={(e) => {
+                                        const newRatio = e.target.value;
+                                        const newMethodParams = {
+                                            ...methodParams,
+                                            ratio: newRatio,
+                                        };
+                                        
+                                        // 根据新的粉水比和当前咖啡粉量计算水量
+                                        const coffeeMatch = methodParams.coffee.match(/(\d+(\.\d+)?)/);
+                                        if (coffeeMatch && newRatio) {
+                                            const coffeeValue = parseFloat(coffeeMatch[0]);
+                                            const ratioValue = parseFloat(newRatio.replace('1:', ''));
+                                            if (!isNaN(coffeeValue) && !isNaN(ratioValue) && coffeeValue > 0) {
+                                                const waterValue = Math.round(coffeeValue * ratioValue);
+                                                newMethodParams.water = `${waterValue}g`;
+                                            }
+                                        }
+                                        
+                                        setMethodParams(newMethodParams);
+                                    }}
                                     className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-none transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                    placeholder="水量 (如: 225g)"
+                                    placeholder="粉水比 (如: 1:15)"
                                 />
                             </div>
                         </div>
                         <div className="grid grid-cols-3 gap-6">
-                            <div>
-                                <input
-                                    type="text"
-                                    value={methodParams.ratio}
-                                    onChange={(e) => setMethodParams({...methodParams, ratio: e.target.value})}
-                                    className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-none transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                    placeholder="水粉比 (如: 1:15)"
-                                    readOnly
-                                />
-                            </div>
                             <div>
                                 <input
                                     type="text"
@@ -681,51 +676,64 @@ stages数组中的每个阶段必须包含以下字段：
 
                     {/* 风味评分 */}
                     <div className="space-y-4">
-                        <div className="text-[10px] tracking-widest text-neutral-500 dark:text-neutral-400">
-                            风味评分
+                        <div className="flex items-center justify-between">
+                            <div className="text-[10px] tracking-widest text-neutral-500 dark:text-neutral-400">
+                                风味评分
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowFlavorRatings(!showFlavorRatings)}
+                                className="text-[10px] tracking-widest text-neutral-600 dark:text-neutral-400"
+                            >
+                                [ {showFlavorRatings ? '收起' : '展开'} ]
+                            </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-8">
-                            {Object.entries(formData.taste).map(([key, value]) => (
-                                <div key={key} className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-[10px] tracking-widest text-neutral-500 dark:text-neutral-400">
-                                            {
+                        
+                        {showFlavorRatings && (
+                            <div className="grid grid-cols-2 gap-8">
+                                {Object.entries(formData.taste).map(([key, value]) => (
+                                    <div key={key} className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-[10px] tracking-widest text-neutral-500 dark:text-neutral-400">
                                                 {
-                                                    acidity: '酸度',
-                                                    sweetness: '甜度',
-                                                    bitterness: '苦度',
-                                                    body: '醇度',
-                                                }[key]
-                                            }
+                                                    {
+                                                        acidity: '酸度',
+                                                        sweetness: '甜度',
+                                                        bitterness: '苦度',
+                                                        body: '醇度',
+                                                    }[key]
+                                                }
+                                            </div>
+                                            <div className="text-[10px] tracking-widest text-neutral-600 dark:text-neutral-400">
+                                                [ {value || 0} ]
+                                            </div>
                                         </div>
-                                        <div className="text-[10px] tracking-widest text-neutral-600 dark:text-neutral-400">
-                                            [ {value} ]
+                                        <div className="relative py-4 -my-4">
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="5"
+                                                step="1"
+                                                value={value || 0}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        taste: {
+                                                            ...formData.taste,
+                                                            [key]: parseInt(e.target.value),
+                                                        },
+                                                    })
+                                                }
+                                                onTouchStart={handleTouchStart(key, value)}
+                                                onTouchMove={handleTouchMove(key)}
+                                                onTouchEnd={handleTouchEnd}
+                                                className="relative h-[1px] w-full appearance-none bg-neutral-300 dark:bg-neutral-600 cursor-pointer touch-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-neutral-800 dark:[&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-neutral-800 dark:[&::-moz-range-thumb]:bg-white"
+                                            />
                                         </div>
                                     </div>
-                                    <div className="relative py-4 -my-4">
-                                        <input
-                                            type="range"
-                                            min="1"
-                                            max="5"
-                                            value={value}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    taste: {
-                                                        ...formData.taste,
-                                                        [key]: parseInt(e.target.value),
-                                                    },
-                                                })
-                                            }
-                                            onTouchStart={handleTouchStart(key, value)}
-                                            onTouchMove={handleTouchMove(key)}
-                                            onTouchEnd={handleTouchEnd}
-                                            className="relative h-[1px] w-full appearance-none bg-neutral-300 dark:bg-neutral-600 cursor-pointer touch-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-neutral-800 dark:[&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-neutral-800 dark:[&::-moz-range-thumb]:bg-white"
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* 总体评分 */}
@@ -794,24 +802,33 @@ stages数组中的每个阶段必须包含以下字段：
                             <div>
                                 <input
                                     type="text"
-                                    value={methodParams.water}
-                                    onChange={(e) => handleWaterChange(e.target.value)}
+                                    value={methodParams.ratio}
+                                    onChange={(e) => {
+                                        const newRatio = e.target.value;
+                                        const newMethodParams = {
+                                            ...methodParams,
+                                            ratio: newRatio,
+                                        };
+                                        
+                                        // 根据新的粉水比和当前咖啡粉量计算水量
+                                        const coffeeMatch = methodParams.coffee.match(/(\d+(\.\d+)?)/);
+                                        if (coffeeMatch && newRatio) {
+                                            const coffeeValue = parseFloat(coffeeMatch[0]);
+                                            const ratioValue = parseFloat(newRatio.replace('1:', ''));
+                                            if (!isNaN(coffeeValue) && !isNaN(ratioValue) && coffeeValue > 0) {
+                                                const waterValue = Math.round(coffeeValue * ratioValue);
+                                                newMethodParams.water = `${waterValue}g`;
+                                            }
+                                        }
+                                        
+                                        setMethodParams(newMethodParams);
+                                    }}
                                     className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-none transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                    placeholder="水量 (如: 225g)"
+                                    placeholder="粉水比 (如: 1:15)"
                                 />
                             </div>
                         </div>
                         <div className="grid grid-cols-3 gap-6">
-                            <div>
-                                <input
-                                    type="text"
-                                    value={methodParams.ratio}
-                                    onChange={(e) => setMethodParams({...methodParams, ratio: e.target.value})}
-                                    className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-none transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                    placeholder="水粉比 (如: 1:15)"
-                                    readOnly
-                                />
-                            </div>
                             <div>
                                 <input
                                     type="text"
@@ -866,8 +883,9 @@ stages数组中的每个阶段必须包含以下字段：
                                     <div className="relative py-4 -my-4">
                                         <input
                                             type="range"
-                                            min="1"
+                                            min="0"
                                             max="5"
+                                            step="1"
                                             value={value}
                                             onChange={(e) =>
                                                 setIdealTaste({

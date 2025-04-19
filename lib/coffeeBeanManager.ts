@@ -150,7 +150,7 @@ export const CoffeeBeanManager = {
 			}
 
 			// 转换为数字计算
-			const currentRemaining = parseFloat(bean.remaining) || 0;
+			const currentRemaining = bean.remaining ? parseFloat(bean.remaining) : 0;
 
 			// 确保计算正确，保留一位小数的精度
 			const newRemaining = Math.max(0, currentRemaining - usedAmount);
@@ -221,7 +221,7 @@ export const CoffeeBeanManager = {
 	/**
 	 * 获取特定类型的已评分咖啡豆（意式或手冲）
 	 * @param type 豆子类型：'espresso' 或 'filter'
-	 * @returns 指定类型的已评分咖啡豆数组
+	 * @returns 特定类型的已评分咖啡豆数组
 	 */
 	async getRatedBeansByType(
 		type: "espresso" | "filter"
