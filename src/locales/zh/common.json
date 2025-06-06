@@ -339,6 +339,306 @@
       "sponsorEnding": " 。 and You。"
     }
   },
+  "beanForm": {
+    "steps": {
+      "basic": "基本信息",
+      "detail": "详细信息",
+      "flavor": "风味",
+      "complete": "完成"
+    },
+    "navigation": {
+      "previous": "上一步",
+      "next": "下一步",
+      "save": "保存",
+      "cancel": "取消",
+      "simple": "简单"
+    },
+    "basicInfo": {
+      "image": {
+        "label": "咖啡豆图片",
+        "selectImage": "选择图片",
+        "compressionNote": "200kb以上将自动压缩",
+        "camera": "拍照",
+        "gallery": "相册"
+      },
+      "name": {
+        "label": "咖啡豆名称",
+        "placeholder": "输入咖啡豆名称",
+        "required": "*",
+        "defaultName": "未命名咖啡豆"
+      },
+      "inventory": {
+        "label": "库存 (g)",
+        "remaining": "剩余",
+        "total": "总量"
+      },
+      "price": {
+        "label": "价格 (¥)",
+        "placeholder": "如: 88"
+      },
+      "roastLevel": {
+        "label": "烘焙程度",
+        "placeholder": "选择烘焙程度",
+        "options": {
+          "ultraLight": "极浅烘焙",
+          "light": "浅度烘焙",
+          "mediumLight": "中浅烘焙",
+          "medium": "中度烘焙",
+          "mediumDark": "中深烘焙",
+          "dark": "深度烘焙"
+        }
+      },
+      "roastDate": {
+        "label": "烘焙日期",
+        "placeholder": "选择烘焙日期",
+        "inTransit": "在途中...",
+        "setInTransit": "设为在途",
+        "cancelInTransit": "取消在途"
+      },
+      "notes": {
+        "label": "备注",
+        "placeholder": "其他备注..."
+      }
+    },
+    "detailInfo": {
+      "beanType": {
+        "label": "咖啡豆类型",
+        "filter": "手冲",
+        "espresso": "意式"
+      },
+      "flavorPeriod": {
+        "label": "赏味期设置",
+        "resetByRoast": "按烘焙度重置",
+        "setFrozen": "设为冰冻",
+        "cancelFrozen": "取消冰冻状态",
+        "startDay": "养豆期结束 (天)",
+        "endDay": "赏味期结束 (天)",
+        "startDayPlaceholder": "天数",
+        "endDayPlaceholder": "天数",
+        "description": "注：{startDay}天前为养豆期，{startDay}-{endDay}天为最佳风味期，{endDay}天后最佳风味期结束"
+      },
+      "statusSettings": {
+        "label": "状态设置"
+      },
+      "notes": {
+        "label": "备注",
+        "placeholder": "其他备注..."
+      }
+    },
+    "blendComponents": {
+      "label": "咖啡豆成分",
+      "addComponent": "添加成分",
+      "component": "成分",
+      "remove": "移除",
+      "percentage": {
+        "label": "比例 (可选)",
+        "placeholder": "0-{max}",
+        "unit": "%",
+        "maxReached": "(已达100%)"
+      },
+      "origin": {
+        "label": "产地",
+        "placeholder": "产地"
+      },
+      "process": {
+        "label": "处理法",
+        "placeholder": "处理法"
+      },
+      "variety": {
+        "label": "品种",
+        "placeholder": "品种"
+      },
+      "totalRatio": "当前总比例: {total}%",
+      "remaining": "还需 {remaining}%",
+      "excess": "超出 {excess}%"
+    },
+    "flavorInfo": {
+      "selectedFlavors": {
+        "label": "已选风味标签",
+        "empty": "暂未添加风味标签"
+      },
+      "addFlavor": {
+        "label": "添加风味标签",
+        "placeholder": "如: 柑橘",
+        "addButton": "添加"
+      },
+      "commonFlavors": {
+        "label": "常见风味标签"
+      }
+    },
+    "complete": {
+      "title": {
+        "add": "咖啡豆已添加",
+        "edit": "咖啡豆已编辑"
+      },
+      "subtitle": "您的咖啡豆信息已准备就绪",
+      "fields": {
+        "name": "咖啡豆名称",
+        "type": "类型",
+        "usage": "用途",
+        "capacity": "总容量",
+        "roastLevel": "烘焙程度",
+        "origin": "产地",
+        "process": "处理法",
+        "variety": "品种",
+        "flavor": "风味",
+        "flavorPeriod": "赏味期",
+        "components": "咖啡豆成分",
+        "component": "成分",
+        "ratio": "比例"
+      },
+      "values": {
+        "single": "单品豆",
+        "blend": "拼配豆",
+        "filter": "手冲",
+        "espresso": "意式",
+        "days": "{start}-{end} 天"
+      }
+    }
+  },
+  "beanImport": {
+    "title": "导入咖啡豆",
+    "modes": {
+      "switchToManual": "切换手动",
+      "switchToImage": "切换识图"
+    },
+    "manual": {
+      "description": "手动填写咖啡豆信息",
+      "steps": {
+        "prepare": "准备好咖啡豆商品图、excel表格等",
+        "send": "发送至",
+        "paste": "将返回的 JSON 数据粘贴到下方文本框"
+      },
+      "aiAssistant": "豆包定制智能体",
+      "promptTitle": "提示词（点击展开）",
+      "copyButton": "复制"
+    },
+    "imageRecognition": {
+      "description": "上传咖啡豆包装图片，AI自动识别信息",
+      "camera": "拍照",
+      "gallery": "相册",
+      "cropActive": "已框选区域进行精确识别",
+      "cropInactive": "可在图片上框选区域进行精确识别",
+      "cancelCrop": "取消框选",
+      "reselect": "重新选择",
+      "confirmCrop": "确认裁剪并识别",
+      "processing": "处理中..."
+    },
+    "textInput": {
+      "placeholder": "在此粘贴JSON数据或文本描述...",
+      "import": "导入",
+      "inputRequired": "请输入要导入的数据"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "import": "导入"
+    },
+    "messages": {
+      "copySuccess": "复制成功",
+      "copyFailed": "复制失败",
+      "recognitionSuccess": "✨ AI识别成功！请检查识别结果是否正确",
+      "recognitionFailed": "图片识别失败，请重试",
+      "importingBatch": "正在批量导入咖啡豆数据...",
+      "importing": "正在导入咖啡豆数据...",
+      "importFailed": "导入失败: {error}",
+      "invalidData": "无法从输入中提取有效数据",
+      "invalidBeanData": "部分数据不是有效的咖啡豆信息",
+      "extractedInvalidData": "提取的数据不是有效的咖啡豆信息",
+      "processingFailed": "数据处理失败: {error}",
+      "processingError": "处理数据时出错: {error}",
+      "canvasContextError": "无法创建canvas上下文",
+      "compressionError": "压缩失败",
+      "imageLoadError": "图片加载失败",
+      "fileReadError": "文件读取失败",
+      "recognitionError": "识别失败:"
+    },
+    "templatePrompt": {
+      "header": "提取咖啡豆信息，返回JSON格式。",
+      "fields": "字段说明：\n- name: 咖啡豆名称（必填）\n- capacity: 总容量数字\n- remaining: 剩余容量数字\n- price: 价格数字\n- roastLevel: 极浅烘焙/浅度烘焙/中浅烘焙/中度烘焙/中深烘焙/深度烘焙\n- roastDate: YYYY-MM-DD格式\n- flavor: 风味数组\n- notes: 备注信息\n- startDay: 养豆期天数\n- endDay: 赏味期天数\n- blendComponents: 成分数组",
+      "componentFields": "成分字段说明：\n- percentage: 比例数字（有比例信息时填写，没有时可省略该字段）\n- origin: 产地\n- process: 处理法\n- variety: 品种",
+      "notes": "注意：\n- 每个成分的origin/process/variety只能填一个值，不能用逗号连接\n- 不确定的字段留空字符串\"\"或空数组[]\n- 产地、处理法、品种信息请放在blendComponents数组中"
+    }
+  },
+  "beanConstants": {
+    "origins": {
+      "埃塞俄比亚": "埃塞俄比亚",
+      "巴西": "巴西",
+      "哥伦比亚": "哥伦比亚",
+      "危地马拉": "危地马拉",
+      "肯尼亚": "肯尼亚",
+      "洪都拉斯": "洪都拉斯",
+      "哥斯达黎加": "哥斯达黎加",
+      "秘鲁": "秘鲁",
+      "印度尼西亚": "印度尼西亚",
+      "牙买加": "牙买加",
+      "也门": "也门",
+      "越南": "越南",
+      "墨西哥": "墨西哥",
+      "卢旺达": "卢旺达",
+      "坦桑尼亚": "坦桑尼亚",
+      "巴拿马": "巴拿马",
+      "云南": "云南",
+      "云南保山": "云南保山"
+    },
+    "processes": {
+      "水洗": "水洗",
+      "日晒": "日晒",
+      "蜜处理": "蜜处理",
+      "半水洗": "半水洗",
+      "黑蜜": "黑蜜",
+      "白蜜": "白蜜",
+      "红蜜": "红蜜",
+      "黄蜜": "黄蜜",
+      "厌氧发酵": "厌氧发酵",
+      "碳酸浸泡": "碳酸浸泡",
+      "双重发酵": "双重发酵",
+      "干燥处理": "干燥处理",
+      "湿刷处理": "湿刷处理"
+    },
+    "varieties": {
+      "铁皮卡": "铁皮卡",
+      "卡杜拉": "卡杜拉",
+      "卡图拉": "卡图拉",
+      "波旁": "波旁",
+      "原生种": "原生种",
+      "瑰夏": "瑰夏",
+      "红波旁": "红波旁",
+      "黄波旁": "黄波旁",
+      "SL28": "SL28",
+      "SL34": "SL34",
+      "西达摩": "西达摩",
+      "卡蒂姆": "卡蒂姆",
+      "帕卡马拉": "帕卡马拉",
+      "卡斯蒂洛": "卡斯蒂洛",
+      "芒果": "芒果",
+      "卡杜艾": "卡杜艾",
+      "芒多当新": "芒多当新",
+      "巴西天然种": "巴西天然种"
+    },
+    "flavorCategories": {
+      "水果类": "水果类",
+      "花香类": "花香类",
+      "甜味类": "甜味类",
+      "坚果类": "坚果类",
+      "香料类": "香料类",
+      "草本类": "草本类",
+      "谷物/烘焙类": "谷物/烘焙类",
+      "酒类/发酵类": "酒类/发酵类",
+      "茶类": "茶类",
+      "烟草类": "烟草类",
+      "青涩/植蔬类": "青涩/植蔬类",
+      "口感类": "口感类",
+      "其他": "其他"
+    },
+    "roastLevels": {
+      "极浅烘焙": "极浅烘焙",
+      "浅度烘焙": "浅度烘焙",
+      "中浅烘焙": "中浅烘焙",
+      "中度烘焙": "中度烘焙",
+      "中深烘焙": "中深烘焙",
+      "深度烘焙": "深度烘焙"
+    }
+  },
   "notes": {
     "form": {
       "title": {

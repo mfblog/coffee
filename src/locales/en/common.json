@@ -529,6 +529,10 @@
       "import": "Import",
       "inputRequired": "Please enter data to import"
     },
+    "buttons": {
+      "cancel": "Cancel",
+      "import": "Import"
+    },
     "messages": {
       "copySuccess": "Copied successfully",
       "copyFailed": "Copy failed",
@@ -541,7 +545,18 @@
       "invalidBeanData": "Some data is not valid coffee bean information",
       "extractedInvalidData": "Extracted data is not valid coffee bean information",
       "processingFailed": "Data processing failed: {error}",
-      "processingError": "Error processing data: {error}"
+      "processingError": "Error processing data: {error}",
+      "canvasContextError": "Unable to create canvas context",
+      "compressionError": "Compression failed",
+      "imageLoadError": "Image loading failed",
+      "fileReadError": "File reading failed",
+      "recognitionError": "Recognition failed:"
+    },
+    "templatePrompt": {
+      "header": "Extract coffee bean information and return in JSON format.",
+      "fields": "Field descriptions:\n- name: Coffee bean name (required)\n- capacity: Total capacity number\n- remaining: Remaining capacity number\n- price: Price number\n- roastLevel: Ultra Light/Light/Medium Light/Medium/Medium Dark/Dark\n- roastDate: YYYY-MM-DD format\n- flavor: Flavor array\n- notes: Notes information\n- startDay: Aging period days\n- endDay: Best taste period days\n- blendComponents: Component array",
+      "componentFields": "Component field descriptions:\n- percentage: Percentage number (fill when percentage info available, omit when not)\n- origin: Origin\n- process: Processing method\n- variety: Variety",
+      "notes": "Notes:\n- Each component's origin/process/variety can only have one value, cannot be comma-separated\n- Leave uncertain fields as empty string \"\" or empty array []\n- Put origin, processing method, variety info in blendComponents array"
     }
   },
   "beanConstants": {

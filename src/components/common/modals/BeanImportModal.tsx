@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import ReactCrop, { Crop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { recognizeImage, RecognitionError } from '@/services/recognition'
@@ -50,7 +50,7 @@ const compressImage = async (file: File, maxSizeMB: number = 2): Promise<Blob> =
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 if (!ctx) {
-                    reject(new Error('无法创建canvas上下文'));
+                    reject(new Error('Unable to create canvas context'));
                     return;
                 }
                 
@@ -62,7 +62,7 @@ const compressImage = async (file: File, maxSizeMB: number = 2): Promise<Blob> =
                     canvas.toBlob(
                         (blob) => {
                             if (!blob) {
-                                reject(new Error('压缩失败'));
+                                reject(new Error('Compression failed'));
                                 return;
                             }
                             
@@ -81,9 +81,9 @@ const compressImage = async (file: File, maxSizeMB: number = 2): Promise<Blob> =
                 
                 compress();
             };
-            img.onerror = () => reject(new Error('图片加载失败'));
+            img.onerror = () => reject(new Error('Image loading failed'));
         };
-        reader.onerror = () => reject(new Error('文件读取失败'));
+        reader.onerror = () => reject(new Error('File reading failed'));
     });
 };
 
@@ -94,12 +94,13 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
 }) => {
     // 使用翻译钩子
     const t = useTranslations('beanImport')
+    const locale = useLocale()
     // 导入数据的状态
     const [importData, setImportData] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const _fileInputRef = useRef<HTMLInputElement>(null);
+
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [crop, setCrop] = useState<Crop>({
         unit: '%',
@@ -266,46 +267,34 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
         onClose();
     };
 
-    // 生成模板提示词
-    const _templatePrompt = (() => {
-        // 不再使用模板生成
-        // const templateJson = generateBeanTemplateJson();
-        return `提取咖啡豆信息，返回JSON格式。
+    // 生成模板提示词 - 直接硬编码避免 next-intl 解析问题
+    const getUsageText = () => {
+        if (locale === 'en') {
+            return "For single coffee bean use: '{...}'\nFor multiple coffee beans use: '[{...},{...}]'";
+        }
+        return "单个咖啡豆使用：'{...}'\n多个咖啡豆使用：'[{...},{...}]'";
+    };
 
-单个咖啡豆使用：{...}
-多个咖啡豆使用：[{...},{...}]
+    const getComponentFormatText = () => {
+        if (locale === 'en') {
+            return "Component format:\nSingle origin: '[{\"origin\":\"Ethiopia\",\"process\":\"Washed\",\"variety\":\"Geisha\"}]'\nBlend: '[\n  {\"percentage\":60,\"origin\":\"Brazil\",\"process\":\"Natural\",\"variety\":\"Red Bourbon\"},\n  {\"percentage\":40,\"origin\":\"Ethiopia\",\"process\":\"Washed\",\"variety\":\"Typica\"}\n]'";
+        }
+        return "成分格式：\n单品：'[{\"origin\":\"埃塞俄比亚\",\"process\":\"水洗\",\"variety\":\"瑰夏\"}]'\n拼配：'[\n  {\"percentage\":60,\"origin\":\"巴西\",\"process\":\"日晒\",\"variety\":\"红波旁\"},\n  {\"percentage\":40,\"origin\":\"埃塞俄比亚\",\"process\":\"水洗\",\"variety\":\"铁皮卡\"}\n]'";
+    };
 
-字段说明：
-- name: 咖啡豆名称（必填）
-- capacity: 总容量数字
-- remaining: 剩余容量数字
-- price: 价格数字
-- roastLevel: 极浅烘焙/浅度烘焙/中浅烘焙/中度烘焙/中深烘焙/深度烘焙
-- roastDate: YYYY-MM-DD格式
-- flavor: 风味数组
-- notes: 备注信息
-- startDay: 养豆期天数
-- endDay: 赏味期天数
-- blendComponents: 成分数组
-
-成分格式：
-单品：[{"origin":"埃塞俄比亚","process":"水洗","variety":"瑰夏"}]
-拼配：[
-  {"percentage":60,"origin":"巴西","process":"日晒","variety":"红波旁"},
-  {"percentage":40,"origin":"埃塞俄比亚","process":"水洗","variety":"铁皮卡"}
-]
-
-成分字段说明：
-- percentage: 比例数字（有比例信息时填写，没有时可省略该字段）
-- origin: 产地
-- process: 处理法
-- variety: 品种
-
-注意：
-- 每个成分的origin/process/variety只能填一个值，不能用逗号连接
-- 不确定的字段留空字符串""或空数组[]
-- 产地、处理法、品种信息请放在blendComponents数组中`;
-    })();
+    const templatePrompt = [
+        t('templatePrompt.header'),
+        '',
+        getUsageText(),
+        '',
+        t('templatePrompt.fields'),
+        '',
+        getComponentFormatText(),
+        '',
+        t('templatePrompt.componentFields'),
+        '',
+        t('templatePrompt.notes')
+    ].join('\n');
 
     // 兼容性更好的复制文本方法
     const _copyTextToClipboard = async (text: string) => {
@@ -313,7 +302,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
             // 首先尝试使用现代API
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(text);
-                setSuccess('复制成功');
+                setSuccess(t('messages.copySuccess'));
                 setTimeout(() => setSuccess(null), 2000);
                 return;
             }
@@ -334,14 +323,14 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
 
             const successful = document.execCommand('copy');
             if (successful) {
-                setSuccess('复制成功');
+                setSuccess(t('messages.copySuccess'));
                 setTimeout(() => setSuccess(null), 2000);
             } else {
-                setError('复制失败');
+                setError(t('messages.copyFailed'));
                 setTimeout(() => setError(null), 2000);
             }
         } catch (_err) {
-            setError('复制失败');
+            setError(t('messages.copyFailed'));
             setTimeout(() => setError(null), 2000);
         } finally {
             if (document.querySelector('textarea[style*="-999999px"]')) {
@@ -381,7 +370,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                 const beanData = extractJsonFromText(importData);
 
                 if (!beanData) {
-                    setError('无法从输入中提取有效数据');
+                    setError(t('messages.invalidData'));
                     return;
                 }
 
@@ -390,7 +379,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                     // 处理多个咖啡豆
                     // 验证每个条目都是咖啡豆
                     if (!beanData.every(item => 'roastLevel' in item)) {
-                        setError('部分数据不是有效的咖啡豆信息');
+                        setError(t('messages.invalidBeanData'));
                         return;
                     }
                     
@@ -401,17 +390,17 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                     }));
                     
                     try {
-                        setSuccess('正在批量导入咖啡豆数据...');
+                        setSuccess(t('messages.importingBatch'));
                         await onImport(JSON.stringify(processedBeans));
                         handleClose();
                     } catch (error) {
-                        setError('导入失败: ' + (error instanceof Error ? error.message : '未知错误'));
+                        setError(t('messages.importFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
                         setSuccess(null);
                     }
                 } else {
                     // 处理单个咖啡豆
                     if (!('roastLevel' in beanData)) {
-                        setError('提取的数据不是有效的咖啡豆信息');
+                        setError(t('messages.extractedInvalidData'));
                         return;
                     }
                     
@@ -421,20 +410,20 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                     };
                     
                     try {
-                        setSuccess('正在导入咖啡豆数据...');
+                        setSuccess(t('messages.importing'));
                         await onImport(JSON.stringify([dataWithTimestamp])); // 始终返回数组格式
                         handleClose();
                     } catch (error) {
-                        setError('导入失败: ' + (error instanceof Error ? error.message : '未知错误'));
+                        setError(t('messages.importFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
                         setSuccess(null);
                     }
                 }
             }).catch(err => {
-                setError('数据处理失败: ' + (err instanceof Error ? err.message : '未知错误'));
+                setError(t('messages.processingFailed', { error: err instanceof Error ? err.message : 'Unknown error' }));
                 setSuccess(null);
             });
         } catch (err) {
-            setError('处理数据时出错: ' + (err instanceof Error ? err.message : '未知错误'));
+            setError(t('messages.processingError', { error: err instanceof Error ? err.message : 'Unknown error' }));
             setSuccess(null);
         }
     };
@@ -502,15 +491,15 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
 
             if (data.result) {
                 setImportData(JSON.stringify(data.result, null, 2));
-                setSuccess('✨ AI识别成功！请检查识别结果是否正确');
+                setSuccess(t('messages.recognitionSuccess'));
             }
 
         } catch (err) {
-            console.error('识别失败:', err);
+            console.error(t('messages.recognitionError'), err);
             if (err instanceof RecognitionError) {
                 setError(err.message);
             } else {
-                setError('图片识别失败，请重试');
+                setError(t('messages.recognitionFailed'));
             }
         } finally {
             setIsUploading(false);
@@ -534,12 +523,12 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                 onClick={toggleManualMode}
                 className="px-2 py-1 absolute right-0 top-0 rounded-bl bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300"
             >
-                {manualMode ? '切换识图' : '切换手动'}
+                {manualMode ? t('modes.switchToImage') : t('modes.switchToManual')}
             </button>
             <div className="flex flex-col space-y-3">
                 <div className="flex justify-between items-center">
                     <p className="text-neutral-600 dark:text-neutral-400">
-                        {manualMode ? '手动填写咖啡豆信息' : '上传咖啡豆包装图片，AI自动识别信息'}
+                        {manualMode ? t('manual.description') : t('imageRecognition.description')}
                     </p>
                 </div>
 
@@ -547,28 +536,28 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                     <div className="space-y-4 py-1">
                         <div className="bg-neutral-100 dark:bg-neutral-800 rounded-lg text-neutral-600 dark:text-neutral-400">
                             <ol className="list-decimal pl-4 space-y-1">
-                                <li>准备好咖啡豆商品图、excel表格等</li>
+                                <li>{t('manual.steps.prepare')}</li>
                                 <li>
-                                    <span>发送至</span>
-                                    <a 
-                                    href="https://doubao.com/bot/duJYQEFd" 
-                                    target="_blank" 
+                                    <span>{t('manual.steps.send')}</span>
+                                    <a
+                                    href="https://doubao.com/bot/duJYQEFd"
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="pb-1.5 relative text-neutral-600 dark:text-neutral-400"
                                 >
-                                    <span className="relative underline underline-offset-2 decoration-sky-600 ml-1">豆包定制智能体</span>
+                                    <span className="relative underline underline-offset-2 decoration-sky-600 ml-1">{t('manual.aiAssistant')}</span>
                                     <svg viewBox="0 0 24 24" className="inline-block ml-1 w-3 h-3" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
                                         <path d="M7 17L17 7M17 7H7M17 7V17" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </a></li>
-                                <li>将返回的 JSON 数据粘贴到下方文本框</li>
-                                
+                                <li>{t('manual.steps.paste')}</li>
+
                             </ol>
                             <details className="mt-3 p-2 bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-700 rounded-md">
-                                <summary className="text-neutral-500 dark:text-neutral-400 cursor-pointer">提示词（点击展开）</summary>
+                                <summary className="text-neutral-500 dark:text-neutral-400 cursor-pointer">{t('manual.promptTitle')}</summary>
                                 <textarea
                                     readOnly
-                                    value={_templatePrompt}
+                                    value={templatePrompt}
                                     className="w-full text-neutral-700 dark:text-neutral-300 p-2 mt-2 bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-700 rounded-md h-20 overflow-auto"
                                     onFocus={(e) => e.target.select()}
                                 />
@@ -576,11 +565,11 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                     <button
                                         onClick={() => {
                                             clearMessages();
-                                            _copyTextToClipboard(_templatePrompt);
+                                            _copyTextToClipboard(templatePrompt);
                                         }}
                                         className="text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-sm  bg-neutral-200/80 dark:bg-neutral-800/80 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors"
                                     >
-                                        复制
+                                        {t('manual.copyButton')}
                                     </button>
                                 </div>
                             </details>
@@ -614,7 +603,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                             </div>
                             <div className="w-full flex items-center justify-between mt-2">
                                 <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
-                                    {isCropActive ? "已框选区域进行精确识别" : "可在图片上框选区域进行精确识别"}
+                                    {isCropActive ? t('imageRecognition.cropActive') : t('imageRecognition.cropInactive')}
                                 </p>
                                 {isCropActive && (
                                     <button
@@ -631,7 +620,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                         }}
                                         className="text-[10px] px-2 py-0.5 bg-neutral-200 dark:bg-neutral-700 rounded-sm text-neutral-700 dark:text-neutral-300"
                                     >
-                                        取消框选
+                                        {t('imageRecognition.cancelCrop')}
                                     </button>
                                 )}
                             </div>
@@ -645,13 +634,13 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                 }}
                                 className="px-3 py-1 text-sm border border-neutral-300 dark:border-neutral-600 rounded-sm"
                             >
-                                重新选择
+                                {t('imageRecognition.reselect')}
                             </button>
                             <button
                                 onClick={handleImageRecognition}
                                 className="px-3 py-1 text-sm bg-neutral-800 dark:bg-neutral-200 text-neutral-100 dark:text-neutral-800 rounded-sm"
                             >
-                                确认裁剪并识别
+                                {t('imageRecognition.confirmCrop')}
                             </button>
                         </div>
                     </div>
@@ -667,7 +656,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span>拍照</span>
+                                <span>{t('imageRecognition.camera')}</span>
                             </span>
                         </button>
                         <button
@@ -679,7 +668,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span>相册</span>
+                                <span>{t('imageRecognition.gallery')}</span>
                             </span>
                         </button>
                     </div>
@@ -691,7 +680,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        <span className="text-sm">处理中...</span>
+                        <span className="text-sm">{t('imageRecognition.processing')}</span>
                     </div>
                 )}
             </div>
@@ -767,7 +756,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                             />
                                         </svg>
                                     </button>
-                                    <h3 className="text-base font-medium">导入咖啡豆数据</h3>
+                                    <h3 className="text-base font-medium">{t('title')}</h3>
                                     <div className="w-8"></div>
                                 </div>
 
@@ -776,12 +765,12 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                     {renderUploadSection()}
                                     <div className="flex items-center mb-1">
                                         <p className="text-xs text-neutral-300 dark:text-neutral-700 flex-1">
-                                            {manualMode ? 'JSON 数据' : 'JSON 数据'}
+                                            JSON {t('textInput.import')}
                                         </p>
                                     </div>
                                     <textarea
                                         className="w-full p-3 border border-neutral-300/50 dark:border-neutral-700/80 rounded-md bg-transparent focus:outline-hidden text-neutral-800 dark:text-neutral-200"
-                                        placeholder=""
+                                        placeholder={t('textInput.placeholder')}
                                         value={importData}
                                         onChange={(e) => setImportData(e.target.value)}
                                     />
@@ -800,13 +789,13 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
                                             onClick={handleClose}
                                             className="px-4 py-2 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-md text-sm"
                                         >
-                                            取消
+                                            {t('buttons.cancel')}
                                         </button>
                                         <button
                                             onClick={handleImport}
                                             className="px-4 py-2 bg-neutral-800 dark:bg-neutral-200 text-neutral-100 dark:text-neutral-800 rounded-md text-sm"
                                         >
-                                            导入
+                                            {t('buttons.import')}
                                         </button>
                                     </div>
                                 </div>
