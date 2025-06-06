@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { CustomEquipment } from '@/lib/core/config';
 import { isEquipmentNameAvailable } from '@/lib/managers/customEquipments';
 import DrawingCanvas, { DrawingCanvasRef } from '../../common/ui/DrawingCanvas';
@@ -45,63 +46,9 @@ interface CustomEquipmentFormProps {
     initialEquipment?: CustomEquipment;
 }
 
-// 预设方案选项 - 简化为三种基本类型
-const PRESET_OPTIONS = [
-    {
-        value: 'v60',
-        label: 'V60预设',
-        description: '适用于锥形、蛋糕杯、折纸等常规器具',
-        equipmentId: 'V60',
-    },
-    {
-        value: 'clever',
-        label: '聪明杯预设',
-        description: '带阀门控制，可以控制咖啡液流出的时间',
-        equipmentId: 'CleverDripper',
-    },
-    {
-        value: 'espresso',
-        label: '意式机',
-        description: '适用于意式咖啡机，关注萃取时间和液重',
-        equipmentId: 'Espresso',
-    },
-    {
-        value: 'custom',
-        label: '自定义预设',
-        description: '完全自定义器具，创建您自己的独特设置',
-        equipmentId: '',
-    }
-] as const;
 
-// 意式机已整合到PRESET_OPTIONS数组中
 
-// 修改默认注水类型常量
-const DEFAULT_POUR_TYPES = [
-    {
-        id: 'system-center',
-        name: '中心注水',
-        pourType: 'center' as const,
-        description: '中心定点注水，降低萃取率',
-        isSystemDefault: true,
-        previewFrames: 3
-    },
-    {
-        id: 'system-circle',
-        name: '绕圈注水',
-        pourType: 'circle' as const,
-        description: '中心向外缓慢画圈注水，均匀萃取咖啡风味',
-        isSystemDefault: true,
-        previewFrames: 4
-    },
-    {
-        id: 'system-ice',
-        name: '添加冰块',
-        pourType: 'ice' as const,
-        description: '适用于冰滴和冰手冲咖啡',
-        isSystemDefault: true,
-        previewFrames: 4
-    }
-];
+
 
 // 表单字段组件
 interface FormFieldProps {
@@ -168,8 +115,65 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
     onCancel,
     initialEquipment
 }) => {
+    const t = useTranslations('equipmentForm.form');
     const windowSize = useWindowSize();
     const canvasContainerRef = useRef<HTMLDivElement>(null);
+
+    // 动态预设选项，使用翻译
+    const presetOptions = useMemo(() => [
+        {
+            value: 'v60',
+            label: t('presets.v60.label'),
+            description: t('presets.v60.description'),
+            equipmentId: 'V60',
+        },
+        {
+            value: 'clever',
+            label: t('presets.clever.label'),
+            description: t('presets.clever.description'),
+            equipmentId: 'CleverDripper',
+        },
+        {
+            value: 'espresso',
+            label: t('presets.espresso.label'),
+            description: t('presets.espresso.description'),
+            equipmentId: 'Espresso',
+        },
+        {
+            value: 'custom',
+            label: t('presets.custom.label'),
+            description: t('presets.custom.description'),
+            equipmentId: '',
+        }
+    ] as const, [t]);
+
+    // 动态注水类型，使用翻译
+    const defaultPourTypes = useMemo(() => [
+        {
+            id: 'system-center',
+            name: t('pourTypes.center.name'),
+            pourType: 'center' as const,
+            description: t('pourTypes.center.description'),
+            isSystemDefault: true,
+            previewFrames: 3
+        },
+        {
+            id: 'system-circle',
+            name: t('pourTypes.circle.name'),
+            pourType: 'circle' as const,
+            description: t('pourTypes.circle.description'),
+            isSystemDefault: true,
+            previewFrames: 4
+        },
+        {
+            id: 'system-ice',
+            name: t('pourTypes.ice.name'),
+            pourType: 'ice' as const,
+            description: t('pourTypes.ice.description'),
+            isSystemDefault: true,
+            previewFrames: 4
+        }
+    ], [t]);
     const [canvasSize, setCanvasSize] = useState(300);
     const [strokeWidth, setStrokeWidth] = useState(3);
     const canvasRef = useRef<DrawingCanvasRef>(null);
@@ -177,7 +181,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
     const [isPlaying, setIsPlaying] = useState(false);
 
     // 预设方案状态 - 根据初始值设置
-    const [selectedPreset, setSelectedPreset] = useState<(typeof PRESET_OPTIONS)[number]['value'] | 'espresso'>(() => {
+    const [selectedPreset, setSelectedPreset] = useState<(typeof presetOptions)[number]['value'] | 'espresso'>(() => {
         if (!initialEquipment) return 'v60';
 
         // 根据animationType确定预设类型
@@ -262,7 +266,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
         }
 
         // 否则包含系统默认注水方式
-        const defaults: CustomPourAnimation[] = DEFAULT_POUR_TYPES.map(type => ({
+        const defaults: CustomPourAnimation[] = defaultPourTypes.map(type => ({
             id: type.id,
             name: type.name,
             customAnimationSvg: '',
@@ -400,9 +404,9 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
         const newErrors: Record<string, string> = {};
 
         if (!equipment.name?.trim()) {
-            newErrors.name = '请输入器具名称';
+            newErrors.name = t('errors.nameRequired');
         } else if (!(await isEquipmentNameAvailable(equipment.name, initialEquipment?.id))) {
-            newErrors.name = '器具名称已存在';
+            newErrors.name = t('errors.nameExists');
         }
 
         setErrors(newErrors);
@@ -589,7 +593,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
             for (let i = 0; i < animation.previewFrames; i++) {
                 frames.push({
                     url: `/images/pour-animations/${animation.pourType}/frame-${i + 1}.png`,
-                    label: `帧 ${i + 1}`
+                    label: `${t('toolbar.frame')} ${i + 1}`
                 });
             }
             return frames;
@@ -771,10 +775,10 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
             <>
                 <TopNav
                     title={currentEditingAnimation.id.startsWith('system-')
-                        ? `编辑${currentEditingAnimation.name}动画`
+                        ? `${t('canvas.editAnimation')} ${currentEditingAnimation.name}`
                         : currentEditingAnimation.customAnimationSvg
-                            ? "编辑注水动画"
-                            : "添加注水动画"
+                            ? t('canvas.editAnimation')
+                            : t('canvas.addAnimation')
                     }
                     onBack={() => {
                         setShowPourAnimationCanvas(false);
@@ -786,16 +790,16 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
 
                 <div className="mb-4">
                     <FormField
-                        label="动画名称"
-                        error={!currentEditingAnimation.name.trim() ? "请输入注水动画名称" : undefined}
-                        hint="例如：中心注水、绕圈注水等"
+                        label={t('fields.animationName')}
+                        error={!currentEditingAnimation.name.trim() ? t('errors.animationNameRequired') : undefined}
+                        hint={t('hints.animationName')}
                     >
                         <input
                             type="text"
                             value={currentEditingAnimation.name}
                             onChange={handlePourAnimationNameChange}
                             className="mt-1 block w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-neutral-100"
-                            placeholder="请输入注水动画名称"
+                            placeholder={t('placeholders.animationName')}
                             readOnly={currentEditingAnimation.isSystemDefault}
                             maxLength={20}
                         />
@@ -803,15 +807,15 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
 
                     {currentEditingAnimation.isSystemDefault && (
                         <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
-                            这是系统默认注水方式，您可以自定义其动画效果，但名称不可修改。
+                            {t('hints.systemDefault')}
                         </p>
                     )}
                 </div>
 
                 <div className="mb-2">
-                    <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">绘制注水动画</h3>
+                    <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">{t('canvas.drawPourAnimation')}</h3>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
-                        请在画布上绘制咖啡滴落的动画效果，创建多个帧以实现动态效果。点击上方帧缩略图可切换帧。
+                        {t('hints.drawInstructions')}
                     </p>
                 </div>
 
@@ -859,7 +863,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                 }
                             }}
                             className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                            aria-label="减小线条粗细"
+                            aria-label={t('toolbar.decreaseStroke')}
                         >
                             <span className="text-lg font-medium">−</span>
                         </button>
@@ -871,7 +875,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                     width: `${strokeWidth}px`,
                                     height: `${strokeWidth}px`
                                 }}
-                                aria-label={`笔触大小: ${strokeWidth}`}
+                                aria-label={`${t('toolbar.strokeSize')}: ${strokeWidth}`}
                             />
                         </div>
 
@@ -884,7 +888,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                 }
                             }}
                             className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                            aria-label="增加线条粗细"
+                            aria-label={t('toolbar.increaseStroke')}
                         >
                             <span className="text-lg font-medium">+</span>
                         </button>
@@ -896,7 +900,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                             type="button"
                             onClick={handleTogglePlayback}
                             className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                            aria-label={isPlaying ? "暂停" : "播放"}
+                            aria-label={isPlaying ? t('toolbar.pause') : t('toolbar.play')}
                         >
                             {isPlaying ? (
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -913,7 +917,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                             type="button"
                             onClick={() => animationEditorRef.current?.undo()}
                             className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                            aria-label="撤销"
+                            aria-label={t('toolbar.undo')}
                         >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 10L4 14M4 14L8 18M4 14H16C18.2091 14 20 12.2091 20 10C20 7.79086 18.2091 6 16 6H12"
@@ -925,7 +929,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                             type="button"
                             onClick={handleDeleteCurrentFrame}
                             className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                            aria-label="删除帧"
+                            aria-label={t('toolbar.deleteFrame')}
                         >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -941,7 +945,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
     const renderDrawingCanvas = () => (
         <>
             <TopNav
-                title="绘制自定义杯型"
+                title={t('canvas.drawCustomCup')}
                 onBack={handleBackToForm}
                 onSave={handleSaveDrawing}
             />
@@ -972,7 +976,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => handleStrokeWidthChange(strokeWidth - 1)}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="减小线条粗细"
+                        aria-label={t('toolbar.decreaseStroke')}
                     >
                         <span className="text-lg font-medium">−</span>
                     </button>
@@ -984,7 +988,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                 width: `${strokeWidth}px`,
                                 height: `${strokeWidth}px`
                             }}
-                            aria-label={`笔触大小: ${strokeWidth}`}
+                            aria-label={`${t('toolbar.strokeSize')}: ${strokeWidth}`}
                         />
                     </div>
 
@@ -992,7 +996,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => handleStrokeWidthChange(strokeWidth + 1)}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="增加线条粗细"
+                        aria-label={t('toolbar.increaseStroke')}
                     >
                         <span className="text-lg font-medium">+</span>
                     </button>
@@ -1004,7 +1008,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => setShowReference(!showReference)}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label={showReference ? "隐藏底图" : "显示底图"}
+                        aria-label={showReference ? t('toolbar.hideReference') : t('toolbar.showReference')}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             {showReference ? (
@@ -1021,7 +1025,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => canvasRef.current?.undo()}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="撤销"
+                        aria-label={t('toolbar.undo')}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M8 10L4 14M4 14L8 18M4 14H16C18.2091 14 20 12.2091 20 10C20 7.79086 18.2091 6 16 6H12"
@@ -1033,7 +1037,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => canvasRef.current?.clear()}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="清除"
+                        aria-label={t('toolbar.clear')}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 7H20M10 11V17M14 11V17M5 7L6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19L19 7M9 7V4C9 3.45 9.45 3 10 3H14C14.55 3 15 3.45 15 4V7M4 7H20"
@@ -1049,7 +1053,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
     const renderValveDrawingCanvas = () => (
         <>
             <TopNav
-                title={valveEditMode === 'closed' ? "绘制阀门关闭状态" : "绘制阀门开启状态"}
+                title={valveEditMode === 'closed' ? t('canvas.drawValveClosed') : t('canvas.drawValveOpen')}
                 onBack={handleBackToForm}
                 onSave={handleSaveValveDrawing}
             />
@@ -1090,7 +1094,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => handleStrokeWidthChange(strokeWidth - 1)}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="减小线条粗细"
+                        aria-label={t('toolbar.decreaseStroke')}
                     >
                         <span className="text-lg font-medium">−</span>
                     </button>
@@ -1102,7 +1106,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                 width: `${strokeWidth}px`,
                                 height: `${strokeWidth}px`
                             }}
-                            aria-label={`笔触大小: ${strokeWidth}`}
+                            aria-label={`${t('toolbar.strokeSize')}: ${strokeWidth}`}
                         />
                     </div>
 
@@ -1110,7 +1114,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => handleStrokeWidthChange(strokeWidth + 1)}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="增加线条粗细"
+                        aria-label={t('toolbar.increaseStroke')}
                     >
                         <span className="text-lg font-medium">+</span>
                     </button>
@@ -1135,7 +1139,9 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                             setValveEditMode(newMode);
                         }}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label={`切换到${valveEditMode === 'closed' ? '开启' : '关闭'}状态`}
+                        aria-label={t('toolbar.switchValveState', {
+                            state: valveEditMode === 'closed' ? t('valve.open') : t('valve.closed')
+                        })}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14.6 15.5l4.6-4.6c.4-.4.4-1 0-1.4l-4.6-4.6M9.4 15.5L4.8 10.9c-.4-.4-.4-1 0-1.4l4.6-4.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -1149,7 +1155,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => setShowReference(!showReference)}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label={showReference ? "隐藏底图" : "显示底图"}
+                        aria-label={showReference ? t('toolbar.hideReference') : t('toolbar.showReference')}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             {showReference ? (
@@ -1166,7 +1172,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => canvasRef.current?.undo()}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="撤销"
+                        aria-label={t('toolbar.undo')}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M8 10L4 14M4 14L8 18M4 14H16C18.2091 14 20 12.2091 20 10C20 7.79086 18.2091 6 16 6H12"
@@ -1178,7 +1184,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         type="button"
                         onClick={() => canvasRef.current?.clear()}
                         className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700"
-                        aria-label="清除"
+                        aria-label={t('toolbar.clear')}
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 7H20M10 11V17M14 11V17M5 7L6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19L19 7M9 7V4C9 3.45 9.45 3 10 3H14C14.55 3 15 3.45 15 4V7M4 7H20"
@@ -1189,13 +1195,17 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
             </div>
 
             <div className="mt-4 text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-900 p-3 rounded-lg">
-                <h4 className="font-medium mb-1">阀门绘制提示</h4>
+                <h4 className="font-medium mb-1">{t('valve.drawingTips')}</h4>
                 <ul className="list-disc pl-4 space-y-1">
-                    <li>当前绘制：{valveEditMode === 'closed' ? "关闭" : "开启"}状态的阀门</li>
-                    <li>使用<span className="inline-flex items-center justify-center bg-neutral-200 dark:bg-neutral-700 rounded-full w-5 h-5 mx-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.6 15.5l4.6-4.6c.4-.4.4-1 0-1.4l-4.6-4.6M9.4 15.5L4.8 10.9c-.4-.4-.4-1 0-1.4l4.6-4.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>按钮切换阀门状态</li>
-                    <li>器具显示为底图，另一状态的阀门显示为参考</li>
-                    <li>简单明了的形状更易于识别</li>
-                    <li>完成后点击右上角保存</li>
+                    <li>{t('valve.currentDrawing', {
+                        state: valveEditMode === 'closed' ? t('valve.closed') : t('valve.open')
+                    })}</li>
+                    <li>
+                        {t('valve.useButton')}<span className="inline-flex items-center justify-center bg-neutral-200 dark:bg-neutral-700 rounded-full w-5 h-5 mx-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.6 15.5l4.6-4.6c.4-.4.4-1 0-1.4l-4.6-4.6M9.4 15.5L4.8 10.9c-.4-.4-.4-1 0-1.4l4.6-4.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>{t('valve.switchButton')}
+                    </li>
+                    <li>{t('valve.backgroundInfo')}</li>
+                    <li>{t('valve.simpleTips')}</li>
+                    <li>{t('valve.saveWhenDone')}</li>
                 </ul>
             </div>
         </>
@@ -1209,17 +1219,17 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                 {/* 基本信息区域 */}
                 <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 overflow-hidden">
                     <div className="px-4 py-2.5 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
-                        <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">基本信息</h3>
+                        <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{t('sections.basicInfo')}</h3>
                     </div>
                     <div className="p-4 space-y-4">
                         {/* 器具名称 */}
-                        <FormField label="器具名称" error={errors.name}>
+                        <FormField label={t('fields.equipmentName')} error={errors.name}>
                             <input
                                 type="text"
                                 value={equipment.name || ''}
                                 onChange={(e) => handleChange('name', e.target.value)}
                                 className="block w-full rounded-md border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-neutral-100 transition-colors"
-                                placeholder="例如：双层器具"
+                                placeholder={t('placeholders.equipmentName')}
                             />
                         </FormField>
 
@@ -1230,14 +1240,14 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                 {/* 器具类型和杯型设置 */}
                 <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 overflow-hidden">
                     <div className="px-4 py-2.5 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
-                        <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">器具设置</h3>
+                        <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{t('sections.equipmentSettings')}</h3>
                     </div>
                     <div className="divide-y divide-neutral-200 dark:divide-neutral-700">
                         {/* 器具类型选择 */}
                         <div className="p-4">
-                            <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">选择器具类型</h4>
+                            <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">{t('fields.equipmentType')}</h4>
                             <div className="grid grid-cols-2 gap-3">
-                                {PRESET_OPTIONS.map(preset => (
+                                {presetOptions.map(preset => (
                                     <label
                                         key={preset.value}
                                         className={`relative flex flex-col p-3 rounded-lg border ${selectedPreset === preset.value
@@ -1278,7 +1288,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                         {/* 杯型设置 */}
                         {selectedPreset !== 'espresso' && (
                         <div className="p-4">
-                            <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">杯型设置</h4>
+                            <h4 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">{t('fields.cupShape')}</h4>
                             <div className="grid grid-cols-2 gap-3">
                                 {/* 默认杯型选项 */}
                                 {selectedPreset !== 'custom' && (
@@ -1289,7 +1299,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                             } cursor-pointer transition-all`}
                                     >
                                         <div className="flex items-center mb-2">
-                                            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">默认杯型</span>
+                                            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{t('cupShape.default')}</span>
                                             {cupShapeType === 'default' && (
                                                 <div className="ml-2 w-3.5 h-3.5 text-blue-500">
                                                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1304,7 +1314,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                                     {/* 默认杯型始终显示默认图像，不管customShapeSvg是否存在 */}
                                                     <Image
                                                         src="/images/icons/ui/v60-base.svg"
-                                                        alt="杯型背景"
+                                                        alt={t('labels.cupBackground')}
                                                         fill
                                                         className="object-contain invert-0 dark:invert"
                                                         sizes="(max-width: 768px) 100vw, 300px"
@@ -1313,7 +1323,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                                     {equipment.hasValve && (
                                                         <Image
                                                             src="/images/icons/ui/valve-closed.svg"
-                                                            alt="阀门背景"
+                                                            alt={t('labels.valveBackground')}
                                                             fill
                                                             className="object-contain invert-0 dark:invert"
                                                             sizes="(max-width: 768px) 100vw, 300px"
@@ -1351,7 +1361,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                     />
                                     <div className="flex items-center mb-2">
                                         <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                                            {equipment.customShapeSvg ? '自定义杯型' : '添加自定义杯型'}
+                                            {equipment.customShapeSvg ? t('cupShape.custom') : t('cupShape.addCustom')}
                                         </span>
                                         {cupShapeType === 'custom' && (
                                             <div className="ml-2 w-3.5 h-3.5 text-blue-500">
@@ -1393,7 +1403,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                 {selectedPreset === 'custom' && (
                     <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 overflow-hidden">
                         <div className="px-4 py-2.5 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
-                            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">注水方式</h3>
+                            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{t('sections.pourMethods')}</h3>
                         </div>
                         <div className="p-4">
                             <div className="grid grid-cols-2 gap-3">
@@ -1409,7 +1419,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                                 </span>
                                                 {animation.isSystemDefault && (
                                                     <span className="px-1.5 py-0.5 text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
-                                                        系统
+                                                        {t('labels.system')}
                                                     </span>
                                                 )}
                                             </div>
@@ -1452,7 +1462,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                                             <div className="w-full h-full relative">
                                                                 <Image
                                                                     src="/images/icons/ui/v60-base.svg"
-                                                                    alt="杯型背景"
+                                                                    alt={t('labels.cupBackground')}
                                                                     fill
                                                                     className="object-contain invert-0 dark:invert"
                                                                     sizes="(max-width: 768px) 100vw, 300px"
@@ -1461,7 +1471,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                                                 {equipment.hasValve && (
                                                                     <Image
                                                                         src="/images/icons/ui/valve-closed.svg"
-                                                                        alt="阀门背景"
+                                                                        alt={t('labels.valveBackground')}
                                                                         fill
                                                                         className="object-contain invert-0 dark:invert"
                                                                         sizes="(max-width: 768px) 100vw, 300px"
@@ -1527,7 +1537,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
 
                                                         return (
                                                             <div className="text-xs text-neutral-400 dark:text-neutral-500 text-center p-4">
-                                                                预览注水动画
+                                                                {t('labels.previewAnimation')}
                                                             </div>
                                                         );
                                                     })()}
@@ -1544,7 +1554,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                 >
                                     <div className="flex items-center mb-2">
                                         <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                                            添加注水方式
+                                            {t('buttons.addPourMethod')}
                                         </span>
                                     </div>
                                     <div className="w-full aspect-square bg-neutral-50 dark:bg-neutral-900 rounded-md overflow-hidden relative">
@@ -1563,7 +1573,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                                         <div className="w-3/4 h-3/4 relative">
                                                             <Image
                                                                 src="/images/icons/ui/v60-base.svg"
-                                                                alt="杯型背景"
+                                                                alt={t('labels.cupBackground')}
                                                                 fill
                                                                 className="object-contain invert-0 dark:invert"
                                                                 sizes="(max-width: 768px) 100vw, 300px"
@@ -1572,7 +1582,7 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                                                             {equipment.hasValve && (
                                                                 <Image
                                                                     src="/images/icons/ui/valve-closed.svg"
-                                                                    alt="阀门背景"
+                                                                    alt={t('labels.valveBackground')}
                                                                     fill
                                                                     className="object-contain invert-0 dark:invert"
                                                                     sizes="(max-width: 768px) 100vw, 300px"
@@ -1607,14 +1617,14 @@ const CustomEquipmentForm: React.FC<CustomEquipmentFormProps> = ({
                     onClick={onCancel}
                     className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-md transition-colors"
                 >
-                    取消
+                    {t('buttons.cancel')}
                 </button>
                 <button
                     type="submit"
                     disabled={isSubmitting}
                     className="px-4 py-2 text-sm font-medium text-neutral-100 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 rounded-md transition-colors"
                 >
-                    {isSubmitting ? '保存中...' : '保存'}
+                    {isSubmitting ? t('buttons.saving') : t('buttons.save')}
                 </button>
             </div>
         </div>

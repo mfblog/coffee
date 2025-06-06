@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { CustomEquipment } from '@/lib/core/config';
 import CustomEquipmentForm from './CustomEquipmentForm';
-import { exportEquipment, copyToClipboard } from '@/lib/utils/exportUtils'
 
 interface CustomEquipmentFormModalProps {
     showForm: boolean;
@@ -19,19 +19,7 @@ const CustomEquipmentFormModal: React.FC<CustomEquipmentFormModalProps> = ({
     editingEquipment,
     onImport
 }) => {
-    const _handleExport = async (equipment: CustomEquipment) => {
-        try {
-            const exportData = exportEquipment(equipment);
-            const success = await copyToClipboard(exportData);
-            if (success) {
-                alert('器具数据已复制到剪贴板');
-            } else {
-                alert('复制失败，请重试');
-            }
-        } catch (_error) {
-            alert('导出失败，请重试');
-        }
-    };
+    const t = useTranslations('equipmentForm.modal');
 
     return (
         <AnimatePresence>
@@ -103,7 +91,7 @@ const CustomEquipmentFormModal: React.FC<CustomEquipmentFormModalProps> = ({
                                         </svg>
                                     </button>
                                     <h3 className="text-base font-medium">
-                                        {editingEquipment ? '编辑器具' : '添加器具'}
+                                        {editingEquipment ? t('title.edit') : t('title.add')}
                                     </h3>
                                     {/* 导入按钮 */}
                                     {!editingEquipment && onImport && (
@@ -115,7 +103,7 @@ const CustomEquipmentFormModal: React.FC<CustomEquipmentFormModalProps> = ({
                                             }}
                                             className="px-3 py-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
                                         >
-                                            导入
+                                            {t('actions.import')}
                                         </button>
                                     )}
                                     {(editingEquipment || !onImport) && <div className="w-8"></div>}

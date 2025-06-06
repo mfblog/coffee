@@ -82,6 +82,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useTranslations } from 'next-intl';
 import DrawingCanvas, { DrawingCanvasRef } from '../common/ui/DrawingCanvas';
 import hapticsUtils from '@/lib/ui/haptics';
 import Image from 'next/image';
@@ -127,6 +128,8 @@ const AnimationEditor = forwardRef<AnimationEditorRef, AnimationEditorProps>(({
   maxFrames = 8,
   referenceSvg,
 }, ref) => {
+  const t = useTranslations('equipmentForm.form.toolbar');
+
   // 引用和状态
   const canvasRef = useRef<DrawingCanvasRef>(null);
   const [frames, setFrames] = useState<AnimationFrame[]>(
@@ -562,7 +565,7 @@ const AnimationEditor = forwardRef<AnimationEditorRef, AnimationEditorProps>(({
                     }}
                   />
                 ) : (
-                  <span className="text-xs text-neutral-400 dark:text-neutral-500">空白</span>
+                  <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('blank')}</span>
                 )}
               </div>
               <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-neutral-100 text-[10px] text-center">
@@ -600,7 +603,7 @@ const AnimationEditor = forwardRef<AnimationEditorRef, AnimationEditorProps>(({
                 togglePlayback();
               }}
               className="w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center"
-              aria-label={isPlaying ? "暂停" : "播放"}
+              aria-label={isPlaying ? t('pause') : t('play')}
             >
               {isPlaying ? (
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -624,7 +627,7 @@ const AnimationEditor = forwardRef<AnimationEditorRef, AnimationEditorProps>(({
               className={`w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center ${
                 currentFrameIndex <= 0 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              aria-label="上一帧"
+              aria-label={t('prevFrame')}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -642,7 +645,7 @@ const AnimationEditor = forwardRef<AnimationEditorRef, AnimationEditorProps>(({
               className={`w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center ${
                 currentFrameIndex >= frames.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              aria-label="下一帧"
+              aria-label={t('nextFrame')}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -662,7 +665,7 @@ const AnimationEditor = forwardRef<AnimationEditorRef, AnimationEditorProps>(({
               className={`w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center ${
                 frames.length >= maxFrames ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              aria-label="复制当前帧"
+              aria-label={t('duplicateFrame')}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -680,7 +683,7 @@ const AnimationEditor = forwardRef<AnimationEditorRef, AnimationEditorProps>(({
               className={`w-10 h-10 bg-neutral-200 dark:bg-neutral-700 rounded-full flex items-center justify-center ${
                 frames.length <= 1 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              aria-label="删除当前帧"
+              aria-label={t('deleteCurrentFrame')}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

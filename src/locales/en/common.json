@@ -518,6 +518,137 @@
       }
     }
   },
+  "equipmentForm": {
+    "modal": {
+      "title": {
+        "add": "Add Equipment",
+        "edit": "Edit Equipment"
+      },
+      "actions": {
+        "import": "Import",
+        "close": "Close"
+      },
+      "messages": {
+        "exportSuccess": "Equipment data copied to clipboard",
+        "exportFailed": "Copy failed, please try again",
+        "exportError": "Export failed, please try again"
+      }
+    },
+    "form": {
+      "sections": {
+        "basicInfo": "Basic Information",
+        "equipmentSettings": "Equipment Settings",
+        "pourMethods": "Pour Methods"
+      },
+      "fields": {
+        "equipmentName": "Equipment Name",
+        "equipmentType": "Select Equipment Type",
+        "cupShape": "Cup Shape Settings",
+        "animationName": "Animation Name"
+      },
+      "placeholders": {
+        "equipmentName": "e.g.: Double Layer Equipment",
+        "animationName": "Enter pour animation name"
+      },
+      "presets": {
+        "v60": {
+          "label": "V60 Preset",
+          "description": "Suitable for cone, wave, origami and other regular equipment"
+        },
+        "clever": {
+          "label": "Clever Dripper Preset",
+          "description": "With valve control, can control coffee liquid flow timing"
+        },
+        "espresso": {
+          "label": "Espresso Machine",
+          "description": "Suitable for espresso machines, focusing on extraction time and liquid weight"
+        },
+        "custom": {
+          "label": "Custom Preset",
+          "description": "Fully customizable equipment, create your own unique settings"
+        }
+      },
+      "pourTypes": {
+        "center": {
+          "name": "Center Pour",
+          "description": "Center point pour to reduce extraction rate"
+        },
+        "circle": {
+          "name": "Circular Pour",
+          "description": "Slowly pour in circles from center outward for even flavor extraction"
+        },
+        "ice": {
+          "name": "Add Ice",
+          "description": "Suitable for cold drip and iced pour over coffee"
+        }
+      },
+      "cupShape": {
+        "default": "Default Cup Shape",
+        "custom": "Custom Cup Shape",
+        "addCustom": "Add Custom Cup Shape"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving...",
+        "addPourMethod": "Add Pour Method"
+      },
+      "labels": {
+        "system": "System",
+        "previewAnimation": "Preview Pour Animation",
+        "cupBackground": "Cup Background",
+        "valveBackground": "Valve Background"
+      },
+      "canvas": {
+        "drawCustomCup": "Draw Custom Cup Shape",
+        "drawValveClosed": "Draw Valve Closed State",
+        "drawValveOpen": "Draw Valve Open State",
+        "drawPourAnimation": "Draw Pour Animation",
+        "editAnimation": "Edit Pour Animation",
+        "addAnimation": "Add Pour Animation"
+      },
+      "errors": {
+        "nameRequired": "Please enter equipment name",
+        "nameExists": "Equipment name already exists",
+        "animationNameRequired": "Please enter pour animation name"
+      },
+      "hints": {
+        "animationName": "e.g.: Center Pour, Circular Pour, etc.",
+        "systemDefault": "This is a system default pour method. You can customize its animation effects, but the name cannot be modified.",
+        "drawInstructions": "Please draw the coffee dripping animation effect on the canvas, create multiple frames to achieve dynamic effects. Click the frame thumbnails above to switch frames."
+      },
+      "toolbar": {
+        "decreaseStroke": "Decrease stroke width",
+        "increaseStroke": "Increase stroke width",
+        "strokeSize": "Stroke size",
+        "play": "Play",
+        "pause": "Pause",
+        "undo": "Undo",
+        "deleteFrame": "Delete frame",
+        "clear": "Clear",
+        "showReference": "Show reference",
+        "hideReference": "Hide reference",
+        "switchValveState": "Switch to {state} state",
+        "frame": "Frame",
+        "blank": "Blank",
+        "prevFrame": "Previous frame",
+        "nextFrame": "Next frame",
+        "duplicateFrame": "Duplicate current frame",
+        "deleteCurrentFrame": "Delete current frame"
+      },
+      "valve": {
+        "drawingTips": "Valve Drawing Tips",
+        "currentDrawing": "Currently drawing: {state} state valve",
+        "switchButton": "button to switch valve state",
+        "useButton": "Use",
+        "backgroundInfo": "Equipment shown as background, other state valve shown as reference",
+        "simpleTips": "Simple and clear shapes are easier to recognize",
+        "saveWhenDone": "Click save in the top right when done",
+        "closed": "closed",
+        "open": "open"
+      }
+    }
+  },
   "beanImport": {
     "title": "Import Coffee Bean",
     "modes": {

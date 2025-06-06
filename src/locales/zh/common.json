@@ -518,6 +518,137 @@
       }
     }
   },
+  "equipmentForm": {
+    "modal": {
+      "title": {
+        "add": "添加器具",
+        "edit": "编辑器具"
+      },
+      "actions": {
+        "import": "导入",
+        "close": "关闭"
+      },
+      "messages": {
+        "exportSuccess": "器具数据已复制到剪贴板",
+        "exportFailed": "复制失败，请重试",
+        "exportError": "导出失败，请重试"
+      }
+    },
+    "form": {
+      "sections": {
+        "basicInfo": "基本信息",
+        "equipmentSettings": "器具设置",
+        "pourMethods": "注水方式"
+      },
+      "fields": {
+        "equipmentName": "器具名称",
+        "equipmentType": "选择器具类型",
+        "cupShape": "杯型设置",
+        "animationName": "动画名称"
+      },
+      "placeholders": {
+        "equipmentName": "例如：双层器具",
+        "animationName": "请输入注水动画名称"
+      },
+      "presets": {
+        "v60": {
+          "label": "V60预设",
+          "description": "适用于锥形、蛋糕杯、折纸等常规器具"
+        },
+        "clever": {
+          "label": "聪明杯预设",
+          "description": "带阀门控制，可以控制咖啡液流出的时间"
+        },
+        "espresso": {
+          "label": "意式机",
+          "description": "适用于意式咖啡机，关注萃取时间和液重"
+        },
+        "custom": {
+          "label": "自定义预设",
+          "description": "完全自定义器具，创建您自己的独特设置"
+        }
+      },
+      "pourTypes": {
+        "center": {
+          "name": "中心注水",
+          "description": "中心定点注水，降低萃取率"
+        },
+        "circle": {
+          "name": "绕圈注水",
+          "description": "中心向外缓慢画圈注水，均匀萃取咖啡风味"
+        },
+        "ice": {
+          "name": "添加冰块",
+          "description": "适用于冰滴和冰手冲咖啡"
+        }
+      },
+      "cupShape": {
+        "default": "默认杯型",
+        "custom": "自定义杯型",
+        "addCustom": "添加自定义杯型"
+      },
+      "buttons": {
+        "cancel": "取消",
+        "save": "保存",
+        "saving": "保存中...",
+        "addPourMethod": "添加注水方式"
+      },
+      "labels": {
+        "system": "系统",
+        "previewAnimation": "预览注水动画",
+        "cupBackground": "杯型背景",
+        "valveBackground": "阀门背景"
+      },
+      "canvas": {
+        "drawCustomCup": "绘制自定义杯型",
+        "drawValveClosed": "绘制阀门关闭状态",
+        "drawValveOpen": "绘制阀门开启状态",
+        "drawPourAnimation": "绘制注水动画",
+        "editAnimation": "编辑注水动画",
+        "addAnimation": "添加注水动画"
+      },
+      "errors": {
+        "nameRequired": "请输入器具名称",
+        "nameExists": "器具名称已存在",
+        "animationNameRequired": "请输入注水动画名称"
+      },
+      "hints": {
+        "animationName": "例如：中心注水、绕圈注水等",
+        "systemDefault": "这是系统默认注水方式，您可以自定义其动画效果，但名称不可修改。",
+        "drawInstructions": "请在画布上绘制咖啡滴落的动画效果，创建多个帧以实现动态效果。点击上方帧缩略图可切换帧。"
+      },
+      "toolbar": {
+        "decreaseStroke": "减小线条粗细",
+        "increaseStroke": "增加线条粗细",
+        "strokeSize": "笔触大小",
+        "play": "播放",
+        "pause": "暂停",
+        "undo": "撤销",
+        "deleteFrame": "删除帧",
+        "clear": "清除",
+        "showReference": "显示底图",
+        "hideReference": "隐藏底图",
+        "switchValveState": "切换到{state}状态",
+        "frame": "帧",
+        "blank": "空白",
+        "prevFrame": "上一帧",
+        "nextFrame": "下一帧",
+        "duplicateFrame": "复制当前帧",
+        "deleteCurrentFrame": "删除当前帧"
+      },
+      "valve": {
+        "drawingTips": "阀门绘制提示",
+        "currentDrawing": "当前绘制：{state}状态的阀门",
+        "switchButton": "按钮切换阀门状态",
+        "useButton": "使用",
+        "backgroundInfo": "器具显示为底图，另一状态的阀门显示为参考",
+        "simpleTips": "简单明了的形状更易于识别",
+        "saveWhenDone": "完成后点击右上角保存",
+        "closed": "关闭",
+        "open": "开启"
+      }
+    }
+  },
   "beanImport": {
     "title": "导入咖啡豆",
     "modes": {
