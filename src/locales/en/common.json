@@ -1,4 +1,9 @@
 {
+  "common": {
+    "rating": "rating",
+    "points": "pts",
+    "stars": "stars"
+  },
   "nav": {
     "title": "",
     "main": {
@@ -27,7 +32,8 @@
       "share": "Share",
       "back": "Back",
       "done": "Done",
-      "search": "Search"
+      "search": "Search",
+      "cancel": "Cancel"
     },
     "filters": {
       "type": "Type",
@@ -94,7 +100,12 @@
       "noNotesForBean": "No brewing records using this coffee bean",
       "noBrewingRecords": "No brewing records yet",
       "loadingNotes": "Loading...",
-      "quickDecrementRecords": "quick decrement records"
+      "quickDecrementRecords": "quick decrement records",
+      "noteDeleted": "Note deleted",
+      "deleteNoteFailed": "Failed to delete note",
+      "noteUpdated": "Note updated",
+      "updateNoteFailed": "Failed to update note",
+      "exportNotesFailed": "Failed to export notes"
     },
     "stats": {
       "beansCount": "coffee beans",
@@ -1088,6 +1099,10 @@
     }
   },
   "notes": {
+    "list": {
+      "recordsCount": "records",
+      "consumed": "consumed"
+    },
     "form": {
       "title": {
         "edit": "Edit Record",

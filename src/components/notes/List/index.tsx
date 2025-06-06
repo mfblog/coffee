@@ -33,6 +33,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
     setShowAlternativeHeader
 }) => {
     const t = useTranslations('notes.form')
+    const tCommon = useTranslations('common')
     // 用于跟踪用户选择
     const [sortOption, setSortOption] = useState<SortOption>(globalCache.sortOption)
     const [filterMode, setFilterMode] = useState<'equipment' | 'bean'>(globalCache.filterMode)
@@ -92,7 +93,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                     const normalizedId = await normalizeEquipmentId(id);
                     normalizedEquipmentMap[id] = normalizedId;
                 } catch (error) {
-                    console.error(`规范化设备ID失败: ${id}`, error);
+                    console.error(`Failed to normalize equipment ID: ${id}`, error);
                     normalizedEquipmentMap[id] = id; // 失败时使用原始ID
                 }
             }
@@ -158,7 +159,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                 window.refreshBrewingNotes();
             }
         } catch (error) {
-            console.error("加载设备和咖啡豆数据失败:", error);
+            console.error("Failed to load equipment and bean data:", error);
         }
     }, [isOpen, filterMode, selectedEquipment, selectedBean, triggerRerender]);
     
@@ -219,7 +220,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                     const customMethodsModule = await import('@/lib/managers/customMethods')
                     customMethods = await customMethodsModule.loadCustomMethods()
                 } catch (error) {
-                    console.error('加载自定义方案失败:', error)
+                    console.error('Failed to load custom methods:', error)
                 }
                 
                 // 检查每条笔记
@@ -254,7 +255,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                     // 2. 检查咖啡豆信息是否完整
                     // 如果有beanId但coffeeBeanInfo不完整，尝试加载咖啡豆信息
                     if (note.beanId && (!note.coffeeBeanInfo || !note.coffeeBeanInfo.name)) {
-                        console.log(`笔记 ${note.id} 有beanId但咖啡豆信息不完整`)
+                        console.log(`Note ${note.id} has beanId but incomplete coffee bean info`)
                         noteFixed = true
                     }
                     
@@ -274,13 +275,13 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                 // 如果有修改，保存更新后的笔记
                 if (hasChanges) {
                     await Storage.set('brewingNotes', JSON.stringify(parsedNotes))
-                    console.log('已修复笔记数据问题')
-                    
+                    console.log('Fixed note data issues')
+
                     // 触发重新加载
                     loadEquipmentsAndBeans()
                 }
             } catch (error) {
-                console.error('修复笔记数据失败:', error)
+                console.error('Failed to fix note data:', error)
             }
         }
         
@@ -323,10 +324,10 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
             });
             window.dispatchEvent(event);
             
-            showToast('笔记已删除', 'success');
+            showToast(tCommon('nav.messages.noteDeleted'), 'success');
         } catch (error) {
-            console.error('删除笔记失败:', error);
-            showToast('删除笔记失败', 'error');
+            console.error('Failed to delete note:', error);
+            showToast(tCommon('nav.messages.deleteNoteFailed'), 'error');
         }
     };
     
@@ -441,10 +442,10 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
             }
 
             // 显示成功提示
-            showToast('笔记已更新', 'success')
+            showToast(tCommon('nav.messages.noteUpdated'), 'success')
         } catch (error) {
-            console.error('更新笔记失败:', error)
-            showToast('更新笔记失败', 'error')
+            console.error('Failed to update note:', error)
+            showToast(tCommon('nav.messages.updateNoteFailed'), 'error')
         }
     }
     
@@ -527,8 +528,8 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                 }
             });
         } catch (error) {
-            console.error('导出笔记失败:', error);
-            showToast('导出笔记失败', 'error');
+            console.error('Failed to export notes:', error);
+            showToast(tCommon('nav.messages.exportNotesFailed'), 'error');
             setIsSaving(false);
         }
     };
@@ -581,14 +582,14 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
             const temp = note.params?.temp?.toLowerCase() || '';
             
             // 处理口味评分信息
-            const tasteInfo = `酸度${note.taste?.acidity || 0} 甜度${note.taste?.sweetness || 0} 苦度${note.taste?.bitterness || 0} 醇厚度${note.taste?.body || 0}`.toLowerCase();
+            const tasteInfo = `${tCommon('notes.form.flavorAttributes.acidity')}${note.taste?.acidity || 0} ${tCommon('notes.form.flavorAttributes.sweetness')}${note.taste?.sweetness || 0} ${tCommon('notes.form.flavorAttributes.bitterness')}${note.taste?.bitterness || 0} ${tCommon('notes.form.flavorAttributes.body')}${note.taste?.body || 0}`.toLowerCase();
             
             // 处理时间信息
             const dateInfo = note.timestamp ? new Date(note.timestamp).toLocaleDateString() : '';
-            const totalTime = note.totalTime ? `${note.totalTime}秒` : '';
-            
+            const totalTime = note.totalTime ? `${note.totalTime}${tCommon('nav.units.seconds')}` : '';
+
             // 将评分转换为可搜索文本，如"评分4"、"4分"、"4星"
-            const ratingText = note.rating ? `评分${note.rating} ${note.rating}分 ${note.rating}星`.toLowerCase() : '';
+            const ratingText = note.rating ? `${tCommon('common.rating')}${note.rating} ${note.rating}${tCommon('common.points')} ${note.rating}${tCommon('common.stars')}`.toLowerCase() : '';
             
             // 组合所有可搜索文本到一个数组，为不同字段分配权重
             const searchableTexts = [
@@ -701,10 +702,10 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                         <div className="flex justify-between items-center mb-6 px-6">
                             <div className="text-xs font-medium tracking-wide text-neutral-800 dark:text-neutral-100 break-words">
                                 {(isSearching && searchQuery.trim())
-                                    ? `${searchFilteredNotes.length} 条记录，已消耗 ${formatConsumption(currentConsumption)}`
+                                    ? `${searchFilteredNotes.length} ${tCommon('notes.list.recordsCount')}, ${tCommon('notes.list.consumed')} ${formatConsumption(currentConsumption)}`
                                     : `${selectedEquipment || selectedBean
                                         ? globalCache.filteredNotes.length
-                                        : globalCache.notes.length} 条记录，已消耗 ${formatConsumption(currentConsumption)}`}
+                                        : globalCache.notes.length} ${tCommon('notes.list.recordsCount')}, ${tCommon('notes.list.consumed')} ${formatConsumption(currentConsumption)}`}
                             </div>
                         </div>
 
@@ -757,7 +758,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                                     onClick={handleCancelShare}
                                     className="flex items-center justify-center text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:opacity-80 mx-3"
                                 >
-                                    取消
+                                    {tCommon('nav.actions.cancel')}
                                 </button>
                                 <div className="grow border-t border-neutral-200 dark:border-neutral-800"></div>
                                 <button
