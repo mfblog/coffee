@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 import type { BrewingNoteData, CoffeeBean } from '@/types/app'
 import AutoResizeTextarea from '@/components/common/forms/AutoResizeTextarea'
@@ -161,6 +161,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
     hideHeader = false,
 }) => {
     const t = useTranslations('notes.form')
+    const locale = useLocale()
 
     const [formData, setFormData] = useState<FormData>({
         coffeeBeanInfo: getInitialCoffeeBeanInfo(initialData, t),
@@ -441,24 +442,181 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
         fileInput.click();
     };
 
+    // 根据当前语言翻译烘焙度
+    const translateRoastLevel = (roastLevel: string): string => {
+        if (!roastLevel) return roastLevel;
+
+        // 如果是英文环境，将中文烘焙度翻译为英文
+        if (locale === 'en') {
+            const roastMap: Record<string, string> = {
+                '极浅烘焙': 'Light+',
+                '浅度烘焙': 'Light',
+                '中浅烘焙': 'Medium Light',
+                '中度烘焙': 'Medium',
+                '中深烘焙': 'Medium Dark',
+                '深度烘焙': 'Dark'
+            };
+            return roastMap[roastLevel] || roastLevel;
+        }
+
+        // 如果是中文环境，将英文烘焙度翻译为中文
+        if (locale === 'zh') {
+            const roastMap: Record<string, string> = {
+                'Light+': '极浅烘焙',
+                'Ultra Light': '极浅烘焙',
+                'Light': '浅度烘焙',
+                'Medium Light': '中浅烘焙',
+                'Medium': '中度烘焙',
+                'Medium Dark': '中深烘焙',
+                'Dark': '深度烘焙'
+            };
+            return roastMap[roastLevel] || roastLevel;
+        }
+
+        return roastLevel;
+    };
+
+    // 根据当前语言翻译研磨度
+    const translateGrindSize = (grindSize: string): string => {
+        if (!grindSize) return grindSize;
+
+        // 如果是英文环境，将中文研磨度翻译为英文
+        if (locale === 'en') {
+            const grindMap: Record<string, string> = {
+                '极细': 'Extra Fine',
+                '特细': 'Very Fine',
+                '细': 'Fine',
+                '中细': 'Medium Fine',
+                '中细偏粗': 'Medium Fine to Medium',
+                '中粗': 'Medium Coarse',
+                '粗': 'Coarse',
+                '特粗': 'Very Coarse',
+                '意式': 'Espresso'
+            };
+            return grindMap[grindSize] || grindSize;
+        }
+
+        // 如果是中文环境，将英文研磨度翻译为中文
+        if (locale === 'zh') {
+            const grindMap: Record<string, string> = {
+                'Extra Fine': '极细',
+                'Very Fine': '特细',
+                'Fine': '细',
+                'Medium Fine': '中细',
+                'Medium Fine to Medium': '中细偏粗',
+                'Medium Coarse': '中粗',
+                'Coarse': '粗',
+                'Very Coarse': '特粗',
+                'Espresso': '意式'
+            };
+            return grindMap[grindSize] || grindSize;
+        }
+
+        return grindSize;
+    };
+
+    // 根据当前语言翻译方案名称
+    const translateMethodName = (methodName: string): string => {
+        if (!methodName) return methodName;
+
+        // 如果是英文环境，将中文方案名称翻译为英文
+        if (locale === 'en') {
+            const methodMap: Record<string, string> = {
+                '三段式(兼容性强)': 'Three-Stage (High Compatibility)',
+                '四六法': 'Four-Six Method',
+                '一刀流': 'One-Pour Method',
+                '分段注水': 'Staged Pouring',
+                '浸泡式': 'Immersion Method',
+                '意式浓缩': 'Espresso',
+                '美式咖啡': 'Americano',
+                '拿铁': 'Latte',
+                '卡布奇诺': 'Cappuccino'
+            };
+            return methodMap[methodName] || methodName;
+        }
+
+        // 如果是中文环境，将英文方案名称翻译为中文
+        if (locale === 'zh') {
+            const methodMap: Record<string, string> = {
+                'Three-Stage (High Compatibility)': '三段式(兼容性强)',
+                'Four-Six Method': '四六法',
+                'One-Pour Method': '一刀流',
+                'Staged Pouring': '分段注水',
+                'Immersion Method': '浸泡式',
+                'Espresso': '意式浓缩',
+                'Americano': '美式咖啡',
+                'Latte': '拿铁',
+                'Cappuccino': '卡布奇诺'
+            };
+            return methodMap[methodName] || methodName;
+        }
+
+        return methodName;
+    };
+
+    // 根据当前语言翻译器具名称
+    const translateEquipmentName = (equipmentName: string): string => {
+        if (!equipmentName) return equipmentName;
+
+        // 如果是英文环境，将中文器具名称翻译为英文
+        if (locale === 'en') {
+            const equipmentMap: Record<string, string> = {
+                '蛋糕滤杯': 'Cake Filter',
+                '手冲壶': 'Pour Over Kettle',
+                '法压壶': 'French Press',
+                '爱乐压': 'AeroPress',
+                '摩卡壶': 'Moka Pot',
+                '虹吸壶': 'Siphon',
+                '冷萃壶': 'Cold Brew Maker',
+                '意式咖啡机': 'Espresso Machine'
+            };
+            return equipmentMap[equipmentName] || equipmentName;
+        }
+
+        // 如果是中文环境，将英文器具名称翻译为中文
+        if (locale === 'zh') {
+            const equipmentMap: Record<string, string> = {
+                'Cake Filter': '蛋糕滤杯',
+                'Pour Over Kettle': '手冲壶',
+                'French Press': '法压壶',
+                'AeroPress': '爱乐压',
+                'Moka Pot': '摩卡壶',
+                'Siphon': '虹吸壶',
+                'Cold Brew Maker': '冷萃壶',
+                'Espresso Machine': '意式咖啡机'
+            };
+            return equipmentMap[equipmentName] || equipmentName;
+        }
+
+        return equipmentName;
+    };
+
     // 保存笔记的处理函数
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
-        // 创建完整的笔记数据
+        // 创建完整的笔记数据，确保所有文本字段按当前语言保存
         const noteData: BrewingNoteData = {
             id: id || Date.now().toString(),
             // 编辑现有笔记时保留原始时间戳，新建笔记时使用当前时间
             timestamp: initialData.timestamp || Date.now(),
             ...formData,
-            equipment: initialData.equipment,
-            method: initialData.method,
+            // 确保咖啡豆信息中的烘焙度使用当前语言
+            coffeeBeanInfo: {
+                ...formData.coffeeBeanInfo,
+                roastLevel: translateRoastLevel(formData.coffeeBeanInfo.roastLevel)
+            },
+            // 翻译器具名称
+            equipment: translateEquipmentName(initialData.equipment || ''),
+            // 翻译方案名称
+            method: translateMethodName(initialData.method || ''),
             params: {
                 // 优先使用MethodSelector中更新的参数，如果没有则使用初始参数，最后使用默认值
                 coffee: methodParams.coffee || initialData.params?.coffee || '',
                 water: methodParams.water || initialData.params?.water || '',
                 ratio: methodParams.ratio || initialData.params?.ratio || '',
-                grindSize: methodParams.grindSize || initialData.params?.grindSize || '',
+                // 翻译研磨度
+                grindSize: translateGrindSize(methodParams.grindSize || initialData.params?.grindSize || ''),
                 temp: methodParams.temp || initialData.params?.temp || ''
             },
             totalTime: initialData.totalTime,

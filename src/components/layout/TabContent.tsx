@@ -16,7 +16,7 @@ import CoffeeBeanList from '@/components/coffee-bean/List/ListView';
 import { saveCustomMethod } from '@/lib/managers/customMethods';
 import { Search, X, Shuffle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 // 分享模态框已移除，改为直接复制到剪贴板
 
 
@@ -128,6 +128,7 @@ const TabContent: React.FC<TabContentProps> = ({
     handleDeleteEquipment,
 }) => {
     const t = useTranslations('nav')
+    const locale = useLocale()
     // 笔记表单状态
     const [noteSaved, setNoteSaved] = useState(false);
 
@@ -299,12 +300,18 @@ const TabContent: React.FC<TabContentProps> = ({
     // 笔记表单包装组件
     const NoteFormWrapper = () => {
         const [equipmentName, setEquipmentName] = useState('');
+        const noteFormT = useTranslations('notes.form');
 
         React.useEffect(() => {
             if (selectedEquipment) {
                 getEquipmentNameForNote(selectedEquipment).then(setEquipmentName);
             }
         }, [selectedEquipment]);
+
+        // 根据当前语言获取默认研磨度
+        const getDefaultGrindSize = () => {
+            return locale === 'en' ? 'Medium Fine' : '中细';
+        };
 
         return (
             <BrewingNoteForm
@@ -320,7 +327,7 @@ const TabContent: React.FC<TabContentProps> = ({
                         coffee: '15g',
                         water: '225g',
                         ratio: '1:15',
-                        grindSize: '中细',
+                        grindSize: getDefaultGrindSize(),
                         temp: '92°C',
                         videoUrl: '',
                         stages: []

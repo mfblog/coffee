@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { ExtendedCoffeeBean, BlendComponent, Step, StepConfig } from './types'
 import BasicInfo from './components/BasicInfo'
 import DetailInfo from './components/DetailInfo'
@@ -117,6 +117,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
 }) => {
     // 使用翻译钩子
     const t = useTranslations('beanForm')
+    const locale = useLocale()
 
     const steps: StepConfig[] = [
         { id: 'basic', label: t('steps.basic') },
@@ -163,7 +164,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
             const { id, timestamp, ...beanData } = initialBean;
 
             if (!beanData.roastLevel) {
-                beanData.roastLevel = 'light';
+                beanData.roastLevel = locale === 'en' ? 'Light' : '浅度烘焙';
             }
 
             // 确保有beanType字段，默认为手冲
@@ -177,10 +178,18 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                 let startDay = 0;
                 let endDay = 0;
 
-                if (beanData.roastLevel === 'ultraLight' || beanData.roastLevel === 'light') {
+                // 支持中英文烘焙度判断
+                const isLightRoast = beanData.roastLevel === 'ultraLight' || beanData.roastLevel === 'light' ||
+                                   beanData.roastLevel === '极浅烘焙' || beanData.roastLevel === '浅度烘焙' ||
+                                   beanData.roastLevel === 'Ultra Light' || beanData.roastLevel === 'Light';
+                const isDarkRoast = beanData.roastLevel === 'mediumDark' || beanData.roastLevel === 'dark' ||
+                                  beanData.roastLevel === '中深烘焙' || beanData.roastLevel === '深度烘焙' ||
+                                  beanData.roastLevel === 'Medium Dark' || beanData.roastLevel === 'Dark';
+
+                if (isLightRoast) {
                     startDay = 7;
                     endDay = 30;
-                } else if (beanData.roastLevel === 'mediumDark' || beanData.roastLevel === 'dark') {
+                } else if (isDarkRoast) {
                     startDay = 14;
                     endDay = 30;
                 } else {
@@ -199,7 +208,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
             name: '',
             capacity: '',
             remaining: '',
-            roastLevel: 'light',
+            roastLevel: locale === 'en' ? 'Light' : '浅度烘焙',
             roastDate: '',
             flavor: [],
             price: '',
@@ -490,10 +499,18 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
         let startDay = 0;
         let endDay = 0;
 
-        if (bean.roastLevel === 'ultraLight' || bean.roastLevel === 'light') {
+        // 支持中英文烘焙度判断
+        const isLightRoast = bean.roastLevel === 'ultraLight' || bean.roastLevel === 'light' ||
+                           bean.roastLevel === '极浅烘焙' || bean.roastLevel === '浅度烘焙' ||
+                           bean.roastLevel === 'Ultra Light' || bean.roastLevel === 'Light';
+        const isDarkRoast = bean.roastLevel === 'mediumDark' || bean.roastLevel === 'dark' ||
+                          bean.roastLevel === '中深烘焙' || bean.roastLevel === '深度烘焙' ||
+                          bean.roastLevel === 'Medium Dark' || bean.roastLevel === 'Dark';
+
+        if (isLightRoast) {
             startDay = 7;
             endDay = 30;
-        } else if (bean.roastLevel === 'mediumDark' || bean.roastLevel === 'dark') {
+        } else if (isDarkRoast) {
             startDay = 14;
             endDay = 60;
         } else {

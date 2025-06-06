@@ -8,7 +8,7 @@ import NoteItem from './NoteItem'
 import QuickDecrementNoteItem from './QuickDecrementNoteItem'
 import { sortNotes } from '../utils'
 import { SortOption } from '../types'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 // 分页配置
 const PAGE_SIZE = 5
@@ -44,7 +44,50 @@ const NotesListView: React.FC<NotesListViewProps> = ({
     preFilteredNotes
 }) => {
     const t = useTranslations('nav')
+    const locale = useLocale()
     const [_isPending, startTransition] = useTransition()
+
+    // 根据当前语言翻译器具名称
+    const translateEquipmentName = (equipmentName: string): string => {
+        if (!equipmentName) return equipmentName;
+
+        // 如果是英文环境，将中文器具名称翻译为英文
+        if (locale === 'en') {
+            const equipmentMap: Record<string, string> = {
+                '蛋糕滤杯': 'Cake Filter',
+                '手冲壶': 'Pour Over Kettle',
+                '法压壶': 'French Press',
+                '爱乐压': 'AeroPress',
+                '摩卡壶': 'Moka Pot',
+                '虹吸壶': 'Siphon',
+                '冷萃壶': 'Cold Brew Maker',
+                '意式咖啡机': 'Espresso Machine',
+                'Kalita': 'Kalita',
+                'V60': 'V60',
+                'Origami': 'Origami',
+                'Clever': 'Clever Dripper'
+            };
+            return equipmentMap[equipmentName] || equipmentName;
+        }
+
+        // 如果是中文环境，将英文器具名称翻译为中文
+        if (locale === 'zh') {
+            const equipmentMap: Record<string, string> = {
+                'Cake Filter': '蛋糕滤杯',
+                'Pour Over Kettle': '手冲壶',
+                'French Press': '法压壶',
+                'AeroPress': '爱乐压',
+                'Moka Pot': '摩卡壶',
+                'Siphon': '虹吸壶',
+                'Cold Brew Maker': '冷萃壶',
+                'Espresso Machine': '意式咖啡机',
+                'Clever Dripper': 'Clever'
+            };
+            return equipmentMap[equipmentName] || equipmentName;
+        }
+
+        return equipmentName;
+    };
     const [notes, setNotes] = useState<BrewingNote[]>(globalCache.filteredNotes)
     const [_isFirstLoad, setIsFirstLoad] = useState<boolean>(!globalCache.initialized)
     const [unitPriceCache, _setUnitPriceCache] = useState<Record<string, number>>(globalCache.beanPrices)
@@ -263,7 +306,7 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                 {isSearching && searchQuery.trim()
                     ? `[ ${t('messages.noNotesForSearch')} "${searchQuery.trim()}" ]`
                     : (selectedEquipment && filterMode === 'equipment')
-                    ? `[ ${t('messages.noNotesForEquipment')} ${globalCache.equipmentNames[selectedEquipment] || selectedEquipment} ]`
+                    ? `[ ${t('messages.noNotesForEquipment')} ${translateEquipmentName(globalCache.equipmentNames[selectedEquipment] || selectedEquipment)} ]`
                     : (selectedBean && filterMode === 'bean')
                     ? `[ ${t('messages.noNotesForBean')} ${selectedBean} ]`
                     : `[ ${t('messages.noBrewingRecords')} ]`}

@@ -34,7 +34,16 @@ export const zhConfig: I18nConfig = {
     CleverDripper: "聪明杯",
     Kalita: "蛋糕滤杯",
     Origami: "折纸滤杯",
-    Espresso: "意式咖啡机"
+    Espresso: "意式咖啡机",
+    "蛋糕滤杯": "蛋糕滤杯",
+    "手冲壶": "手冲壶",
+    "法压壶": "法压壶",
+    "爱乐压": "爱乐压",
+    "摩卡壶": "摩卡壶",
+    "虹吸壶": "虹吸壶",
+    "冷萃壶": "冷萃壶",
+    "意式咖啡机": "意式咖啡机",
+    "Clever": "聪明杯"
   },
   brewingMethods: {
     V60: {
@@ -194,7 +203,16 @@ export const enConfig: I18nConfig = {
     CleverDripper: "Clever Dripper",
     Kalita: "Kalita Wave",
     Origami: "Origami Dripper",
-    Espresso: "Espresso Machine"
+    Espresso: "Espresso Machine",
+    "蛋糕滤杯": "Cake Filter",
+    "手冲壶": "Pour Over Kettle",
+    "法压壶": "French Press",
+    "爱乐压": "AeroPress",
+    "摩卡壶": "Moka Pot",
+    "虹吸壶": "Siphon",
+    "冷萃壶": "Cold Brew Maker",
+    "意式咖啡机": "Espresso Machine",
+    "Clever": "Clever Dripper"
   },
   brewingMethods: {
     V60: {

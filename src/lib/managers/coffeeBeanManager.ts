@@ -106,10 +106,15 @@ export const CoffeeBeanManager = {
 		try {
 			const beans = await this.getAllBeans();
 
-			// 确保烘焙度有默认值
+			// 确保烘焙度有默认值，根据当前语言设置
+			const defaultRoastLevel = typeof window !== 'undefined' &&
+				window.localStorage.getItem('brewGuideSettings') ?
+				JSON.parse(window.localStorage.getItem('brewGuideSettings') || '{}').locale === 'en' ? 'Light' : '浅度烘焙' :
+				'浅度烘焙';
+
 			const beanWithDefaults = {
 				...bean,
-				roastLevel: bean.roastLevel || "浅度烘焙",
+				roastLevel: bean.roastLevel || defaultRoastLevel,
 			};
 
 			const newBean: CoffeeBean = {

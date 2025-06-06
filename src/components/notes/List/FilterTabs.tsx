@@ -4,7 +4,7 @@ import React, { memo, useRef, useState, useEffect } from 'react'
 import { FilterTabsProps, SORT_OPTIONS, SortOption } from '../types'
 import { X, AlignLeft } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 // Apple风格动画配置
 const FILTER_ANIMATION = {
@@ -215,8 +215,51 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
     onSortChange
 }) {
     const t = useTranslations('nav')
+    const locale = useLocale()
     // 搜索输入框引用 - 移到条件语句前面
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // 根据当前语言翻译器具名称
+    const translateEquipmentName = (equipmentName: string): string => {
+        if (!equipmentName) return equipmentName;
+
+        // 如果是英文环境，将中文器具名称翻译为英文
+        if (locale === 'en') {
+            const equipmentMap: Record<string, string> = {
+                '蛋糕滤杯': 'Cake Filter',
+                '手冲壶': 'Pour Over Kettle',
+                '法压壶': 'French Press',
+                '爱乐压': 'AeroPress',
+                '摩卡壶': 'Moka Pot',
+                '虹吸壶': 'Siphon',
+                '冷萃壶': 'Cold Brew Maker',
+                '意式咖啡机': 'Espresso Machine',
+                'Kalita': 'Kalita',
+                'V60': 'V60',
+                'Origami': 'Origami',
+                'Clever': 'Clever Dripper'
+            };
+            return equipmentMap[equipmentName] || equipmentName;
+        }
+
+        // 如果是中文环境，将英文器具名称翻译为中文
+        if (locale === 'zh') {
+            const equipmentMap: Record<string, string> = {
+                'Cake Filter': '蛋糕滤杯',
+                'Pour Over Kettle': '手冲壶',
+                'French Press': '法压壶',
+                'AeroPress': '爱乐压',
+                'Moka Pot': '摩卡壶',
+                'Siphon': '虹吸壶',
+                'Cold Brew Maker': '冷萃壶',
+                'Espresso Machine': '意式咖啡机',
+                'Clever Dripper': 'Clever'
+            };
+            return equipmentMap[equipmentName] || equipmentName;
+        }
+
+        return equipmentName;
+    };
 
     // 筛选展开栏状态
     const [isFilterExpanded, setIsFilterExpanded] = useState(false);
@@ -352,7 +395,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
                                         className="mr-3"
                                         dataTab={equipment}
                                     >
-                                        {_equipmentNames[equipment] || equipment}
+                                        {translateEquipmentName(_equipmentNames[equipment] || equipment)}
                                     </TabButton>
                                 ))
                             ) : (
