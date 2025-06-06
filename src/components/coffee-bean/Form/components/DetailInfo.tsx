@@ -136,7 +136,7 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
                         </div>
                     </div>
                     <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                        <p>{t('flavorPeriod.description', { startDay: bean.startDay, endDay: bean.endDay })}</p>
+                        <p>{t('flavorPeriod.description', { startDay: bean.startDay || 0, endDay: bean.endDay || 0 })}</p>
                     </div>
                 </div>
             )}

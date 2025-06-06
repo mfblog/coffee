@@ -11,10 +11,10 @@ import { useConsumption } from './useConsumption'
 import { Storage } from '@/lib/core/storage'
 import { ArrowUpRight } from 'lucide-react'
 import type { BrewingNote } from '@/lib/core/config'
-import { useTranslation } from 'react-i18next'
+import { useTranslations } from 'next-intl'
 
 const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsShare }) => {
-    const { t } = useTranslation()
+    const t = useTranslations()
     const statsContainerRef = useRef<HTMLDivElement>(null)
     const [username, setUsername] = useState<string>('')
     const [espressoAverageConsumption, setEspressoAverageConsumption] = useState<number>(0)

@@ -3,7 +3,7 @@ import { isBeanEmpty } from '../../globalCache'
 import { StatsData, AnimationStyles } from './types'
 import { formatNumber } from './utils'
 import { StatCategory, StatItem, renderStatsRows } from './StatComponents'
-import { useTranslation } from 'react-i18next'
+import { useTranslations } from 'next-intl'
 
 interface StatsCategoriesProps {
     stats: StatsData
@@ -20,7 +20,7 @@ const StatsCategories: React.FC<StatsCategoriesProps> = ({
     todayCost,
     styles
 }) => {
-    const { t } = useTranslation()
+    const t = useTranslations()
 
     return (
         <div className="flex flex-col gap-8">

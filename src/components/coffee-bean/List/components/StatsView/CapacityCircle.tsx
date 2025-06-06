@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from 'next-intl';
 
 interface CapacityCircleProps {
   remainingPercentage: number;
@@ -10,7 +10,7 @@ const CapacityCircle: React.FC<CapacityCircleProps> = ({
   remainingPercentage,
   size = 200
 }) => {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   // 将百分比限制在0-100范围内
   const safeRemainingPercentage = useMemo(() => {

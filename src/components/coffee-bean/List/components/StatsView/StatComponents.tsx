@@ -1,7 +1,6 @@
 import React from 'react'
 import { StatItemProps, StatSectionProps, StatCategoryProps } from './types'
 import { formatNumber2Digits } from './utils'
-import { useTranslation } from 'react-i18next'
 
 // 生成统计项，单个值
 export const StatItem: React.FC<StatItemProps> = ({ label, value, unit = '' }) => (

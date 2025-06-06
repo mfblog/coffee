@@ -1,7 +1,7 @@
 import React from 'react'
 import { formatNumber2Digits } from './utils'
 import { StatsSummaryProps } from './types'
-import { useTranslation } from 'react-i18next'
+import { useTranslations } from 'next-intl'
 
 // 咖啡消耗量计算专家系统
 // 基于数据科学和咖啡爱好者经验的综合计算方法
@@ -296,7 +296,7 @@ export const calculateEstimatedFinishDateAdvanced = (
 
 
 const StatsSummary: React.FC<StatsSummaryProps> = ({ stats, todayConsumption: _todayConsumption }) => {
-    const { t } = useTranslation()
+    const t = useTranslations()
 
     return (
         <div className="p-4 text-justify text-sm font-medium max-w-xs">

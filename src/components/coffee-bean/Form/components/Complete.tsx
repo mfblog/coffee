@@ -90,7 +90,7 @@ const Complete: React.FC<CompleteProps> = ({
                 )}
                 <div className="flex justify-between py-2 border-b border-neutral-200 dark:border-neutral-700">
                     <span className="text-sm text-neutral-500 dark:text-neutral-400 shrink-0">{t('fields.flavorPeriod')}</span>
-                    <span className="text-sm font-medium truncate ml-4 max-w-[60%] text-right">{t('values.days', { start: bean.startDay, end: bean.endDay })}</span>
+                    <span className="text-sm font-medium truncate ml-4 max-w-[60%] text-right">{t('values.days', { start: bean.startDay || 0, end: bean.endDay || 0 })}</span>
                 </div>
                 {blendComponents.length > 0 && (
                     <div className="flex flex-col py-2 border-b border-neutral-200 dark:border-neutral-700">

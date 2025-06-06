@@ -23,7 +23,6 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
 }) => {
     // 使用翻译钩子
     const t = useTranslations('beanForm.blendComponents')
-    const tConstants = useTranslations('beanConstants')
     // 计算总百分比
     const totalPercentage = components.reduce((sum, component) => 
         component.percentage ? sum + component.percentage : sum, 0);
@@ -64,10 +63,7 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
     const currentProcesses = getFullPresets('processes');
     const currentVarieties = getFullPresets('varieties');
 
-    // 翻译预设选项
-    const translateOrigin = (origin: string) => tConstants(`origins.${origin}`) || origin;
-    const translateProcess = (process: string) => tConstants(`processes.${process}`) || process;
-    const translateVariety = (variety: string) => tConstants(`varieties.${variety}`) || variety;
+
         
     return (
         <div className="space-y-5 w-full">
@@ -143,10 +139,7 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
                                     value={component.origin || ''}
                                     onChange={(value) => onChange(index, 'origin', value)}
                                     placeholder={t('origin.placeholder')}
-                                    suggestions={currentOrigins.map(origin => ({
-                                        value: origin,
-                                        label: translateOrigin(origin)
-                                    }))}
+                                    suggestions={currentOrigins}
                                     clearable
                                     isCustomPreset={(value) => checkIsCustomPreset('origins', value)}
                                     onRemovePreset={(value) => handleRemovePreset('origins', value)}
@@ -157,10 +150,7 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
                                     value={component.process || ''}
                                     onChange={(value) => onChange(index, 'process', value)}
                                     placeholder={t('process.placeholder')}
-                                    suggestions={currentProcesses.map(process => ({
-                                        value: process,
-                                        label: translateProcess(process)
-                                    }))}
+                                    suggestions={currentProcesses}
                                     clearable
                                     isCustomPreset={(value) => checkIsCustomPreset('processes', value)}
                                     onRemovePreset={(value) => handleRemovePreset('processes', value)}
@@ -171,10 +161,7 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
                                     value={component.variety || ''}
                                     onChange={(value) => onChange(index, 'variety', value)}
                                     placeholder={t('variety.placeholder')}
-                                    suggestions={currentVarieties.map(variety => ({
-                                        value: variety,
-                                        label: translateVariety(variety)
-                                    }))}
+                                    suggestions={currentVarieties}
                                     clearable
                                     isCustomPreset={(value) => checkIsCustomPreset('varieties', value)}
                                     onRemovePreset={(value) => handleRemovePreset('varieties', value)}
