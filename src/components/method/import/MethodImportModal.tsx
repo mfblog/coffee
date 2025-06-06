@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations, useLocale } from 'next-intl'
 import { type Method, type CustomEquipment } from '@/lib/core/config'
 
 interface MethodImportModalProps {
@@ -19,6 +20,10 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
     existingMethods = [],
     customEquipment
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('methodImport')
+    const locale = useLocale()
+
     // 导入数据的状态
     const [importData, setImportData] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -47,38 +52,58 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
 
     // 生成模板提示词
     const _templatePrompt = (() => {
-        return `提取咖啡冲煮方案数据，返回JSON格式。
+        // 根据语言构建JSON示例
+        const jsonExample = locale === 'en' ? {
+            "name": "Method name",
+            "params": {
+                "coffee": "Coffee amount, e.g. 15g",
+                "water": "Water amount, e.g. 225g",
+                "ratio": "Ratio, e.g. 1:15",
+                "grindSize": "Grind size, e.g. medium-fine",
+                "temp": "Water temperature, e.g. 92°C",
+                "stages": [
+                    {
+                        "time": "minutes*60+seconds, number only",
+                        "pourTime": "Pour time, number only, in seconds",
+                        "label": "Step description (e.g. bloom(circular pour), circular pour, center pour)",
+                        "water": "Water amount for this step, e.g. 40g",
+                        "detail": "Describe pouring method, e.g. slowly pour in circles from center outward, evenly extract coffee flavor",
+                        "pourType": "Pour type strictly follow center(center pour), circle(circular pour), ice(ice water), other(other)"
+                    }
+                ]
+            }
+        } : {
+            "name": "方案名称",
+            "params": {
+                "coffee": "咖啡粉量，如15g",
+                "water": "水量，如225g",
+                "ratio": "比例，如1:15",
+                "grindSize": "研磨度，如中细",
+                "temp": "水温，如92°C",
+                "stages": [
+                    {
+                        "time": "分钟*60+秒钟，纯数字",
+                        "pourTime": "注水时间，纯数字，单位秒",
+                        "label": "步骤操作简述（如焖蒸(绕圈注水)、绕圈注水、中心注水）",
+                        "water": "该步骤水量，如40g",
+                        "detail": "描述注水方式，如中心向外缓慢画圈注水，均匀萃取咖啡风味",
+                        "pourType": "注水方式严格按照center（中心注水）、circle（绕圈注水）、ice（冰水）、other（其他）"
+                    }
+                ]
+            }
+        };
 
-格式要求：
-{
-  "name": "方案名称",
-  "params": {
-    "coffee": "咖啡粉量，如15g",
-    "water": "水量，如225g",
-    "ratio": "比例，如1:15",
-    "grindSize": "研磨度，如中细",
-    "temp": "水温，如92°C",
-    "stages": [
-      {
-        "time": 分钟*60+秒钟，纯数字,
-        "pourTime": 注水时间，纯数字，单位秒,
-        "label": "步骤操作简述（如焖蒸(绕圈注水)、绕圈注水、中心注水）",
-        "water": "该步骤水量，如40g",
-        "detail": "描述注水方式，如中心向外缓慢画圈注水，均匀萃取咖啡风味",
-        "pourType": "注水方式严格按照center（中心注水）、circle（绕圈注水）、ice（冰水）、other（其他）"
-      }
-    ]
-  }
-}
+        const formattedJson = JSON.stringify(jsonExample, null, 2);
 
-要求：
-0. 所有字段必须填写
-1. stages数组必须包含至少一个步骤
-2. time表示该步骤从开始到结束的总时间（秒），pourTime表示注水时长（秒）
-3. 步骤的time值必须按递增顺序排列
-4. 确保JSON格式有效，数值字段不包含单位
+        return `${t('templatePrompt.header')}
 
-提示：一般焖蒸注水方式是center，label就是"焖蒸(绕圈注水)"，
+${t('templatePrompt.format')}
+${formattedJson}
+
+${t('templatePrompt.requirements')}
+${t('templatePrompt.requirementsList')}
+
+${t('templatePrompt.tips')}
 `;
     })();
 
@@ -88,7 +113,7 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
             // 首先尝试使用现代API
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(text);
-                setSuccess('复制成功');
+                setSuccess(t('messages.copySuccess'));
                 setTimeout(() => setSuccess(null), 2000);
                 return;
             }
@@ -109,14 +134,14 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
 
             const successful = document.execCommand('copy');
             if (successful) {
-                setSuccess('复制成功');
+                setSuccess(t('messages.copySuccess'));
                 setTimeout(() => setSuccess(null), 2000);
             } else {
-                setError('复制失败');
+                setError(t('messages.copyFailed'));
                 setTimeout(() => setError(null), 2000);
             }
         } catch (_err) {
-            setError('复制失败');
+            setError(t('messages.copyFailed'));
             setTimeout(() => setError(null), 2000);
         } finally {
             if (document.querySelector('textarea[style*="-999999px"]')) {
@@ -128,7 +153,7 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
     // 处理导入数据
     const handleImport = () => {
         if (!importData) {
-            setError('请输入要导入的数据');
+            setError(t('textInput.inputRequired'));
             return;
         }
 
@@ -140,7 +165,7 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                 const method = extractJsonFromText(importData, customEquipment) as Method;
 
                 if (!method) {
-                    setError('无法从输入中提取有效数据');
+                    setError(t('messages.invalidData'));
                     return;
                 }
 
@@ -155,27 +180,27 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                         // 如果有method字段，使用它作为name
                         method.name = extendedMethod.method;
                     } else {
-                        setError('冲煮方案缺少名称');
+                        setError(t('messages.missingName'));
                         return;
                     }
                 }
 
                 // 验证params
                 if (!method.params) {
-                    setError('冲煮方案格式不完整，缺少参数字段');
+                    setError(t('messages.missingParams'));
                     return;
                 }
 
                 // 验证stages
                 if (!method.params.stages || method.params.stages.length === 0) {
-                    setError('冲煮方案格式不完整，缺少冲煮步骤');
+                    setError(t('messages.missingStages'));
                     return;
                 }
 
                 // 检查是否已存在同名方案
                 const existingMethod = existingMethods.find(m => m.name === method.name);
                 if (existingMethod) {
-                    setError(`已存在同名方案"${method.name}"，请修改后再导入`);
+                    setError(t('messages.duplicateName', { name: method.name }));
                     return;
                 }
 
@@ -187,7 +212,7 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                         coffee: method.params.coffee || '15g',
                         water: method.params.water || '225g',
                         ratio: method.params.ratio || '1:15',
-                        grindSize: method.params.grindSize || '中细',
+                        grindSize: method.params.grindSize || (locale === 'en' ? 'medium-fine' : '中细'),
                         temp: method.params.temp || '92°C',
                         videoUrl: method.params.videoUrl || '',
                         stages: method.params.stages,
@@ -202,10 +227,10 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                 // 关闭模态框
                 handleClose();
             }).catch(err => {
-                setError('解析数据失败: ' + (err instanceof Error ? err.message : '未知错误'));
+                setError(t('messages.parseError', { error: err instanceof Error ? err.message : t('messages.unknownError') }));
             });
         } catch (err) {
-            setError('导入失败: ' + (err instanceof Error ? err.message : '未知错误'));
+            setError(t('messages.importFailed', { error: err instanceof Error ? err.message : t('messages.unknownError') }));
         }
     };
 
@@ -215,23 +240,23 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
             <div className="space-y-4 py-1">
                 <div className="bg-neutral-100 dark:bg-neutral-800 p-4 rounded-lg text-xs text-neutral-600 dark:text-neutral-400">
                     <ol className="list-decimal pl-5 space-y-1 text-[11px]">
-                        <li>准备好咖啡冲煮方案说明或截图</li>
-                        <li>发送至<a 
-                            href="https://doubao.com/bot/duJYQEFd" 
-                            target="_blank" 
+                        <li>{t('manual.steps.prepare')}</li>
+                        <li>{t('manual.steps.send')}<a
+                            href="https://doubao.com/bot/duJYQEFd"
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="pb-1.5 text-[11px] relative text-neutral-600 dark:text-neutral-400"
                         >
-                            <span className="relative underline underline-offset-2 decoration-sky-600 ml-1">豆包定制智能体</span>
+                            <span className="relative underline underline-offset-2 decoration-sky-600 ml-1">{t('manual.aiAssistant')}</span>
                             <svg viewBox="0 0 24 24" className="inline-block ml-1 w-3 h-3" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
                                 <path d="M7 17L17 7M17 7H7M17 7V17" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </a></li>
-                        <li>将返回的 JSON 数据粘贴到下方文本框</li>
+                        <li>{t('manual.steps.paste')}</li>
                     </ol>
                     
                     <details className="mt-3 p-2 bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-700 rounded-md text-[10px]">
-                        <summary className="text-neutral-500 dark:text-neutral-400 cursor-pointer">提示词（点击展开）</summary>
+                        <summary className="text-neutral-500 dark:text-neutral-400 cursor-pointer">{t('manual.promptTitle')}</summary>
                         <textarea
                             readOnly
                             value={_templatePrompt}
@@ -246,7 +271,7 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                                 }}
                                 className="text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-sm text-[10px] bg-neutral-200/80 dark:bg-neutral-800/80 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors"
                             >
-                                复制
+                                {t('manual.copyButton')}
                             </button>
                         </div>
                     </details>
@@ -324,7 +349,7 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                                             />
                                         </svg>
                                     </button>
-                                    <h3 className="text-base font-medium">导入冲煮方案</h3>
+                                    <h3 className="text-base font-medium">{t('title')}</h3>
                                     <div className="w-8"></div>
                                 </div>
 
@@ -333,12 +358,12 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                                     {renderUploadSection()}
                                     <div className="flex items-center mb-1">
                                         <p className="text-xs text-neutral-500 dark:text-neutral-400 flex-1">
-                                            JSON 数据
+                                            {t('textInput.label')}
                                         </p>
                                     </div>
                                     <textarea
                                         className="w-full h-40 p-3 border border-neutral-300 dark:border-neutral-700 rounded-md bg-transparent focus:border-neutral-800 dark:focus:border-neutral-400 focus:outline-hidden text-neutral-800 dark:text-neutral-200"
-                                        placeholder='支持粘贴分享的文本或各种JSON格式，如{"name":"改良分段式一刀流",...} 或带有代码块的JSON'
+                                        placeholder={t('textInput.placeholder')}
                                         value={importData}
                                         onChange={(e) => setImportData(e.target.value)}
                                     />
@@ -357,13 +382,13 @@ const MethodImportModal: React.FC<MethodImportModalProps> = ({
                                             onClick={handleClose}
                                             className="px-4 py-2 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-md text-sm"
                                         >
-                                            取消
+                                            {t('buttons.cancel')}
                                         </button>
                                         <button
                                             onClick={handleImport}
                                             className="px-4 py-2 bg-neutral-800 dark:bg-neutral-200 text-neutral-100 dark:text-neutral-800 rounded-md text-sm"
                                         >
-                                            导入
+                                            {t('buttons.import')}
                                         </button>
                                     </div>
                                 </div>

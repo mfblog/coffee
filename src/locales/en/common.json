@@ -712,6 +712,50 @@
       "notes": "Notes:\n- Each component's origin/process/variety can only have one value, cannot be comma-separated\n- Leave uncertain fields as empty string \"\" or empty array []\n- Put origin, processing method, variety info in blendComponents array"
     }
   },
+  "methodImport": {
+    "title": "Import Brewing Method",
+    "manual": {
+      "description": "Manually enter brewing method information",
+      "steps": {
+        "prepare": "Prepare brewing method instructions or screenshots",
+        "send": "Send to",
+        "paste": "Paste the returned JSON data into the text box below"
+      },
+      "aiAssistant": "Doubao Custom AI Assistant",
+      "promptTitle": "Prompt (click to expand)",
+      "copyButton": "Copy"
+    },
+    "textInput": {
+      "label": "JSON Data",
+      "placeholder": "Supports pasting shared text or various JSON formats, or JSON with code blocks",
+      "import": "Import",
+      "inputRequired": "Please enter data to import"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "import": "Import"
+    },
+    "messages": {
+      "copySuccess": "Copy successful",
+      "copyFailed": "Copy failed",
+      "importing": "Importing brewing method data...",
+      "importFailed": "Import failed: {error}",
+      "invalidData": "Unable to extract valid data from input",
+      "missingName": "Brewing method missing name",
+      "missingParams": "Brewing method format incomplete, missing parameter fields",
+      "missingStages": "Brewing method format incomplete, missing brewing stages",
+      "duplicateName": "Method with name \"{name}\" already exists, please modify and try again",
+      "parseError": "Data parsing failed: {error}",
+      "unknownError": "Unknown error"
+    },
+    "templatePrompt": {
+      "header": "Extract coffee brewing method data, return in JSON format.",
+      "format": "Format requirements:",
+      "requirements": "Requirements:",
+      "requirementsList": "0. All fields must be filled\n1. stages array must contain at least one step\n2. time represents total time from start to end of step (seconds), pourTime represents pouring duration (seconds)\n3. Step time values must be in ascending order\n4. Ensure valid JSON format, numeric fields should not include units",
+      "tips": "Tips: Generally bloom pour type is center, label would be bloom(circular pour)."
+    }
+  },
   "beanConstants": {
     "origins": {
       "埃塞俄比亚": "Ethiopia",

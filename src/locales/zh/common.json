@@ -712,6 +712,50 @@
       "notes": "注意：\n- 每个成分的origin/process/variety只能填一个值，不能用逗号连接\n- 不确定的字段留空字符串\"\"或空数组[]\n- 产地、处理法、品种信息请放在blendComponents数组中"
     }
   },
+  "methodImport": {
+    "title": "导入冲煮方案",
+    "manual": {
+      "description": "手动填写冲煮方案信息",
+      "steps": {
+        "prepare": "准备好咖啡冲煮方案说明或截图",
+        "send": "发送至",
+        "paste": "将返回的 JSON 数据粘贴到下方文本框"
+      },
+      "aiAssistant": "豆包定制智能体",
+      "promptTitle": "提示词（点击展开）",
+      "copyButton": "复制"
+    },
+    "textInput": {
+      "label": "JSON 数据",
+      "placeholder": "支持粘贴分享的文本或各种JSON格式，或带有代码块的JSON",
+      "import": "导入",
+      "inputRequired": "请输入要导入的数据"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "import": "导入"
+    },
+    "messages": {
+      "copySuccess": "复制成功",
+      "copyFailed": "复制失败",
+      "importing": "正在导入冲煮方案数据...",
+      "importFailed": "导入失败: {error}",
+      "invalidData": "无法从输入中提取有效数据",
+      "missingName": "冲煮方案缺少名称",
+      "missingParams": "冲煮方案格式不完整，缺少参数字段",
+      "missingStages": "冲煮方案格式不完整，缺少冲煮步骤",
+      "duplicateName": "已存在同名方案\"{name}\"，请修改后再导入",
+      "parseError": "解析数据失败: {error}",
+      "unknownError": "未知错误"
+    },
+    "templatePrompt": {
+      "header": "提取咖啡冲煮方案数据，返回JSON格式。",
+      "format": "格式要求：",
+      "requirements": "要求：",
+      "requirementsList": "0. 所有字段必须填写\n1. stages数组必须包含至少一个步骤\n2. time表示该步骤从开始到结束的总时间（秒），pourTime表示注水时长（秒）\n3. 步骤的time值必须按递增顺序排列\n4. 确保JSON格式有效，数值字段不包含单位",
+      "tips": "提示：一般焖蒸注水方式是center，label就是焖蒸(绕圈注水)。"
+    }
+  },
   "beanConstants": {
     "origins": {
       "埃塞俄比亚": "埃塞俄比亚",
