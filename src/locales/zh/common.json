@@ -1,4 +1,9 @@
 {
+  "common": {
+    "rating": "评分",
+    "points": "分",
+    "stars": "星"
+  },
   "nav": {
     "title": "",
     "main": {
@@ -30,7 +35,8 @@
       "search": "搜索",
       "addManually": "手动添加",
       "quickAdd": "快速添加",
-      "addRating": "添加评分"
+      "addRating": "添加评分",
+      "cancel": "取消"
     },
     "rating": {
       "title": "评分",
@@ -120,7 +126,12 @@
       "exportStatsError": "导出统计数据时出错",
       "generateImageError": "生成图片失败",
       "generateRankingImageError": "生成个人榜单图片失败",
-      "rankingImageSaved": "个人榜单已保存为图片"
+      "rankingImageSaved": "个人榜单已保存为图片",
+      "noteDeleted": "笔记已删除",
+      "deleteNoteFailed": "删除笔记失败",
+      "noteUpdated": "笔记已更新",
+      "updateNoteFailed": "更新笔记失败",
+      "exportNotesFailed": "导出笔记失败"
     },
     "stats": {
       "beansCount": "款咖啡豆",
@@ -1136,6 +1147,10 @@
     }
   },
   "notes": {
+    "list": {
+      "recordsCount": "条记录",
+      "consumed": "已消耗"
+    },
     "form": {
       "title": {
         "edit": "编辑记录",
@@ -1180,7 +1195,7 @@
         "acidity": "酸度",
         "sweetness": "甜度",
         "bitterness": "苦度",
-        "body": "口感"
+        "body": "醇厚度"
       },
       "messages": {
         "unknownBean": "未知咖啡豆",

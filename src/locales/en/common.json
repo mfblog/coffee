@@ -1,4 +1,9 @@
 {
+  "common": {
+    "rating": "rating",
+    "points": "pts",
+    "stars": "stars"
+  },
   "nav": {
     "title": "",
     "main": {
@@ -30,7 +35,8 @@
       "search": "Search",
       "addManually": "Add Manually",
       "quickAdd": "Quick Add",
-      "addRating": "Rate"
+      "addRating": "Rate",
+      "cancel": "Cancel"
     },
     "rating": {
       "title": "Rating",
@@ -120,7 +126,12 @@
       "exportStatsError": "Error exporting statistics data",
       "generateImageError": "Failed to generate image",
       "generateRankingImageError": "Failed to generate personal ranking image",
-      "rankingImageSaved": "Personal ranking saved as image"
+      "rankingImageSaved": "Personal ranking saved as image",
+      "noteDeleted": "Note deleted",
+      "deleteNoteFailed": "Failed to delete note",
+      "noteUpdated": "Note updated",
+      "updateNoteFailed": "Failed to update note",
+      "exportNotesFailed": "Failed to export notes"
     },
     "stats": {
       "beansCount": "coffee beans",
@@ -1136,6 +1147,10 @@
     }
   },
   "notes": {
+    "list": {
+      "recordsCount": "records",
+      "consumed": "consumed"
+    },
     "form": {
       "title": {
         "edit": "Edit Record",
