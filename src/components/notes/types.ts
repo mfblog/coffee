@@ -38,7 +38,7 @@ export interface BrewingHistoryProps {
 // 单个笔记项属性
 export interface NoteItemProps {
     note: BrewingNote
-    equipmentNames: Record<string, string>
+    _equipmentNames: Record<string, string>
     onEdit: (note: BrewingNote) => void
     onDelete: (noteId: string) => void
     unitPriceCache: Record<string, number>
@@ -60,7 +60,7 @@ export interface FilterTabsProps {
     selectedBean: string | null
     availableEquipments: string[]
     availableBeans: string[]
-    equipmentNames: Record<string, string>
+    _equipmentNames: Record<string, string>
     onFilterModeChange: (mode: 'equipment' | 'bean') => void
     onEquipmentClick: (equipment: string | null) => void
     onBeanClick: (bean: string | null) => void

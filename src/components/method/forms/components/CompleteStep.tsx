@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 // 添加动画变体
 const pageVariants = {
@@ -44,6 +45,8 @@ const CompleteStep: React.FC<CompleteStepProps> = ({
   isEspressoMachine = false,
   formattedEspressoWater
 }) => {
+  const tComplete = useTranslations('brewing.form.complete');
+  const tMethods = useTranslations('brewing.methods');
   return (
     <motion.div
       key="complete-step"
@@ -59,23 +62,23 @@ const CompleteStep: React.FC<CompleteStepProps> = ({
       </div>
       <div className="space-y-2">
         <h3 className="text-xl font-medium text-neutral-800 dark:text-neutral-200">
-          {isEdit ? '方案编辑完成' : '方案创建完成'}
+          {isEdit ? tComplete('title.edit') : tComplete('title.create')}
         </h3>
         <p className="text-neutral-600 dark:text-neutral-400">
-          你的咖啡冲煮方案已经准备就绪
+          {tComplete('subtitle')}
         </p>
       </div>
       <div className="w-full max-w-sm space-y-4 px-4">
         <div className="flex justify-between items-center py-2 border-b border-neutral-200 dark:border-neutral-700">
-          <span className="text-sm text-neutral-500 dark:text-neutral-400">方案名称</span>
+          <span className="text-sm text-neutral-500 dark:text-neutral-400">{tMethods('title')}</span>
           <span className="text-sm font-medium">{methodName}</span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-neutral-200 dark:border-neutral-700">
-          <span className="text-sm text-neutral-500 dark:text-neutral-400">咖啡粉量</span>
+          <span className="text-sm text-neutral-500 dark:text-neutral-400">{tMethods('params.coffee')}</span>
           <span className="text-sm font-medium">{coffee}</span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-neutral-200 dark:border-neutral-700">
-          <span className="text-sm text-neutral-500 dark:text-neutral-400">水量</span>
+          <span className="text-sm text-neutral-500 dark:text-neutral-400">{tMethods('params.water')}</span>
           {isEspressoMachine && formattedEspressoWater ? (
             <div className="text-right">
               <span className="text-sm font-medium">{formattedEspressoWater}</span>
@@ -85,11 +88,11 @@ const CompleteStep: React.FC<CompleteStepProps> = ({
           )}
         </div>
         <div className="flex justify-between items-center py-2 border-b border-neutral-200 dark:border-neutral-700">
-          <span className="text-sm text-neutral-500 dark:text-neutral-400">粉水比</span>
+          <span className="text-sm text-neutral-500 dark:text-neutral-400">{tMethods('params.ratio')}</span>
           <span className="text-sm font-medium">{ratio}</span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-neutral-200 dark:border-neutral-700">
-          <span className="text-sm text-neutral-500 dark:text-neutral-400">总时间</span>
+          <span className="text-sm text-neutral-500 dark:text-neutral-400">{tMethods('params.totalTime')}</span>
           <span className="text-sm font-medium">{formatTime(totalTime)}</span>
         </div>
       </div>

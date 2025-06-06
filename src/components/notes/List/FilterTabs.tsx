@@ -202,7 +202,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
     selectedBean,
     availableEquipments,
     availableBeans,
-    equipmentNames,
+    _equipmentNames,
     onFilterModeChange,
     onEquipmentClick,
     onBeanClick,
@@ -352,7 +352,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
                                         className="mr-3"
                                         dataTab={equipment}
                                     >
-                                        {equipmentNames[equipment] || equipment}
+                                        {_equipmentNames[equipment] || equipment}
                                     </TabButton>
                                 ))
                             ) : (

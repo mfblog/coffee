@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
+import { useTranslations, useLocale } from 'next-intl'
 import ActionMenu from '@/components/coffee-bean/ui/action-menu'
 import { NoteItemProps } from '../types'
 import { formatDate, formatRating } from '../utils'
@@ -10,6 +11,7 @@ import { Storage } from '@/lib/core/storage'
 import { SettingsOptions, defaultSettings } from '@/components/settings/Settings'
 import { formatGrindSize as _formatGrindSize } from '@/lib/utils/grindUtils'
 import { availableGrinders } from '@/lib/core/config'
+import { useConfigTranslation } from '@/lib/utils/i18n-config'
 
 // 动态导入 ImageViewer 组件 - 移除加载占位符
 const ImageViewer = dynamic(() => import('@/components/common/ui/ImageViewer'), {
@@ -19,7 +21,7 @@ const ImageViewer = dynamic(() => import('@/components/common/ui/ImageViewer'), 
 // 优化笔记项组件以避免不必要的重渲染
 const NoteItem: React.FC<NoteItemProps> = ({
     note,
-    equipmentNames,
+    _equipmentNames,
     onEdit,
     onDelete,
     unitPriceCache,
@@ -27,6 +29,10 @@ const NoteItem: React.FC<NoteItemProps> = ({
     isSelected = false,
     onToggleSelect
 }) => {
+    const t = useTranslations('nav.actions')
+    const tNotes = useTranslations('notes.form.flavorRatings')
+    const locale = useLocale()
+    const { translateEquipment, translateBrewingMethod } = useConfigTranslation()
     // 添加用户设置状态
     const [_settings, setSettings] = useState<SettingsOptions>(defaultSettings);
     const [_grinderName, setGrinderName] = useState<string>("");
@@ -37,7 +43,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
     // 预先计算一些条件，避免在JSX中重复计算
     const hasTasteRatings = Object.values(note.taste).some(value => value > 0);
     const hasNotes = Boolean(note.notes);
-    const equipmentName = equipmentNames[note.equipment] || note.equipment;
+    const equipmentName = translateEquipment(note.equipment);
+    const methodName = note.method ? translateBrewingMethod(note.equipment, note.method) : '';
     const beanName = note.coffeeBeanInfo?.name;
     const beanUnitPrice = beanName ? (unitPriceCache[beanName] || 0) : 0;
 
@@ -137,13 +144,13 @@ const NoteItem: React.FC<NoteItemProps> = ({
                                             <>
                                                 {beanName}
                                                 <span className="text-neutral-600 dark:text-neutral-400 mx-1">·</span>
-                                                <span className="text-neutral-600 dark:text-neutral-400">{note.method}</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{methodName}</span>
                                             </>
                                         ) : (
                                             <>
                                                 {equipmentName}
                                                 <span className="text-neutral-600 dark:text-neutral-400 mx-1">·</span>
-                                                <span className="text-neutral-600 dark:text-neutral-400">{note.method}</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{methodName}</span>
                                             </>
                                         )
                                     ) : (
@@ -195,10 +202,10 @@ const NoteItem: React.FC<NoteItemProps> = ({
                                                     <span>
                                                         {isShareMode && _settings.grindType !== 'generic' && _grinderName ? (
                                                             // 在分享模式下显示磨豆机名称 + 研磨度
-                                                            <>{_grinderName} {_formatGrindSize(note.params.grindSize, _settings.grindType)} · {note.params.temp}</>
+                                                            <>{_grinderName} {_formatGrindSize(note.params.grindSize, _settings.grindType, locale)} · {note.params.temp}</>
                                                         ) : (
                                                             // 普通显示
-                                                            <>{note.params.grindSize} · {note.params.temp}</>
+                                                            <>{_formatGrindSize(note.params.grindSize, 'generic', locale)} · {note.params.temp}</>
                                                         )}
                                                     </span>
                                                 ) : (
@@ -206,10 +213,10 @@ const NoteItem: React.FC<NoteItemProps> = ({
                                                         {note.params.grindSize ? (
                                                             isShareMode && _settings.grindType !== 'generic' && _grinderName ? (
                                                                 // 在分享模式下只显示研磨度
-                                                                <>{_grinderName} {_formatGrindSize(note.params.grindSize, _settings.grindType)}</>
+                                                                <>{_grinderName} {_formatGrindSize(note.params.grindSize, _settings.grindType, locale)}</>
                                                             ) : (
                                                                 // 普通显示
-                                                                <>{note.params.grindSize}</>
+                                                                <>{_formatGrindSize(note.params.grindSize, 'generic', locale)}</>
                                                             )
                                                         ) : (
                                                             // 只有水温
@@ -239,18 +246,18 @@ const NoteItem: React.FC<NoteItemProps> = ({
                                         items={[
                                             {
                                                 id: 'edit',
-                                                label: '编辑',
+                                                label: t('edit'),
                                                 onClick: () => onEdit(note)
                                             },
                                             {
                                                 id: 'delete',
-                                                label: '删除',
+                                                label: t('delete'),
                                                 onClick: () => onDelete(note.id),
                                                 color: 'danger'
                                             },
                                             {
                                                 id: 'share',
-                                                label: '分享',
+                                                label: t('share'),
                                                 onClick: () => {
                                                     if (onToggleSelect) {
                                                         onToggleSelect(note.id, true);
@@ -273,20 +280,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                                 <div key={key} className="space-y-1">
                                     <div className="flex items-center justify-between">
                                         <div className="text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-                                            {(() => {
-                                                switch (key) {
-                                                    case 'acidity':
-                                                        return '酸度';
-                                                    case 'sweetness':
-                                                        return '甜度';
-                                                    case 'bitterness':
-                                                        return '苦度';
-                                                    case 'body':
-                                                        return '口感';
-                                                    default:
-                                                        return key;
-                                                }
-                                            })()}
+                                            {tNotes(key as keyof typeof tNotes)}
                                         </div>
                                         <div className="text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
                                             {value}

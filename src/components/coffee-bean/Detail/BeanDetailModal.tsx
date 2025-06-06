@@ -9,7 +9,7 @@ import HighlightText from '@/components/common/ui/HighlightText'
 import { Storage } from '@/lib/core/storage'
 import { getEquipmentName } from '@/components/notes/utils'
 import { formatDate, formatRating } from '@/components/notes/utils'
-import { useTranslations, useLocale } from 'next-intl'
+import { useLocale } from 'next-intl'
 
 // 导入翻译文件
 import zhTranslations from '@/locales/zh/common.json'

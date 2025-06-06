@@ -1,4 +1,5 @@
 import { availableGrinders } from '../core/config';
+import { translateBrewingTerm } from '../core/config-i18n';
 
 // 幻刺研磨度转换映射表
 // const phanciGrindSizes: Record<string, string> = { // Removed unused variable
@@ -87,21 +88,28 @@ export function convertToSpecificGrind(grindSize: string, grinderId: string): st
  * 这是转化研磨度的主要函数，用于在界面上显示对应磨豆机的研磨度
  * @param grindSize 原始研磨度（通用描述）
  * @param grindType 磨豆机 ID (来自设置)
+ * @param locale 语言环境，用于翻译
  * @returns 格式化后的研磨度显示
  */
 export function formatGrindSize(
 	grindSize: string,
-	grindType: string
+	grindType: string,
+	locale: string = 'zh'
 ): string {
 	if (!grindSize) return "";
 
+	let result: string;
+
 	// 如果不是通用类型，则尝试转换
 	if (grindType !== 'generic') {
-		return convertToSpecificGrind(grindSize, grindType);
+		result = convertToSpecificGrind(grindSize, grindType);
+	} else {
+		// 如果是通用类型，直接使用原始值
+		result = grindSize;
 	}
 
-	// 如果是通用类型，直接返回
-	return grindSize;
+	// 翻译基础研磨度术语
+	return translateBrewingTerm(result, locale);
 }
 
 /**

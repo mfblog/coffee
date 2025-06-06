@@ -9,6 +9,8 @@ import { formatGrindSize } from "@/lib/utils/grindUtils";
 import { SettingsOptions } from "@/components/settings/Settings";
 import { loadCustomMethodsForEquipment } from "@/lib/managers/customMethods";
 import { Stage } from '@/components/method/forms/components/types';
+import { useLocale } from 'next-intl';
+import { translateBrewingMethod, translateBrewingTerm } from '@/lib/core/config-i18n';
 
 // 增强 Content.注水.steps 接口以支持 pourType
 declare module "./useBrewingState" {
@@ -49,6 +51,7 @@ export function useBrewingContent({
 	settings,
 	customEquipments = [], // 设置默认值为空数组
 }: UseBrewingContentProps) {
+	const locale = useLocale();
 	const initialContent: Content = {
 		咖啡豆: {
 			steps: [
@@ -224,21 +227,21 @@ export function useBrewingContent({
 						// 意式咖啡方案显示: 粉量、液重、萃取时间
 						const extractionStage = method.params.stages.find(stage => stage.pourType === 'extraction');
 						items = [
-							`粉量 ${method.params.coffee}`,
-							`萃取时间 ${formatTime(totalTime, true)}`,
-							`液重 ${extractionStage?.water || method.params.water}`,
+							`${translateBrewingTerm('粉量', locale)} ${method.params.coffee}`,
+							`${translateBrewingTerm('萃取时间', locale)} ${formatTime(totalTime, true)}`,
+							`${translateBrewingTerm('液重', locale)} ${extractionStage?.water || method.params.water}`,
 						];
 					} else {
 						// 传统方案显示: 水粉比、总时长、研磨度
 						items = [
-							`水粉比 ${method.params.ratio}`,
-							`总时长 ${formatTime(totalTime, true)}`,
-							`研磨度 ${formatGrindSize(method.params.grindSize, settings.grindType)}`,
+							`${translateBrewingTerm('水粉比', locale)} ${method.params.ratio}`,
+							`${translateBrewingTerm('总时长', locale)} ${formatTime(totalTime, true)}`,
+							`${translateBrewingTerm('研磨度', locale)} ${formatGrindSize(method.params.grindSize, settings.grindType, locale)}`,
 						];
 					}
 
 					return {
-						title: method.name,
+						title: translateBrewingMethod(selectedEquipment || '', method.name, locale),
 						methodId: method.id,
 						items: items,
 						note: "",
@@ -271,21 +274,21 @@ export function useBrewingContent({
 						// 意式咖啡方案显示: 粉量、液重、萃取时间
 						const extractionStage = method.params.stages.find(stage => stage.pourType === 'extraction');
 						items = [
-							`粉量 ${method.params.coffee}`,
-							`液重 ${extractionStage?.water || method.params.water}`,
-							`萃取时间 ${formatTime(totalTime, true)}`,
+							`${translateBrewingTerm('粉量', locale)} ${method.params.coffee}`,
+							`${translateBrewingTerm('液重', locale)} ${extractionStage?.water || method.params.water}`,
+							`${translateBrewingTerm('萃取时间', locale)} ${formatTime(totalTime, true)}`,
 						];
 					} else {
 						// 传统方案显示: 水粉比、总时长、研磨度
 						items = [
-							`水粉比 ${method.params.ratio}`,
-							`总时长 ${formatTime(totalTime, true)}`,
-							`研磨度 ${formatGrindSize(method.params.grindSize, settings.grindType)}`,
+							`${translateBrewingTerm('水粉比', locale)} ${method.params.ratio}`,
+							`${translateBrewingTerm('总时长', locale)} ${formatTime(totalTime, true)}`,
+							`${translateBrewingTerm('研磨度', locale)} ${formatGrindSize(method.params.grindSize, settings.grindType, locale)}`,
 						];
 					}
 
 					return {
-						title: method.name,
+						title: translateBrewingMethod(selectedEquipment || '', method.name, locale),
 						methodId: method.id,
 						isCommonMethod: true, // 标记为通用方案
 						methodIndex: methodIndex,
@@ -300,7 +303,7 @@ export function useBrewingContent({
 					items: [],
 					note: "",
 					isDivider: true,
-					dividerText: "通用方案",
+					dividerText: translateBrewingTerm('通用方案', locale),
 				}] : [];
 
 				const steps = [
@@ -446,7 +449,7 @@ export function useBrewingContent({
 					// 创建等待阶段
 					expandedStages.push({
 						type: "wait",
-						label: "等待",
+						label: translateBrewingTerm("等待", locale),
 						water: stage.water, // 水量与前一阶段相同
 						detail: "",
 						startTime: prevStageTime + stagePourTime,
@@ -461,7 +464,7 @@ export function useBrewingContent({
 				// 如果没有注水时间，只添加一个等待阶段
 				expandedStages.push({
 					type: "wait",
-					label: "等待",
+					label: translateBrewingTerm("等待", locale),
 					water: stage.water,
 					detail: "",
 					startTime: prevStageTime,

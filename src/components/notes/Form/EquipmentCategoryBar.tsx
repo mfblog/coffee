@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect } from 'react'
 import { equipmentList, type CustomEquipment } from '@/lib/core/config'
+import { useConfigTranslation } from '@/lib/core/config-i18n'
 
 interface EquipmentCategoryBarProps {
   selectedEquipment: string | null
@@ -49,6 +50,7 @@ const EquipmentCategoryBar: React.FC<EquipmentCategoryBarProps> = ({
   onEquipmentSelect
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const { translateEquipment } = useConfigTranslation()
 
   // 合并所有器具数据
   const allEquipments = [
@@ -60,7 +62,7 @@ const EquipmentCategoryBar: React.FC<EquipmentCategoryBarProps> = ({
   const allItems = allEquipments.map(equipment => ({
     type: 'equipment' as const,
     id: equipment.id,
-    name: equipment.name,
+    name: equipment.isCustom ? equipment.name : translateEquipment(equipment.id),
     isSelected: selectedEquipment === equipment.id,
     isCustom: equipment.isCustom || false,
     onClick: () => onEquipmentSelect(equipment.id)

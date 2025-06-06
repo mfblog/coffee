@@ -1,10 +1,11 @@
 import type { Stage } from "@/lib/core/config";
 import type { ExpandedStage } from "./types";
+import { translateBrewingTerm } from "@/lib/core/config-i18n";
 
 /**
  * 创建扩展阶段数组，将原始阶段的注水和等待部分拆分为独立阶段
  */
-export const createExpandedStages = (stages: Stage[] | undefined): ExpandedStage[] => {
+export const createExpandedStages = (stages: Stage[] | undefined, locale: string = 'zh'): ExpandedStage[] => {
   if (!stages?.length) return [];
 
   const expandedStages: ExpandedStage[] = [];
@@ -28,7 +29,7 @@ export const createExpandedStages = (stages: Stage[] | undefined): ExpandedStage
     extractionStages.forEach((_stage, _index) => {
       expandedStages.push({
         type: "pour", // 萃取步骤标记为pour类型
-        label: _stage.label || `萃取浓缩`,
+        label: _stage.label || translateBrewingTerm("萃取浓缩", locale),
         startTime: 0, // 萃取始终从0开始
         endTime: _stage.time || 25, // 使用设定时间，默认25秒
         time: _stage.time || 25, // 阶段持续时间
@@ -51,7 +52,7 @@ export const createExpandedStages = (stages: Stage[] | undefined): ExpandedStage
       if (extractionStage) {
         expandedStages.push({
           type: "pour",
-          label: extractionStage.label || "萃取浓缩",
+          label: extractionStage.label || translateBrewingTerm("萃取浓缩", locale),
           startTime: 0,
           endTime: extractionStage.time || 25,
           time: extractionStage.time || 25,
@@ -85,7 +86,7 @@ export const createExpandedStages = (stages: Stage[] | undefined): ExpandedStage
         // 添加注水阶段
         expandedStages.push({
           type: "pour",
-          label: stage.label || `阶段 ${index + 1}`,
+          label: stage.label || translateBrewingTerm(`${index + 1} 阶段`, locale),
           startTime: prevStageTime,
           endTime: prevStageTime + stagePourTime,
           time: stagePourTime,
@@ -100,7 +101,7 @@ export const createExpandedStages = (stages: Stage[] | undefined): ExpandedStage
         // 添加等待阶段
         expandedStages.push({
           type: "wait",
-          label: stage.label || `阶段 ${index + 1}`,
+          label: stage.label || translateBrewingTerm(`${index + 1} 阶段`, locale),
           startTime: prevStageTime + stagePourTime,
           endTime: stageTime,
           time: stageTime - (prevStageTime + stagePourTime),
@@ -114,7 +115,7 @@ export const createExpandedStages = (stages: Stage[] | undefined): ExpandedStage
         // 如果没有注水阶段，则整个阶段都是等待
         expandedStages.push({
           type: "wait",
-          label: stage.label || `阶段 ${index + 1}`,
+          label: stage.label || translateBrewingTerm(`${index + 1} 阶段`, locale),
           startTime: prevStageTime,
           endTime: stageTime,
           time: stageTime - prevStageTime,

@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { CustomEquipment } from '@/lib/core/config'
 import { isEspressoMachine, getDefaultPourType, getPourTypeName } from '@/lib/utils/equipmentUtils'
+import { translateBrewingTerm } from '@/lib/core/config-i18n'
+import { useLocale, useTranslations } from 'next-intl'
 import { SettingsOptions, defaultSettings } from '@/components/settings/Settings'
 import { Storage } from '@/lib/core/storage'
 import {
@@ -101,6 +103,8 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
   onBack,
 }) => {
   // ===== 状态管理 =====
+  const locale = useLocale();
+  const tForm = useTranslations('brewing.form');
   const [currentStep, setCurrentStep] = useState<Step>('name');
   const [editingCumulativeTime, setEditingCumulativeTime] = useState<{index: number, value: string} | null>(null);
   const [editingCumulativeWater, setEditingCumulativeWater] = useState<{index: number, value: string} | null>(null);
@@ -126,7 +130,7 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
           coffee: '15g',
           water: '225g',
           ratio: '1:15',
-          grindSize: '中细',
+          grindSize: translateBrewingTerm('中细', locale),
           temp: '92°C',
           videoUrl: '',
           stages: [],
@@ -142,31 +146,29 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
           coffee: '18g',
           water: '36g',
           ratio: '1:2',
-          grindSize: '细',
+          grindSize: translateBrewingTerm('细', locale),
           temp: '93°C',
           videoUrl: '',
           stages: [{
             time: 25,
-            label: '萃取浓缩',
+            label: translateBrewingTerm('萃取浓缩', locale),
             water: '36g',
-            detail: '标准意式浓缩',
+            detail: translateBrewingTerm('标准意式浓缩', locale),
             pourType: 'extraction'
           }],
         },
       };
     }
 
-    // 手冲类型 - 获取默认注水方式
-    const defaultPourType = getDefaultPourType(customEquipment);
-
+    // 手冲类型 - 第一个步骤使用焖蒸
     // 创建初始步骤
     const initialStage: Stage = {
       time: 25,
       pourTime: 10,
-      label: '焖蒸',
+      label: translateBrewingTerm('焖蒸', locale),
       water: '30g',
-      detail: '使咖啡粉充分吸水并释放气体，提升萃取效果',
-      pourType: defaultPourType,
+      detail: translateBrewingTerm('使咖啡粉充分吸水并释放气体，提升萃取效果', locale),
+      pourType: 'bloom', // 使用专门的焖蒸类型
       ...(customEquipment.hasValve ? { valveStatus: 'closed' as 'closed' | 'open' } : {})
     };
 
@@ -176,7 +178,7 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
         coffee: '15g',
         water: '225g',
         ratio: '1:15',
-        grindSize: '中细',
+        grindSize: translateBrewingTerm('中细', locale),
         temp: '92°C',
         videoUrl: '',
         stages: [initialStage],
@@ -195,10 +197,10 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
 
   // ===== 步骤配置 =====
   const steps: { id: Step; label: string }[] = [
-    { id: 'name', label: '方案名称' },
-    { id: 'params', label: '基本参数' },
-    { id: 'stages', label: '冲泡步骤' },
-    { id: 'complete', label: '完成' }
+    { id: 'name', label: tForm('stepLabels.name') },
+    { id: 'params', label: tForm('stepLabels.params') },
+    { id: 'stages', label: tForm('stepLabels.stages') },
+    { id: 'complete', label: tForm('stepLabels.complete') }
   ];
 
   // ===== 基本功能函数 =====
@@ -252,11 +254,12 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
 
     // 默认标签
     switch (pourType) {
-      case 'circle': return '绕圈注水';
-      case 'center': return '中心注水';
-      case 'ice': return '添加冰块';
+      case 'bloom': return translateBrewingTerm('焖蒸', locale);
+      case 'circle': return translateBrewingTerm('绕圈注水', locale);
+      case 'center': return translateBrewingTerm('中心注水', locale);
+      case 'ice': return translateBrewingTerm('添加冰块', locale);
       case 'other': return '';
-      default: return '注水';
+      default: return translateBrewingTerm('注水', locale);
     }
   };
 
@@ -269,16 +272,17 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
     // 检查自定义注水动画
     if (customEquipment.customPourAnimations) {
       const customAnimation = customEquipment.customPourAnimations.find(anim => anim.id === pourType);
-      if (customAnimation) return `使用${customAnimation.name}注水`;
+      if (customAnimation) return translateBrewingTerm(`使用${customAnimation.name}注水`, locale);
     }
 
     // 默认详情
     switch (pourType) {
-      case 'circle': return '中心向外缓慢画圈注水，均匀萃取咖啡风味';
-      case 'center': return '中心定点注水，降低萃取率';
-      case 'ice': return '添加冰块，降低温度进行冷萃';
+      case 'bloom': return translateBrewingTerm('使咖啡粉充分吸水并释放气体，提升萃取效果', locale);
+      case 'circle': return translateBrewingTerm('中心向外缓慢画圈注水，均匀萃取咖啡风味', locale);
+      case 'center': return translateBrewingTerm('中心定点注水，降低萃取率', locale);
+      case 'ice': return translateBrewingTerm('添加冰块，降低温度进行冷萃', locale);
       case 'other': return '';
-      default: return '注水';
+      default: return translateBrewingTerm('注水', locale);
     }
   };
 
@@ -513,7 +517,7 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
             // 当是意式机且为饮料类型时，不自动设置标签名称，留空让用户自行填写
             // 非意式机则使用默认的步骤名称
             label: isEspresso
-                ? (defaultPourType === 'beverage' ? '' : getPourTypeName(defaultPourType))
+                ? (defaultPourType === 'beverage' ? '' : getPourTypeName(defaultPourType, locale))
                 : getDefaultStageLabel(defaultPourType),
                 water: '',
                 // 非意式机设置默认的详细说明
@@ -647,7 +651,7 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
                     localStorage.setItem('userBeverageSuggestions', JSON.stringify(uniqueBeverages));
                 }
             } catch (error) {
-                console.error('保存饮料名称失败:', error);
+                console.error('Failed to save beverage names:', error);
                 // 继续执行，不影响主要功能
             }
         }
@@ -657,7 +661,7 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
             onSave(finalMethod);
         } catch {
             // 可以在这里添加用户友好的错误提示
-            alert('保存方案失败，请重试');
+            alert(tForm('messages.saveFailed'));
         }
     }
 
@@ -888,17 +892,22 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
         // 对于意式机的特殊处理
         if (isEspresso) {
             // 获取注水方式的显示名称
-            const pourTypeName = getPourTypeName(value);
+            const pourTypeName = getPourTypeName(value, locale);
 
             // 获取所有可能的默认注水方式标签
-            const allDefaultLabels = ['萃取浓缩', '饮料', '其他', ''];
+            const allDefaultLabels = [
+                translateBrewingTerm('萃取浓缩', locale),
+                translateBrewingTerm('饮料', locale),
+                translateBrewingTerm('其他', locale),
+                ''
+            ];
 
             // 检查当前标签是否与任何默认标签匹配，或者是否为特定切换场景（从饮料切换到萃取，或从萃取切换到饮料）
             const isLabelDefault = !stage.label ||
                                 stage.label === '' ||
                                 allDefaultLabels.includes(stage.label) ||
-                                (value === 'extraction' && stage.label === '饮料') ||
-                                (value === 'beverage' && stage.label === '萃取浓缩');
+                                (value === 'extraction' && stage.label === translateBrewingTerm('饮料', locale)) ||
+                                (value === 'beverage' && stage.label === translateBrewingTerm('萃取浓缩', locale));
 
             // 根据不同的注水方式处理默认值
             switch (value) {
@@ -932,15 +941,29 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
         // 检查是否选择了自定义注水动画（自定义注水动画的值是ID而不是pourType类型）
         else if (isCustomPreset) {
             // 获取所有可能的默认注水方式标签
-            const allDefaultLabels = ['绕圈注水', '中心注水', '添加冰块', '注水', ''];
+            const allDefaultLabels = [
+                translateBrewingTerm('焖蒸', locale),
+                translateBrewingTerm('绕圈注水', locale),
+                translateBrewingTerm('中心注水', locale),
+                translateBrewingTerm('添加冰块', locale),
+                translateBrewingTerm('注水', locale),
+                ''
+            ];
             // 获取所有可能的默认注水方式详细信息
-            const allDefaultDetails = ['中心向外缓慢画圈注水，均匀萃取咖啡风味', '中心定点注水，降低萃取率', '添加冰块，降低温度进行冷萃', '注水', ''];
+            const allDefaultDetails = [
+                translateBrewingTerm('使咖啡粉充分吸水并释放气体，提升萃取效果', locale),
+                translateBrewingTerm('中心向外缓慢画圈注水，均匀萃取咖啡风味', locale),
+                translateBrewingTerm('中心定点注水，降低萃取率', locale),
+                translateBrewingTerm('添加冰块，降低温度进行冷萃', locale),
+                translateBrewingTerm('注水', locale),
+                ''
+            ];
 
             // 如果有自定义注水动画，将它们的名称添加到默认标签列表中
             if (customEquipment.customPourAnimations) {
                 customEquipment.customPourAnimations.forEach(anim => {
                     if (anim.name) allDefaultLabels.push(anim.name);
-                    if (anim.name) allDefaultDetails.push(`使用${anim.name}注水`);
+                    if (anim.name) allDefaultDetails.push(translateBrewingTerm(`使用${anim.name}注水`, locale));
                 });
             }
 
@@ -979,15 +1002,29 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
         // 常规器具处理
         else {
             // 获取所有可能的默认注水方式标签
-            const allDefaultLabels = ['绕圈注水', '中心注水', '添加冰块', '注水', ''];
+            const allDefaultLabels = [
+                translateBrewingTerm('焖蒸', locale),
+                translateBrewingTerm('绕圈注水', locale),
+                translateBrewingTerm('中心注水', locale),
+                translateBrewingTerm('添加冰块', locale),
+                translateBrewingTerm('注水', locale),
+                ''
+            ];
             // 获取所有可能的默认注水方式详细信息
-            const allDefaultDetails = ['中心向外缓慢画圈注水，均匀萃取咖啡风味', '中心定点注水，降低萃取率', '添加冰块，降低温度进行冷萃', '注水', ''];
+            const allDefaultDetails = [
+                translateBrewingTerm('使咖啡粉充分吸水并释放气体，提升萃取效果', locale),
+                translateBrewingTerm('中心向外缓慢画圈注水，均匀萃取咖啡风味', locale),
+                translateBrewingTerm('中心定点注水，降低萃取率', locale),
+                translateBrewingTerm('添加冰块，降低温度进行冷萃', locale),
+                translateBrewingTerm('注水', locale),
+                ''
+            ];
 
             // 如果有自定义注水动画，将它们的名称添加到默认标签列表中
             if (customEquipment.customPourAnimations) {
                 customEquipment.customPourAnimations.forEach(anim => {
                     if (anim.name) allDefaultLabels.push(anim.name);
-                    if (anim.name) allDefaultDetails.push(`使用${anim.name}注水`);
+                    if (anim.name) allDefaultDetails.push(translateBrewingTerm(`使用${anim.name}注水`, locale));
                 });
             }
 
@@ -1277,7 +1314,7 @@ const CustomMethodForm: React.FC<CustomMethodFormProps> = ({
                     `}
                 >
                     {isLastStep ? (
-                        <span className="font-medium">完成</span>
+                        <span className="font-medium">{tForm('buttons.complete')}</span>
                     ) : (
                         <div className="flex items-center relative">
                             <div className="w-24 h-0.5 bg-neutral-800 dark:bg-neutral-200"></div>

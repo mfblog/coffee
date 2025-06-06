@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Method } from '@/lib/core/config'
+import { useConfigTranslation } from '@/lib/utils/i18n-config'
+import { formatGrindSize } from '@/lib/utils/grindUtils'
 
 interface MethodSelectorProps {
   selectedEquipment: string
@@ -24,6 +26,8 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
   // onSkipMethodSelection // 暂时移除
 }) => {
   const t = useTranslations('notes.form')
+  const locale = useLocale()
+  const { translateBrewingMethod, translateBrewingTerm } = useConfigTranslation()
   // 本地状态管理参数
   const [coffeeAmount, setCoffeeAmount] = useState<string>('15')
   const [ratioAmount, setRatioAmount] = useState<string>('15')
@@ -146,7 +150,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
   const divider = (customMethods.length > 0 && commonMethods.length > 0) ? (
     <div className="py-3 flex items-center">
       <div className="grow h-px bg-neutral-200 dark:bg-neutral-800"></div>
-      <span className="px-2 text-xs text-neutral-500 dark:text-neutral-400">通用方案</span>
+      <span className="px-2 text-xs text-neutral-500 dark:text-neutral-400">{translateBrewingTerm('通用方案')}</span>
       <div className="grow h-px bg-neutral-200 dark:bg-neutral-800"></div>
     </div>
   ) : null;
@@ -174,7 +178,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-3 min-w-0 overflow-hidden text-neutral-800 dark:text-neutral-100 ">
               <h3 className={`text-xs font-medium tracking-wider truncate`}>
-                {method.name}
+                {translateBrewingMethod(selectedEquipment, method.name)}
               </h3>
             </div>
           </div>
@@ -195,7 +199,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
               </div>
               <div className="flex items-center">
                 <span className="text-xs font-medium w-14">研磨度:</span>
-                <span className="text-xs font-medium">{method.params.grindSize}</span>
+                <span className="text-xs font-medium">{translateBrewingTerm(method.params.grindSize)}</span>
               </div>
             </div>
           )}

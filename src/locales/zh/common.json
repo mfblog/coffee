@@ -967,5 +967,179 @@
         "saveAsImage": "保存为图片"
       }
     }
+  },
+  "brewing": {
+    "methods": {
+      "title": "冲煮方案",
+      "params": {
+        "coffee": "咖啡粉量",
+        "water": "水量",
+        "ratio": "水粉比",
+        "grindSize": "研磨度",
+        "temperature": "水温",
+        "extractionTime": "萃取时间",
+        "liquidWeight": "液重",
+        "totalTime": "总时间"
+      },
+      "steps": {
+        "bloom": "焖蒸",
+        "pour": "注水",
+        "wait": "等待",
+        "extraction": "萃取",
+        "finish": "完成"
+      },
+      "pourTypes": {
+        "bloom": "焖蒸",
+        "pour": "注水",
+        "center": "中心注水",
+        "circular": "绕圈注水",
+        "extraction": "萃取浓缩",
+        "addWater": "加入饮用水",
+        "addIce": "加入冰块",
+        "addMilk": "加入牛奶",
+        "addSyrup": "加入糖浆",
+        "wait": "等待滴滤完成"
+      },
+      "units": {
+        "grams": "g",
+        "milliliters": "ml",
+        "celsius": "°C",
+        "seconds": "秒",
+        "minutes": "分钟"
+      }
+    },
+    "timer": {
+      "targetTime": "目标时间",
+      "targetWater": "目标水量",
+      "flowRate": "流速",
+      "currentStage": "当前阶段",
+      "nextStep": "下一步",
+      "time": "时间",
+      "water": "水量",
+      "skipCurrentStage": "跳过当前阶段",
+      "brewing": {
+        "steps": {
+          "wait": "等待"
+        }
+      }
+    },
+    "stages": {
+      "stage": "阶段",
+      "phase": "阶段"
+    },
+    "form": {
+      "stepLabels": {
+        "name": "方案名称",
+        "params": "基本参数",
+        "stages": "冲泡步骤",
+        "complete": "完成"
+      },
+      "buttons": {
+        "complete": "完成"
+      },
+      "messages": {
+        "saveFailed": "保存方案失败，请重试"
+      },
+      "name": {
+        "title": {
+          "create": "给你的冲煮方案起个名字",
+          "edit": "编辑你的冲煮方案名称"
+        },
+        "placeholder": "叫做..."
+      },
+      "params": {
+        "grindSizeReference": {
+          "general": "研磨度参考 (可自由输入):",
+          "specific": "参考{grinder}刻度：{scale}"
+        },
+        "grindSizes": {
+          "extraFine": "极细 特细",
+          "fine": "细",
+          "mediumFine": "中细",
+          "mediumCoarse": "中粗 粗",
+          "espressoGrade": "浓缩咖啡级"
+        },
+        "examples": {
+          "coffee": {
+            "espresso": "18",
+            "filter": "15"
+          },
+          "ratio": {
+            "espresso": "2",
+            "filter": "15"
+          },
+          "liquidWeight": "例如：36",
+          "extractionTime": "例如：25",
+          "grindSize": {
+            "espresso": "例如：特细、浓缩咖啡级",
+            "phanciPro": "例如：中细、特细 (可自动转为对应格数)",
+            "general": "例如：中细、特细、中粗等"
+          },
+          "temperature": "例如：92"
+        }
+      },
+      "complete": {
+        "title": {
+          "create": "方案创建完成！",
+          "edit": "方案编辑完成！"
+        },
+        "subtitle": "你的冲煮方案已准备就绪"
+      },
+      "steps": {
+        "title": "冲煮步骤",
+        "addStep": "添加步骤",
+        "totalTime": "总时间",
+        "totalWater": "总水量",
+        "stepName": "步骤名称",
+        "beverageName": "饮料名称",
+        "valveOpen": "[开阀]",
+        "valveClose": "[关阀]",
+        "stepNamePlaceholder": "请输入步骤名称",
+        "beverageNamePlaceholder": "请选择或输入饮料名称",
+        "waitTime": "等待时间",
+        "cumulativeTime": "累计时间",
+        "atTime": "在",
+        "pourType": "注水方式",
+        "selectPourType": "请选择注水方式",
+        "extractEspresso": "萃取浓缩",
+        "beverage": "饮料",
+        "other": "其他",
+        "bloom": "焖蒸",
+        "pour": "注水",
+        "center": "中心注水",
+        "circular": "绕圈注水",
+        "addIce": "添加冰块",
+        "otherMethod": "其他方式",
+        "customAnimationTip": "提示：可在器具设置中添加自定义注水动画",
+        "pourTime": "注水时间 (自动)",
+        "cumulativeWater": "累计水量",
+        "waterAmount": "水量",
+        "grams": "克",
+        "seconds": "秒时",
+        "time": "时间",
+        "liquidWeight": "液重",
+        "waterAmountShort": "水量",
+        "units": {
+          "seconds": "秒"
+        },
+        "beverages": {
+          "drinkingWater": "饮用水",
+          "ice": "冰块",
+          "milk": "纯牛奶",
+          "coconutMilk": "厚椰乳",
+          "oatMilk": "燕麦奶"
+        },
+        "step": "步骤",
+        "delete": "删除",
+        "waterInputFormatHelp": "水量输入格式说明",
+        "autoConvertWithSuffix": "带后缀自动转换:",
+        "waterPercentage": "水量百分比",
+        "multiplierSuffix": "倍, x",
+        "coffeeMultiplier": "粉量倍数",
+        "detailedDescription": "详细说明",
+        "describeStageMethod": "描述这个阶段的注水方式"
+      }
+    },
+    "complete": "完成冲煮"
   }
 }

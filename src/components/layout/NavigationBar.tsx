@@ -6,11 +6,13 @@ import { equipmentList } from '@/lib/core/config'
 import hapticsUtils from '@/lib/ui/haptics'
 import { SettingsOptions } from '@/components/settings/Settings'
 import { formatGrindSize } from '@/lib/utils/grindUtils'
+import { useLocale } from 'next-intl'
 import { BREWING_EVENTS, ParameterInfo } from '@/lib/brewing/constants'
 import { listenToEvent } from '@/lib/brewing/events'
 import { updateParameterInfo, getEquipmentName } from '@/lib/brewing/parameters'
 import { useTranslations } from 'next-intl'
 import { Equal, ArrowLeft, ChevronsUpDown } from 'lucide-react'
+import { useConfigTranslation } from '@/lib/utils/i18n-config'
 import { saveStringState } from '@/lib/core/statePersistence'
 import { saveMainTabPreference } from '@/lib/navigation/navigationCache'
 import { ViewOption } from '@/components/coffee-bean/List/types'
@@ -99,6 +101,7 @@ const EquipmentIndicator: React.FC<EquipmentIndicatorProps> = ({
     onEditEquipment, onDeleteEquipment, onShareEquipment, settings
 }) => {
     const t = useTranslations('nav')
+    const { translateEquipment } = useConfigTranslation()
     const triggerHaptic = useHapticFeedback(settings)
     const { editingEquipment, enterEditMode, exitEditMode } = useEditMode()
     const scrollContainerRef = React.useRef<HTMLDivElement>(null)
@@ -205,7 +208,7 @@ const EquipmentIndicator: React.FC<EquipmentIndicatorProps> = ({
         ...allEquipments.map(equipment => ({
             type: 'equipment' as const,
             id: equipment.id,
-            name: equipment.name,
+            name: equipment.isCustom ? equipment.name : translateEquipment(equipment.id),
             isSelected: selectedEquipment === equipment.id,
             isCustom: equipment.isCustom || false,
             onClick: () => handlers.equipment(equipment.id)
@@ -286,7 +289,7 @@ const EquipmentIndicator: React.FC<EquipmentIndicatorProps> = ({
                                 return equipment ? (
                                     <>
                                         <span className="text-xs font-medium tracking-widest text-neutral-800 dark:text-neutral-100 pb-3">
-                                            {equipment.name}
+                                            {equipment.isCustom ? equipment.name : translateEquipment(equipment.id)}
                                         </span>
                                         <span className="text-[12px] tracking-widest text-neutral-400 dark:text-neutral-500 pb-3">｜</span>
                                         <button
@@ -576,6 +579,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     onAddEquipment, onEditEquipment, onDeleteEquipment, onShareEquipment, onBackClick,
 }) => {
     const t = useTranslations('nav')
+    const locale = useLocale()
+    const { translateEquipment, translateBrewingMethod } = useConfigTranslation()
     const { canGoBack } = useNavigation(activeBrewingStep, activeMainTab, hasCoffeeBeans)
 
     // 获取当前视图的显示名称
@@ -686,7 +691,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     // 获取器具名称
     const getSelectedEquipmentName = () => {
         if (!selectedEquipment) return null
-        return getEquipmentName(selectedEquipment, equipmentList, customEquipments)
+        const equipmentName = getEquipmentName(selectedEquipment, equipmentList, customEquipments)
+        return equipmentName ? translateEquipment(selectedEquipment) : null
     }
 
     return (
@@ -904,7 +910,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                                 {getSelectedEquipmentName()} ·
                                                             </>
                                                         )}
-                                                        {parameterInfo.method}
+                                                        {selectedEquipment && parameterInfo.method
+                                                            ? translateBrewingMethod(selectedEquipment, parameterInfo.method)
+                                                            : parameterInfo.method}
                                                     </span>
                                                 )}
                                             </div>
@@ -937,7 +945,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                                 <>
                                                                     <span className="shrink-0">·</span>
                                                                     <EditableParameter
-                                                                        value={formatGrindSize(editableParams.grindSize, settings.grindType)}
+                                                                        value={formatGrindSize(editableParams.grindSize, settings.grindType, locale)}
                                                                         onChange={(v) => handleParamChange('grindSize', v)}
                                                                         unit=""
                                                                         className=""
@@ -1002,7 +1010,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                             {espressoUtils.isEspresso(selectedMethod) ? (
                                                                 <>
                                                                     <span className="whitespace-nowrap">
-                                                                        {formatGrindSize(parameterInfo.params.grindSize || "", settings.grindType)}
+                                                                        {formatGrindSize(parameterInfo.params.grindSize || "", settings.grindType, locale)}
                                                                     </span>
                                                                     <span className="shrink-0">·</span>
                                                                     <span className="truncate max-w-[30px] sm:max-w-[40px]">{parameterInfo.params.coffee}</span>
@@ -1020,7 +1028,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                                     <span className="whitespace-nowrap">{parameterInfo.params.ratio}</span>
                                                                     <span className="shrink-0">·</span>
                                                                     <span className="whitespace-nowrap">
-                                                                        {formatGrindSize(parameterInfo.params.grindSize || "", settings.grindType)}
+                                                                        {formatGrindSize(parameterInfo.params.grindSize || "", settings.grindType, locale)}
                                                                     </span>
                                                                     <span className="shrink-0">·</span>
                                                                     <span className="whitespace-nowrap">{parameterInfo.params.temp}</span>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 interface NameStepProps {
   name: string;
@@ -28,6 +29,7 @@ const pageTransition = {
 
 const NameStep: React.FC<NameStepProps> = ({ name, onChange, isEdit }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations('brewing.form.name');
 
   // 自动聚焦输入框
   useEffect(() => {
@@ -48,7 +50,7 @@ const NameStep: React.FC<NameStepProps> = ({ name, onChange, isEdit }) => {
     >
       <div className="text-center space-y-8 max-w-sm">
         <h2 className="text-xl font-medium text-neutral-800 dark:text-neutral-200">
-          {isEdit ? '编辑你的冲煮方案名称' : '给你的冲煮方案起个名字'}
+          {isEdit ? t('title.edit') : t('title.create')}
         </h2>
         <div className="relative flex justify-center">
           <div className="relative inline-block">
@@ -57,7 +59,7 @@ const NameStep: React.FC<NameStepProps> = ({ name, onChange, isEdit }) => {
               type="text"
               value={name}
               onChange={(e) => onChange(e.target.value)}
-              placeholder="叫做..."
+              placeholder={t('placeholder')}
               autoFocus={true}
               className={`
                 text-center text-lg py-2 bg-transparent outline-hidden

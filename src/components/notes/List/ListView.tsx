@@ -283,7 +283,7 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                 <NoteItem
                     key={note.id}
                     note={note}
-                    equipmentNames={globalCache.equipmentNames}
+                    _equipmentNames={globalCache.equipmentNames}
                     onEdit={onNoteClick}
                     onDelete={onDeleteNote}
                     unitPriceCache={unitPriceCache}

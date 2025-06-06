@@ -141,7 +141,8 @@ export function useBrewingParameters() {
 			let newParams = { ...editableParams };
 			const parsedValue = parseFloat(value);
 
-			if (isNaN(parsedValue) || parsedValue <= 0) return;
+			// 对于研磨度和温度，允许非数字值
+			if (type !== "grindSize" && type !== "temp" && (isNaN(parsedValue) || parsedValue <= 0)) return;
 
 			// 记录新咖啡量
 			let newCoffeeAmount = currentCoffee;

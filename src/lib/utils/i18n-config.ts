@@ -1,5 +1,5 @@
 import { useLocale } from 'next-intl';
-import { translateGrinder, translateEquipment } from '@/lib/core/config-i18n';
+import { translateGrinder, translateEquipment, translateBrewingMethod, translateBrewingTerm } from '@/lib/core/config-i18n';
 import { availableGrinders, equipmentList, type Grinder, type Equipment } from '@/lib/core/config';
 
 // 简化的翻译钩子
@@ -15,6 +15,16 @@ export function useConfigTranslation() {
     // 翻译器具名称
     translateEquipment: (equipmentId: string): string => {
       return translateEquipment(equipmentId, locale);
+    },
+
+    // 翻译冲煮方案名称
+    translateBrewingMethod: (equipmentId: string, methodName: string): string => {
+      return translateBrewingMethod(equipmentId, methodName, locale);
+    },
+
+    // 翻译冲煮术语
+    translateBrewingTerm: (term: string): string => {
+      return translateBrewingTerm(term, locale);
     },
 
     // 获取翻译后的磨豆机列表

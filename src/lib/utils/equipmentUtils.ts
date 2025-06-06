@@ -1,4 +1,5 @@
 import { CustomEquipment } from '@/lib/core/config';
+import { translateBrewingTerm } from '@/lib/core/config-i18n';
 
 /**
  * 判断是否是意式机
@@ -12,24 +13,25 @@ export const isEspressoMachine = (customEquipment: CustomEquipment): boolean => 
 /**
  * 获取注水方式的显示名称
  * @param pourType 注水类型
- * @returns 注水方式的中文名称
+ * @param locale 语言环境，默认为中文
+ * @returns 注水方式的翻译名称
  */
-export const getPourTypeName = (pourType?: string): string => {
-  if (!pourType) return '请选择注水方式';
-  
+export const getPourTypeName = (pourType?: string, locale: string = 'zh'): string => {
+  if (!pourType) return translateBrewingTerm('请选择注水方式', locale);
+
   switch (pourType) {
     case 'extraction':
-      return '萃取浓缩';
+      return translateBrewingTerm('萃取浓缩', locale);
     case 'beverage':
-      return '饮料';
+      return translateBrewingTerm('饮料', locale);
     case 'other':
-      return '其他';
+      return translateBrewingTerm('其他', locale);
     case 'center':
-      return '中心注水';
+      return translateBrewingTerm('中心注水', locale);
     case 'circle':
-      return '绕圈注水';
+      return translateBrewingTerm('绕圈注水', locale);
     case 'ice':
-      return '添加冰块';
+      return translateBrewingTerm('添加冰块', locale);
     default:
       return pourType;
   }

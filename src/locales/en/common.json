@@ -967,5 +967,179 @@
         "saveAsImage": "Save as Image"
       }
     }
+  },
+  "brewing": {
+    "methods": {
+      "title": "Brewing Methods",
+      "params": {
+        "coffee": "Coffee Amount",
+        "water": "Water Amount",
+        "ratio": "Ratio",
+        "grindSize": "Grind Size",
+        "temperature": "Temperature",
+        "extractionTime": "Extraction Time",
+        "liquidWeight": "Liquid Weight",
+        "totalTime": "Total Time"
+      },
+      "steps": {
+        "bloom": "Bloom",
+        "pour": "Pour",
+        "wait": "Wait",
+        "extraction": "Extraction",
+        "finish": "Finish"
+      },
+      "pourTypes": {
+        "bloom": "Bloom",
+        "pour": "Pour",
+        "center": "Center Pour",
+        "circular": "Circular Pour",
+        "extraction": "Extract Espresso",
+        "addWater": "Add Drinking Water",
+        "addIce": "Add Ice",
+        "addMilk": "Add Milk",
+        "addSyrup": "Add Syrup",
+        "wait": "Wait for Drip to Complete"
+      },
+      "units": {
+        "grams": "g",
+        "milliliters": "ml",
+        "celsius": "°C",
+        "seconds": "sec",
+        "minutes": "min"
+      }
+    },
+    "timer": {
+      "targetTime": "Target Time",
+      "targetWater": "Target Water",
+      "flowRate": "Flow Rate",
+      "currentStage": "Current Stage",
+      "nextStep": "Next Step",
+      "time": "Time",
+      "water": "Water",
+      "skipCurrentStage": "Skip Current Stage",
+      "brewing": {
+        "steps": {
+          "wait": "Wait"
+        }
+      }
+    },
+    "stages": {
+      "stage": "Stage",
+      "phase": "Phase"
+    },
+    "form": {
+      "stepLabels": {
+        "name": "Method Name",
+        "params": "Basic Parameters",
+        "stages": "Brewing Steps",
+        "complete": "Complete"
+      },
+      "buttons": {
+        "complete": "Complete"
+      },
+      "messages": {
+        "saveFailed": "Failed to save method, please try again"
+      },
+      "name": {
+        "title": {
+          "create": "Name your brewing method",
+          "edit": "Edit your brewing method name"
+        },
+        "placeholder": "Called..."
+      },
+      "params": {
+        "grindSizeReference": {
+          "general": "Grind size reference (free input):",
+          "specific": "Reference {grinder} scale: {scale}"
+        },
+        "grindSizes": {
+          "extraFine": "Extra Fine",
+          "fine": "Fine",
+          "mediumFine": "Medium Fine",
+          "mediumCoarse": "Medium Coarse",
+          "espressoGrade": "Espresso Grade"
+        },
+        "examples": {
+          "coffee": {
+            "espresso": "18",
+            "filter": "15"
+          },
+          "ratio": {
+            "espresso": "2",
+            "filter": "15"
+          },
+          "liquidWeight": "e.g.: 36",
+          "extractionTime": "e.g.: 25",
+          "grindSize": {
+            "espresso": "e.g.: Extra Fine, Espresso Grade",
+            "phanciPro": "e.g.: Medium Fine, Extra Fine (auto-convert to grid)",
+            "general": "e.g.: Medium Fine, Extra Fine, Medium Coarse"
+          },
+          "temperature": "e.g.: 92"
+        }
+      },
+      "complete": {
+        "title": {
+          "create": "Method Created Successfully!",
+          "edit": "Method Edited Successfully!"
+        },
+        "subtitle": "Your brewing method is ready"
+      },
+      "steps": {
+        "title": "Brewing Steps",
+        "addStep": "Add Step",
+        "totalTime": "Total Time",
+        "totalWater": "Total Water",
+        "stepName": "Step Name",
+        "beverageName": "Beverage Name",
+        "valveOpen": "[Open]",
+        "valveClose": "[Close]",
+        "stepNamePlaceholder": "Enter step name",
+        "beverageNamePlaceholder": "Select or enter beverage name",
+        "waitTime": "Wait Time",
+        "cumulativeTime": "Cumulative Time",
+        "atTime": "at",
+        "pourType": "Pour Type",
+        "selectPourType": "Select pour type",
+        "extractEspresso": "Extract Espresso",
+        "beverage": "Beverage",
+        "other": "Other",
+        "bloom": "Bloom",
+        "pour": "Pour",
+        "center": "Center Pour",
+        "circular": "Circular Pour",
+        "addIce": "Add Ice",
+        "otherMethod": "Other Method",
+        "customAnimationTip": "Tip: Add custom pour animations in equipment settings",
+        "pourTime": "Pour Time (Auto)",
+        "cumulativeWater": "Cumulative Water",
+        "waterAmount": "Water Amount",
+        "grams": "g",
+        "seconds": "sec",
+        "time": "Time",
+        "liquidWeight": "Liquid Weight",
+        "waterAmountShort": "Water",
+        "units": {
+          "seconds": "sec"
+        },
+        "beverages": {
+          "drinkingWater": "Drinking Water",
+          "ice": "Ice",
+          "milk": "Milk",
+          "coconutMilk": "Coconut Milk",
+          "oatMilk": "Oat Milk"
+        },
+        "step": "Step",
+        "delete": "Delete",
+        "waterInputFormatHelp": "Water input format help",
+        "autoConvertWithSuffix": "Auto-convert with suffix:",
+        "waterPercentage": "Water percentage",
+        "multiplierSuffix": "x, times",
+        "coffeeMultiplier": "Coffee multiplier",
+        "detailedDescription": "Detailed Description",
+        "describeStageMethod": "Describe the pouring method for this stage"
+      }
+    },
+    "complete": "Brewing Complete"
   }
 }

@@ -1,8 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Method } from '@/lib/core/config'
 import ActionMenu from '@/components/coffee-bean/ui/action-menu'
 import { Step } from '@/lib/hooks/useBrewingState'
+import { useConfigTranslation } from '@/lib/utils/i18n-config'
 
 interface StageItemProps {
     step: Step & {
@@ -125,6 +127,8 @@ const StageItem: React.FC<StageItemProps> = ({
     showFlowRate = false,
     allSteps = []
 }) => {
+    const t = useTranslations('nav.actions')
+    const { translateBrewingTerm } = useConfigTranslation()
     // 添加用于管理分隔符折叠状态的 state
     const [isCommonSectionCollapsed, setIsCommonSectionCollapsed] = useState(false);
     
@@ -183,15 +187,15 @@ const StageItem: React.FC<StageItemProps> = ({
         if (onEdit) {
             items.push({
                 id: 'edit',
-                label: '编辑',
+                label: t('edit'),
                 onClick: onEdit,
             });
         }
-        
+
         if (onDelete) {
             items.push({
                 id: 'delete',
-                label: '删除',
+                label: t('delete'),
                 onClick: onDelete,
             });
         }
@@ -199,7 +203,7 @@ const StageItem: React.FC<StageItemProps> = ({
         if (onShare) {
             items.push({
                 id: 'share',
-                label: '分享',
+                label: t('share'),
                 onClick: onShare,
             });
         }
@@ -249,7 +253,7 @@ const StageItem: React.FC<StageItemProps> = ({
                                 <span className="text-xs mr-1">{step.icon}</span>
                             )}
                             <h3 className={`text-xs font-medium tracking-wider truncate ${titleStyle}`}>
-                                {step.title}
+                                {translateBrewingTerm(step.title)}
                             </h3>
                             {/* 注水阶段显示时间和水量 */}
                             {activeTab === '注水' && selectedMethod && step.originalIndex !== undefined && step.items && (
@@ -285,12 +289,12 @@ const StageItem: React.FC<StageItemProps> = ({
                         </div>
                         {step.description && (
                             <p className={`text-xs font-medium truncate ${textStyle}`}>
-                                {step.description}
+                                {translateBrewingTerm(step.description)}
                             </p>
                         )}
                         {step.detail && (
                             <p className={`text-xs font-medium truncate ${textStyle}`}>
-                                {step.detail}
+                                {translateBrewingTerm(step.detail)}
                             </p>
                         )}
                         {(onEdit || onDelete || onShare) && (
@@ -305,12 +309,12 @@ const StageItem: React.FC<StageItemProps> = ({
                     </div>
                     <div className="mt-2">
                         {activeTab === '注水' && step.items ? (
-                            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400">{step.items[1]}</p>
+                            <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400">{translateBrewingTerm(step.items[1])}</p>
                         ) : step.items ? (
                             <ul className="space-y-1">
                                 {step.items.map((item: string, i: number) => (
                                     <li key={i} className={`text-xs font-medium ${textStyle}`}>
-                                        {item}
+                                        {translateBrewingTerm(item)}
                                     </li>
                                 ))}
                             </ul>

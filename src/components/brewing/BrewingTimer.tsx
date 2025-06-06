@@ -9,6 +9,8 @@ import type { SettingsOptions } from "@/components/settings/Settings";
 import hapticsUtils from "@/lib/ui/haptics";
 import { Storage } from "@/lib/core/storage";
 import { equipmentList } from "@/lib/core/config";
+import { useTranslations, useLocale } from 'next-intl';
+import { useConfigTranslation } from '@/lib/core/config-i18n';
 import { 
   BrewingTimerSettings, 
   formatTime, 
@@ -85,6 +87,9 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
   isCoffeeBrewed,
   layoutSettings = {}, // 使用空对象作为默认值
 }) => {
+  const t = useTranslations('brewing.timer')
+  const { translateBrewingTerm } = useConfigTranslation();
+  const locale = useLocale();
   const [currentTime, setCurrentTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
@@ -247,8 +252,8 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
   // 导入并使用StageProcessor模块的createExpandedStages函数替换原有实现
   const processExpansion = useCallback(() => {
     if (!currentBrewingMethod?.params?.stages) return [];
-    return createExpandedStages(currentBrewingMethod.params.stages);
-  }, [currentBrewingMethod]);
+    return createExpandedStages(currentBrewingMethod.params.stages, locale);
+  }, [currentBrewingMethod, locale]);
 
   // 修改useLayoutEffect使用processExpansion
   useLayoutEffect(() => {
@@ -407,7 +412,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
       // 首先确认有扩展阶段数据
       if (expandedStagesRef.current.length === 0) {
         // 强制重新处理阶段数据
-        const newExpandedStages = createExpandedStages(currentBrewingMethod.params.stages || []);
+        const newExpandedStages = createExpandedStages(currentBrewingMethod.params.stages || [], locale);
         expandedStagesRef.current = newExpandedStages;
         
         // 检查再次扩展后的结果
@@ -505,7 +510,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
             // 重新处理和检查阶段扩展数据
             if (currentBrewingMethod?.params?.stages) {
               // 强制重新处理扩展阶段
-              const newExpandedStages = createExpandedStages(currentBrewingMethod.params.stages);
+              const newExpandedStages = createExpandedStages(currentBrewingMethod.params.stages, locale);
               expandedStagesRef.current = newExpandedStages;
               
               // 通知扩展阶段变化
@@ -1188,7 +1193,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
               }}
               whileTap={{ scale: 0.95 }}
             >
-              <span>跳过当前阶段</span>
+              <span>{t('skipCurrentStage')}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -1250,7 +1255,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                       }`}
                     >
                       <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                        当前阶段
+                        {t('currentStage')}
                       </div>
                       <motion.div
                         key={currentStageIndex}
@@ -1265,9 +1270,9 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                       >
                         {currentStage
                           ? currentStage.type === "pour"
-                            ? currentStage.label
-                            : `等待`
-                          : "完成冲煮"}
+                            ? translateBrewingTerm(currentStage.label)
+                            : t('brewing.steps.wait')
+                          : t('brewing.complete')}
                       </motion.div>
                     </div>
                     <div
@@ -1283,7 +1288,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                         }
                       >
                         <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                          目标时间
+                          {t('targetTime')}
                         </div>
                         <motion.div
                           key={`time-${currentStageIndex}`}
@@ -1299,7 +1304,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                       </div>
                       <div className={`${localShowFlowRate ? 'min-w-20' : 'min-w-24'}`}>
                         <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                          目标水量
+                          {t('targetWater')}
                         </div>
                         <motion.div
                           key={`water-${currentStageIndex}`}
@@ -1330,7 +1335,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                       {localShowFlowRate && (
                         <div className="min-w-14">
                           <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                            流速
+                            {t('flowRate')}
                           </div>
                           <motion.div
                             key={`flow-rate-${currentStageIndex}`}
@@ -1382,7 +1387,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                                 : "justify-start"
                             } gap-2 text-xs text-neutral-500 dark:text-neutral-400`}
                           >
-                            <span>下一步</span>
+                            <span>{t('nextStep')}</span>
                           </div>
                           <motion.div
                             initial={{
@@ -1395,8 +1400,8 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                           >
                             <span className="text-sm font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
                               {nextStage.type === "pour"
-                                ? nextStage.label
-                                : `等待`}
+                                ? translateBrewingTerm(nextStage.label)
+                                : t('brewing.steps.wait')}
                             </span>
                           </motion.div>
                         </div>
@@ -1419,7 +1424,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                             }
                           >
                             <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                              目标时间
+                              {t('targetTime')}
                             </div>
                             <div className="mt-1 text-sm font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
                               {formatTime(nextStage.endTime, true)}
@@ -1427,7 +1432,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                           </div>
                           <div className={`${localShowFlowRate ? 'min-w-20' : 'min-w-24'}`}>
                             <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                              目标水量
+                              {t('targetWater')}
                             </div>
                             <div
                               className={`mt-1 text-sm font-medium tracking-wide text-neutral-600 dark:text-neutral-400 ${
@@ -1442,7 +1447,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                           {localShowFlowRate && (
                             <div className="min-w-14">
                               <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                流速
+                                {t('flowRate')}
                               </div>
                               <div
                                 className={`mt-1 text-sm font-medium tracking-wide text-neutral-600 dark:text-neutral-400 ${
@@ -1632,7 +1637,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
               }`}
             >
               <span className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">
-                时间
+                {t('time')}
               </span>
               <div className="relative text-2xl font-light tracking-widest text-neutral-800 sm:text-3xl dark:text-neutral-100">
                 <AnimatePresence mode="wait">
@@ -1689,7 +1694,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
               }`}
             >
               <span className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">
-                水量
+                {t('water')}
               </span>
               <div className="text-2xl font-light tracking-widest text-neutral-800 sm:text-3xl dark:text-neutral-100">
                 <motion.div
@@ -1726,7 +1731,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
                 }`}
               >
                 <span className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">
-                  流速
+                  {translateBrewingTerm('流速')}
                 </span>
                 <div className="text-2xl font-light tracking-widest text-neutral-800 sm:text-3xl dark:text-neutral-100">
                   <motion.div

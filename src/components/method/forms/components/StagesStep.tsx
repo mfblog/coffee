@@ -1,19 +1,20 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Info } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import AutoResizeTextarea from '@/components/common/forms/AutoResizeTextarea';
 import AutocompleteInput from '@/components/common/forms/AutocompleteInput';
 import { CustomEquipment } from '@/lib/core/config';
 import { Stage } from './types';
 import { isEspressoMachine, getPourTypeName as _getPourTypeName } from '@/lib/utils/equipmentUtils';
 
-// 预设饮料列表
-const PRESET_BEVERAGES = [
-  '饮用水',
-  '冰块',
-  '纯牛奶',
-  '厚椰乳',
-  '燕麦奶'
+// 预设饮料列表 - 这些将通过翻译函数处理
+const PRESET_BEVERAGES_KEYS = [
+  'drinkingWater',
+  'ice',
+  'milk',
+  'coconutMilk',
+  'oatMilk'
 ];
 
 // 动画变体
@@ -80,6 +81,10 @@ const StagesStep: React.FC<StagesStepProps> = ({
   newStageRef,
   coffeeDosage = '15g'
 }) => {
+  const t = useTranslations('brewing.form.steps');
+
+  // 获取翻译后的预设饮料列表
+  const PRESET_BEVERAGES = PRESET_BEVERAGES_KEYS.map(key => t(`beverages.${key}`));
   const innerNewStageRef = useRef<HTMLDivElement>(null);
   const _isCustomPreset = customEquipment.animationType === 'custom';
   
@@ -135,7 +140,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
         setBeverageSuggestions(newSuggestions);
       }
     } catch (error) {
-      console.error('删除饮料名称失败:', error);
+      console.error('Failed to remove beverage name:', error);
     }
   };
   
@@ -162,8 +167,8 @@ const StagesStep: React.FC<StagesStepProps> = ({
       if (waterValue <= 0) return;
       
       // 获取显示的标签
-      const displayLabel = stage.pourType === 'extraction' ? '萃取浓缩' : 
-                           stage.label || (stage.pourType === 'beverage' ? '饮料' : '其他');
+      const displayLabel = stage.pourType === 'extraction' ? t('extractEspresso') :
+                           stage.label || (stage.pourType === 'beverage' ? t('beverage') : t('other'));
       
       // 使用完整标签作为键，只有完全相同的标签才会合并
       const key = `${stage.pourType}_${displayLabel}`;
@@ -210,25 +215,25 @@ const StagesStep: React.FC<StagesStepProps> = ({
       <div className="sticky top-0 pt-2 pb-4 bg-neutral-50 dark:bg-neutral-900 z-10 flex flex-col border-b border-neutral-200 dark:border-neutral-700">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-base font-medium text-neutral-800 dark:text-neutral-200">
-            冲煮步骤
+            {t('title')}
           </h3>
           <button
             type="button"
             onClick={addStage}
             className="text-sm text-neutral-600 dark:text-neutral-400"
           >
-            + 添加步骤
+            + {t('addStep')}
           </button>
         </div>
 
         <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400">
           <div className="shrink-0">
-            总时间: {formatTime(calculateTotalTime())}
+            {t('totalTime')}: {formatTime(calculateTotalTime())}
           </div>
           <div className={`${isEspressoMachine(customEquipment) ? 'flex-1 ml-4 text-right truncate relative group' : 'shrink-0'}`}>
-            <span className="truncate">总水量: {isEspressoMachine(customEquipment) 
-                  ? formatEspressoTotalWater() 
-                  : `${calculateCurrentWater()}/ ${parseInt(totalWater)} 克`}</span>
+            <span className="truncate">{t('totalWater')}: {isEspressoMachine(customEquipment)
+                  ? formatEspressoTotalWater()
+                  : `${calculateCurrentWater()}/ ${parseInt(totalWater)} ${t('grams')}`}</span>
             
             {/* 当水量文本溢出时显示的提示框 */}
             {isEspressoMachine(customEquipment) && (
@@ -252,7 +257,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
           >
             <div className="flex justify-between items-center">
               <h4 className="text-sm font-medium text-neutral-800 dark:text-neutral-200 flex items-center">
-                步骤 {index + 1}
+                {t('step')} {index + 1}
               </h4>
               {stages.length > 1 && (
                 <button
@@ -260,7 +265,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                   onClick={() => removeStage(index)}
                   className="text-xs text-neutral-500 dark:text-neutral-400"
                 >
-                  删除
+                  {t('delete')}
                 </button>
               )}
             </div>
@@ -269,20 +274,20 @@ const StagesStep: React.FC<StagesStepProps> = ({
               <div className="grid grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    注水方式
+                    {t('pourType') || '注水方式'}
                   </label>
                   <select
                     value={stage.pourType}
                     onChange={(e) => onPourTypeChange(index, e.target.value)}
                     className={`w-full py-2 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400 appearance-none ${!stage.pourType ? 'text-neutral-500 dark:text-neutral-400' : ''}`}
                   >
-                    <option value="" disabled>请选择注水方式</option>
+                    <option value="" disabled>{t('selectPourType')}</option>
                     {/* 意式机特有的注水方式 */}
                     {isEspressoMachine(customEquipment) ? (
                       <>
-                        <option value="extraction">萃取浓缩</option>
-                        <option value="beverage">饮料</option>
-                        <option value="other">其他</option>
+                        <option value="extraction">{t('extractEspresso')}</option>
+                        <option value="beverage">{t('beverage')}</option>
+                        <option value="other">{t('other')}</option>
                       </>
                     ) : (
                       /* 普通器具的注水方式 */
@@ -312,21 +317,21 @@ const StagesStep: React.FC<StagesStepProps> = ({
                                   ))
                                 }
                                 {/* 如果没有中心注水/绕圈注水/添加冰块的系统预设，添加它们 */}
-                                {!customEquipment.customPourAnimations.some(a => a.pourType === 'center') && 
-                                  <option value="center">中心注水</option>
+                                {!customEquipment.customPourAnimations.some(a => a.pourType === 'center') &&
+                                  <option value="center">{t('center')}</option>
                                 }
-                                {!customEquipment.customPourAnimations.some(a => a.pourType === 'circle') && 
-                                  <option value="circle">绕圈注水</option>
+                                {!customEquipment.customPourAnimations.some(a => a.pourType === 'circle') &&
+                                  <option value="circle">{t('circular')}</option>
                                 }
-                                {!customEquipment.customPourAnimations.some(a => a.pourType === 'ice') && 
-                                  <option value="ice">添加冰块</option>
+                                {!customEquipment.customPourAnimations.some(a => a.pourType === 'ice') &&
+                                  <option value="ice">{t('addIce')}</option>
                                 }
-                                <option value="other">其他方式</option>
+                                <option value="other">{t('otherMethod')}</option>
                               </>
                             )}
                             {/* 为自定义预设添加其他方式选项 */}
                             {customEquipment.animationType === 'custom' && (
-                              <option value="other">其他方式</option>
+                              <option value="other">{t('otherMethod')}</option>
                             )}
                           </>
                         ) : (
@@ -334,18 +339,19 @@ const StagesStep: React.FC<StagesStepProps> = ({
                             {/* 自定义预设器具显示更简化的选项列表 */}
                             {customEquipment.animationType === 'custom' ? (
                               <>
-                                <option value="other">其他方式</option>
+                                <option value="other">{t('otherMethod')}</option>
                                 {/* 添加提示信息 */}
                                 <option value="" disabled style={{ fontStyle: 'italic', color: '#999' }}>
-                                  提示：可在器具设置中添加自定义注水动画
+                                  {t('customAnimationTip')}
                                 </option>
                               </>
                             ) : (
                               <>
-                                <option value="center">中心注水</option>
-                                <option value="circle">绕圈注水</option>
-                                <option value="ice">添加冰块</option>
-                                <option value="other">其他方式</option>
+                                <option value="bloom">{t('bloom')}</option>
+                                <option value="center">{t('center')}</option>
+                                <option value="circle">{t('circular')}</option>
+                                <option value="ice">{t('addIce')}</option>
+                                <option value="other">{t('otherMethod')}</option>
                               </>
                             )}
                           </>
@@ -356,7 +362,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                 </div>
                 <div className="col-span-2 space-y-2">
                   <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    {isEspressoMachine(customEquipment) && stage.pourType === 'beverage' ? '饮料名称' : '步骤名称'}
+                    {isEspressoMachine(customEquipment) && stage.pourType === 'beverage' ? t('beverageName') : t('stepName')}
                   </label>
                   <div className="relative">
                     {customEquipment.hasValve && (
@@ -368,16 +374,16 @@ const StagesStep: React.FC<StagesStepProps> = ({
                           : 'text-red-600 dark:text-red-400'
                           }`}
                       >
-                        {stage.valveStatus === 'open' ? '[开阀]' : '[关阀]'}
+                        {stage.valveStatus === 'open' ? t('valveOpen') : t('valveClose')}
                       </button>
                     )}
                     {/* 只有意式机的饮料类型步骤才使用AutocompleteInput */}
                     {isEspressoMachine(customEquipment) && stage.pourType === 'beverage' ? (
                       <AutocompleteInput
-                        value={stage.label}
+                        value={stage.label || ''}
                         onChange={(value) => handleBeverageChange(index, value)}
                         suggestions={beverageSuggestions}
-                        placeholder="请选择或输入饮料名称"
+                        placeholder={t('beverageNamePlaceholder')}
                         className={`w-full py-2 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400 ${customEquipment.hasValve ? 'pl-12' : ''}`}
                         onRemovePreset={handleRemoveBeverage}
                         isCustomPreset={isCustomBeverage}
@@ -385,9 +391,9 @@ const StagesStep: React.FC<StagesStepProps> = ({
                     ) : (
                       <input
                         type="text"
-                        value={stage.label}
+                        value={stage.label || ''}
                         onChange={(e) => onStageChange(index, 'label', e.target.value)}
-                        placeholder="请输入步骤名称"
+                        placeholder={t('stepNamePlaceholder')}
                         className={`w-full py-2 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400 ${customEquipment.hasValve ? 'pl-12' : ''}`}
                       />
                     )}
@@ -400,10 +406,10 @@ const StagesStep: React.FC<StagesStepProps> = ({
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                      累计时间
+                      {t('cumulativeTime')}
                     </label>
                     <div className="relative">
-                      <span className="absolute left-0 bottom-2 text-neutral-500 dark:text-neutral-400">在</span>
+                      <span className="absolute left-0 bottom-2 text-neutral-500 dark:text-neutral-400">{t('atTime')}</span>
                       <input
                         type="number"
                         min="0"
@@ -411,7 +417,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                         value={
                           editingCumulativeTime && editingCumulativeTime.index === index
                             ? editingCumulativeTime.value
-                            : stage.time
+                            : (stage.time ?? '')
                         }
                         onChange={(e) => {
                           // 先更新本地状态，保留用户输入的值
@@ -430,19 +436,19 @@ const StagesStep: React.FC<StagesStepProps> = ({
                         placeholder="0"
                         className="w-full py-2 pl-5 pr-5 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400"
                       />
-                      <span className="absolute right-0 bottom-2 text-neutral-500 dark:text-neutral-400">秒时</span>
+                      <span className="absolute right-0 bottom-2 text-neutral-500 dark:text-neutral-400">{t('seconds')}</span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-500">
-                      注水时间 (自动)
+                      {t('pourTime')}
                     </label>
                     <input
                       type="number"
                       min="0"
                       step="1"
-                      value={stage.pourTime || ''}
+                      value={stage.pourTime ?? ''}
                       onChange={(e) => {
                         const pourTime = parseInt(e.target.value) || 0;
                         
@@ -491,7 +497,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                       // 只有当等待时间大于0时才显示
                       return waitTime > 0 ? (
                         <div className="text-[10px] text-neutral-500 dark:text-neutral-500 mt-1">
-                          等待时间：{waitTime}秒
+                          {t('waitTime')}: {waitTime}{t('units.seconds')}
                         </div>
                       ) : null;
                     })()}
@@ -499,7 +505,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
 
                   <div className="space-y-2">
                     <label className="flex items-center text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                      累计水量
+                      {t('cumulativeWater')}
                       <button 
                         type="button"
                         className="ml-1 flex items-center justify-center text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 focus:outline-hidden relative" 
@@ -515,16 +521,16 @@ const StagesStep: React.FC<StagesStepProps> = ({
                         }}
                         onMouseEnter={() => setShowWaterTooltip(index)}
                         onMouseLeave={() => setShowWaterTooltip(null)}
-                        aria-label="水量输入格式说明"
+                        aria-label={t('waterInputFormatHelp')}
                       >
                         <Info className="w-[12px] h-[12px]" />
                         {/* 悬浮提示 */}
                         {showWaterTooltip === index && (
                           <div className="absolute z-10 -right-1 -translate-y-full -top-3 w-[110px] p-2 bg-white dark:bg-neutral-800 shadow-lg rounded-sm text-xs text-neutral-700 dark:text-neutral-300">
-                            <p className="font-medium mb-1">带后缀自动转换:</p>
+                            <p className="font-medium mb-1">{t('autoConvertWithSuffix')}</p>
                             <ul className="space-y-1">
-                              <li>% : 水量百分比</li>
-                              <li>倍, x : 粉量倍数</li>
+                              <li>% : {t('waterPercentage')}</li>
+                              <li>{t('multiplierSuffix')} : {t('coffeeMultiplier')}</li>
                             </ul>
                             {/* 小三角形箭头 */}
                             <div className="absolute right-1 bottom-[-6px] w-3 h-3 rotate-45 bg-white dark:bg-neutral-800"></div>
@@ -533,7 +539,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                       </button>
                     </label>
                     <div className="relative">
-                      <span className="absolute left-0 bottom-2 text-neutral-500 dark:text-neutral-400">水量</span>
+                      <span className="absolute left-0 bottom-2 text-neutral-500 dark:text-neutral-400">{t('waterAmountShort')}</span>
                       <input
                         type="text"
                         min="0"
@@ -542,10 +548,10 @@ const StagesStep: React.FC<StagesStepProps> = ({
                         value={
                           editingCumulativeWater && editingCumulativeWater.index === index
                             ? editingCumulativeWater.value
-                            : stage.water 
-                              ? (typeof stage.water === 'number' 
-                                ? String(stage.water) 
-                                : String(parseInt((stage.water as string).replace('g', ''))))
+                            : stage.water
+                              ? (typeof stage.water === 'number'
+                                ? String(stage.water)
+                                : String(parseInt((stage.water as string).replace('g', '') || '0')))
                               : ''
                         }
                         onChange={(e) => {
@@ -673,7 +679,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                         onFocus={(e) => e.target.select()}
                         className="w-full py-2 pl-9 pr-5 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400"
                       />
-                      <span className="absolute right-0 bottom-2 text-neutral-500 dark:text-neutral-400">克</span>
+                      <span className="absolute right-0 bottom-2 text-neutral-500 dark:text-neutral-400">{t('grams')}</span>
                     </div>
                   </div>
                 </div>
@@ -684,7 +690,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                      时间
+                      {t('time')}
                     </label>
                     <input
                       type="number"
@@ -693,7 +699,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                       value={
                         editingCumulativeTime && editingCumulativeTime.index === index
                           ? editingCumulativeTime.value
-                          : stage.time
+                          : (stage.time ?? '')
                       }
                       onChange={(e) => {
                         setEditingCumulativeTime({
@@ -713,7 +719,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
 
                   <div className="space-y-2">
                     <label className="flex items-center text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                      液重
+                      {t('liquidWeight')}
                     </label>
                     <div className="relative">
                       <input
@@ -724,10 +730,10 @@ const StagesStep: React.FC<StagesStepProps> = ({
                         value={
                           editingCumulativeWater && editingCumulativeWater.index === index
                             ? editingCumulativeWater.value
-                            : stage.water 
-                              ? (typeof stage.water === 'number' 
-                                ? String(stage.water) 
-                                : String(parseInt((stage.water as string).replace('g', ''))))
+                            : stage.water
+                              ? (typeof stage.water === 'number'
+                                ? String(stage.water)
+                                : String(parseInt((stage.water as string).replace('g', '') || '0')))
                               : ''
                         }
                         onChange={(e) => {
@@ -757,7 +763,7 @@ const StagesStep: React.FC<StagesStepProps> = ({
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <label className="flex items-center text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                      水量
+                      {t('waterAmount')}
                     </label>
                     <div className="relative">
                       <input
@@ -768,10 +774,10 @@ const StagesStep: React.FC<StagesStepProps> = ({
                         value={
                           editingCumulativeWater && editingCumulativeWater.index === index
                             ? editingCumulativeWater.value
-                            : stage.water 
-                              ? (typeof stage.water === 'number' 
-                                ? String(stage.water) 
-                                : String(parseInt((stage.water as string).replace('g', ''))))
+                            : stage.water
+                              ? (typeof stage.water === 'number'
+                                ? String(stage.water)
+                                : String(parseInt((stage.water as string).replace('g', '') || '0')))
                               : ''
                         }
                         onChange={(e) => {
@@ -799,12 +805,12 @@ const StagesStep: React.FC<StagesStepProps> = ({
               {/* 所有类型都有的详细说明字段 */}
               <div className="space-y-2">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                  详细说明
+                  {t('detailedDescription')}
                 </label>
                 <AutoResizeTextarea
-                  value={stage.detail}
+                  value={stage.detail || ''}
                   onChange={(e) => onStageChange(index, 'detail', e.target.value)}
-                  placeholder="描述这个阶段的注水方式"
+                  placeholder={t('describeStageMethod')}
                   className="w-full py-2 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400"
                   minRows={2}
                   maxRows={6}
