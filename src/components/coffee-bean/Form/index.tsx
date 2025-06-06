@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { ExtendedCoffeeBean, BlendComponent, Step, StepConfig } from './types'
 import BasicInfo from './components/BasicInfo'
 import DetailInfo from './components/DetailInfo'
@@ -109,18 +110,20 @@ interface CoffeeBeanFormProps {
     initialBean?: ExtendedCoffeeBean
 }
 
-const steps: StepConfig[] = [
-    { id: 'basic', label: '基本信息' },
-    { id: 'detail', label: '详细信息' },
-    { id: 'flavor', label: '风味描述' },
-    { id: 'complete', label: '完成' }
-];
-
 const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
     onSave,
     onCancel,
     initialBean,
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('beanForm')
+
+    const steps: StepConfig[] = [
+        { id: 'basic', label: t('steps.basic') },
+        { id: 'detail', label: t('steps.detail') },
+        { id: 'flavor', label: t('steps.flavor') },
+        { id: 'complete', label: t('steps.complete') }
+    ];
     // 简单模式状态 - 从设置中读取
     const [isSimpleMode, setIsSimpleMode] = useState(false)
 
@@ -786,7 +789,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                                 type="button"
                                 onClick={handleSubmit}
                                 className={`${buttonBaseClass} flex items-center gap-2 px-4 py-3 shrink-0`}
-                                title="快速保存"
+                                title={t('navigation.save')}
                                 initial={{ scale: 0.8, opacity: 0, x: 15 }}
                                 animate={{ scale: 1, opacity: 1, x: 0 }}
                                 exit={{ scale: 0.8, opacity: 0, x: 15 }}
@@ -795,7 +798,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                                 transition={springTransition}
                             >
                                 <Check className="w-4 h-4" strokeWidth="3" />
-                                <span className="font-medium">完成</span>
+                                <span className="font-medium">{t('navigation.save')}</span>
                             </motion.button>
                         )}
                     </AnimatePresence>
@@ -816,7 +819,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                         `}
                     >
                         {isLastStep || isSimpleMode ? (
-                            <span className="font-medium">完成</span>
+                            <span className="font-medium">{t('navigation.save')}</span>
                         ) : (
                             <ArrowRight className="w-4 h-4" strokeWidth="3" />
                         )}
@@ -871,7 +874,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                             `} />
                         </div>
                         <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                            简单
+                            {t('navigation.simple') || '简单'}
                         </span>
                     </label>
 

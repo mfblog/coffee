@@ -1,8 +1,9 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import AutocompleteInput from '@/components/common/forms/AutocompleteInput';
 import { BlendComponent } from '../types';
-import { 
-    isCustomPreset, 
+import {
+    isCustomPreset,
     removeCustomPreset,
     getFullPresets
 } from '../constants';
@@ -20,6 +21,9 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
     onRemove,
     onChange,
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('beanForm.blendComponents')
+    const tConstants = useTranslations('beanConstants')
     // 计算总百分比
     const totalPercentage = components.reduce((sum, component) => 
         component.percentage ? sum + component.percentage : sum, 0);
@@ -59,24 +63,29 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
     const currentOrigins = getFullPresets('origins');
     const currentProcesses = getFullPresets('processes');
     const currentVarieties = getFullPresets('varieties');
+
+    // 翻译预设选项
+    const translateOrigin = (origin: string) => tConstants(`origins.${origin}`) || origin;
+    const translateProcess = (process: string) => tConstants(`processes.${process}`) || process;
+    const translateVariety = (variety: string) => tConstants(`varieties.${variety}`) || variety;
         
     return (
         <div className="space-y-5 w-full">
             <div className="flex items-center justify-between">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    咖啡豆成分
+                    {t('label')}
                 </label>
                 <button
                     type="button"
                     onClick={onAdd}
                     disabled={!canAddMoreComponents}
                     className={`text-xs px-3 py-1 rounded-full transition-colors ${
-                        !canAddMoreComponents 
-                            ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600 cursor-not-allowed' 
+                        !canAddMoreComponents
+                            ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600 cursor-not-allowed'
                             : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600'
                     }`}
                 >
-                    添加成分
+                    {t('addComponent')}
                 </button>
             </div>
 
@@ -90,7 +99,7 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
                             <div className="flex items-center justify-between mb-3">
                                 {components.length > 1 && (
                                     <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                        成分 #{index + 1}
+                                        {t('component')} #{index + 1}
                                     </span>
                                 )}
                                 {components.length > 1 && (
@@ -99,7 +108,7 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
                                         onClick={() => onRemove(index)}
                                         className="text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
                                     >
-                                        移除
+                                        {t('remove')}
                                     </button>
                                 )}
                             </div>
@@ -107,18 +116,18 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
                             {components.length > 1 && (
                                 <div className="space-y-1 mb-3">
                                     <label className="block text-xs text-neutral-500 dark:text-neutral-400">
-                                        比例 (可选)
+                                        {t('percentage.label')}
                                         {maxAllowed === 0 && (
                                             <span className="ml-1 text-amber-600 dark:text-amber-400">
-                                                (已达100%)
+                                                {t('percentage.maxReached')}
                                             </span>
                                         )}
                                     </label>
                                     <AutocompleteInput
                                         value={component.percentage !== undefined ? component.percentage.toString() : ''}
                                         onChange={(value) => onChange(index, 'percentage', value)}
-                                        placeholder={maxAllowed > 0 ? `0-${maxAllowed}` : "0"}
-                                        unit="%"
+                                        placeholder={t('percentage.placeholder', { max: maxAllowed })}
+                                        unit={t('percentage.unit')}
                                         inputType="tel"
                                         clearable={true}
                                         suggestions={[]}
@@ -130,33 +139,42 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
 
                             <div className="grid grid-cols-3 gap-3">
                                 <AutocompleteInput
-                                    label="产地"
+                                    label={t('origin.label')}
                                     value={component.origin || ''}
                                     onChange={(value) => onChange(index, 'origin', value)}
-                                    placeholder="产地"
-                                    suggestions={currentOrigins}
+                                    placeholder={t('origin.placeholder')}
+                                    suggestions={currentOrigins.map(origin => ({
+                                        value: origin,
+                                        label: translateOrigin(origin)
+                                    }))}
                                     clearable
                                     isCustomPreset={(value) => checkIsCustomPreset('origins', value)}
                                     onRemovePreset={(value) => handleRemovePreset('origins', value)}
                                 />
 
                                 <AutocompleteInput
-                                    label="处理法"
+                                    label={t('process.label')}
                                     value={component.process || ''}
                                     onChange={(value) => onChange(index, 'process', value)}
-                                    placeholder="处理法"
-                                    suggestions={currentProcesses}
+                                    placeholder={t('process.placeholder')}
+                                    suggestions={currentProcesses.map(process => ({
+                                        value: process,
+                                        label: translateProcess(process)
+                                    }))}
                                     clearable
                                     isCustomPreset={(value) => checkIsCustomPreset('processes', value)}
                                     onRemovePreset={(value) => handleRemovePreset('processes', value)}
                                 />
 
                                 <AutocompleteInput
-                                    label="品种"
+                                    label={t('variety.label')}
                                     value={component.variety || ''}
                                     onChange={(value) => onChange(index, 'variety', value)}
-                                    placeholder="品种"
-                                    suggestions={currentVarieties}
+                                    placeholder={t('variety.placeholder')}
+                                    suggestions={currentVarieties.map(variety => ({
+                                        value: variety,
+                                        label: translateVariety(variety)
+                                    }))}
                                     clearable
                                     isCustomPreset={(value) => checkIsCustomPreset('varieties', value)}
                                     onRemovePreset={(value) => handleRemovePreset('varieties', value)}
@@ -169,9 +187,14 @@ const BlendComponents: React.FC<BlendComponentsProps> = ({
 
             {components.length > 1 && (
                 <div className={`text-xs ${percentageStatus} flex items-center justify-between mt-1`}>
-                    <span>当前总比例：{totalPercentage}%</span>
+                    <span>{t('totalRatio', { total: totalPercentage })}</span>
                     {totalPercentage !== 100 && (
-                        <span>{totalPercentage < 100 ? `还差 ${100 - totalPercentage}%` : `超出 ${totalPercentage - 100}%`}</span>
+                        <span>
+                            {totalPercentage < 100
+                                ? t('remaining', { remaining: 100 - totalPercentage })
+                                : t('excess', { excess: totalPercentage - 100 })
+                            }
+                        </span>
                     )}
                 </div>
             )}

@@ -228,5 +228,290 @@
       "sponsorMessage": "Thanks to the following sponsors for their support",
       "sponsorEnding": " . and You."
     }
+  },
+  "beanForm": {
+    "steps": {
+      "basic": "Basic Info",
+      "detail": "Details",
+      "flavor": "Flavor",
+      "complete": "Complete"
+    },
+    "navigation": {
+      "previous": "Previous",
+      "next": "Next",
+      "save": "Save",
+      "cancel": "Cancel",
+      "simple": "Simple"
+    },
+    "basicInfo": {
+      "image": {
+        "label": "Coffee Bean Image",
+        "selectImage": "Select Image",
+        "compressionNote": "Images over 200kb will be auto-compressed",
+        "camera": "Camera",
+        "gallery": "Gallery"
+      },
+      "name": {
+        "label": "Coffee Bean Name",
+        "placeholder": "Enter coffee bean name",
+        "required": "*",
+        "defaultName": "Unnamed Coffee Bean"
+      },
+      "inventory": {
+        "label": "Inventory (g)",
+        "remaining": "Remaining",
+        "total": "Total"
+      },
+      "price": {
+        "label": "Price (¥)",
+        "placeholder": "e.g. 88"
+      },
+      "roastLevel": {
+        "label": "Roast Level",
+        "placeholder": "Select roast level",
+        "options": {
+          "ultraLight": "Ultra Light",
+          "light": "Light",
+          "mediumLight": "Medium Light",
+          "medium": "Medium",
+          "mediumDark": "Medium Dark",
+          "dark": "Dark"
+        }
+      },
+      "roastDate": {
+        "label": "Roast Date",
+        "placeholder": "Select roast date",
+        "inTransit": "In Transit...",
+        "setInTransit": "Set as In Transit",
+        "cancelInTransit": "Cancel In Transit"
+      },
+      "notes": {
+        "label": "Notes",
+        "placeholder": "Other notes..."
+      }
+    },
+    "detailInfo": {
+      "beanType": {
+        "label": "Coffee Bean Type",
+        "filter": "Pour Over",
+        "espresso": "Espresso"
+      },
+      "flavorPeriod": {
+        "label": "Flavor Period Settings",
+        "resetByRoast": "Reset by Roast Level",
+        "setFrozen": "Set as Frozen",
+        "cancelFrozen": "Cancel Frozen State",
+        "startDay": "Aging End (days)",
+        "endDay": "Best By End (days)",
+        "startDayPlaceholder": "Days",
+        "endDayPlaceholder": "Days",
+        "description": "Note: Before {startDay} days is aging period, {startDay}-{endDay} days is best flavor period, after {endDay} days the best flavor period ends"
+      },
+      "statusSettings": {
+        "label": "Status Settings"
+      },
+      "notes": {
+        "label": "Notes",
+        "placeholder": "Other notes..."
+      }
+    },
+    "blendComponents": {
+      "label": "Coffee Bean Components",
+      "addComponent": "Add Component",
+      "component": "Component",
+      "remove": "Remove",
+      "percentage": {
+        "label": "Ratio (optional)",
+        "placeholder": "0-{max}",
+        "unit": "%",
+        "maxReached": "(Reached 100%)"
+      },
+      "origin": {
+        "label": "Origin",
+        "placeholder": "Origin"
+      },
+      "process": {
+        "label": "Process",
+        "placeholder": "Process"
+      },
+      "variety": {
+        "label": "Variety",
+        "placeholder": "Variety"
+      },
+      "totalRatio": "Current Total Ratio: {total}%",
+      "remaining": "Need {remaining}% more",
+      "excess": "Exceeded by {excess}%"
+    },
+    "flavorInfo": {
+      "selectedFlavors": {
+        "label": "Selected Flavor Tags",
+        "empty": "No flavor tags added yet"
+      },
+      "addFlavor": {
+        "label": "Add Flavor Tag",
+        "placeholder": "e.g. Citrus",
+        "addButton": "Add"
+      },
+      "commonFlavors": {
+        "label": "Common Flavor Tags"
+      }
+    },
+    "complete": {
+      "title": {
+        "add": "Coffee Bean Added",
+        "edit": "Coffee Bean Edited"
+      },
+      "subtitle": "Your coffee bean information is ready",
+      "fields": {
+        "name": "Coffee Bean Name",
+        "type": "Type",
+        "usage": "Usage",
+        "capacity": "Total Capacity",
+        "roastLevel": "Roast Level",
+        "origin": "Origin",
+        "process": "Process",
+        "variety": "Variety",
+        "flavor": "Flavor",
+        "flavorPeriod": "Flavor Period",
+        "components": "Coffee Bean Components",
+        "component": "Component",
+        "ratio": "Ratio"
+      },
+      "values": {
+        "single": "Single Origin",
+        "blend": "Blend",
+        "filter": "Pour Over",
+        "espresso": "Espresso",
+        "days": "{start}-{end} days"
+      }
+    }
+  },
+  "beanImport": {
+    "title": "Import Coffee Bean",
+    "modes": {
+      "switchToManual": "Switch to Manual",
+      "switchToImage": "Switch to Image Recognition"
+    },
+    "manual": {
+      "description": "Manually enter coffee bean information",
+      "steps": {
+        "prepare": "Prepare coffee bean product images, Excel sheets, etc.",
+        "send": "Send to",
+        "paste": "Paste the returned JSON data into the text box below"
+      },
+      "aiAssistant": "Doubao Custom AI Assistant",
+      "promptTitle": "Prompt (click to expand)",
+      "copyButton": "Copy"
+    },
+    "imageRecognition": {
+      "description": "Upload coffee bean packaging image, AI automatically recognizes information",
+      "camera": "Camera",
+      "gallery": "Gallery",
+      "cropActive": "Selected area for precise recognition",
+      "cropInactive": "You can select an area on the image for precise recognition",
+      "cancelCrop": "Cancel Selection",
+      "reselect": "Reselect",
+      "confirmCrop": "Confirm Crop and Recognize",
+      "processing": "Processing..."
+    },
+    "textInput": {
+      "placeholder": "Paste JSON data or text description here...",
+      "import": "Import",
+      "inputRequired": "Please enter data to import"
+    },
+    "messages": {
+      "copySuccess": "Copied successfully",
+      "copyFailed": "Copy failed",
+      "recognitionSuccess": "✨ AI recognition successful! Please check if the recognition result is correct",
+      "recognitionFailed": "Image recognition failed, please try again",
+      "importingBatch": "Importing coffee bean data in batch...",
+      "importing": "Importing coffee bean data...",
+      "importFailed": "Import failed: {error}",
+      "invalidData": "Unable to extract valid data from input",
+      "invalidBeanData": "Some data is not valid coffee bean information",
+      "extractedInvalidData": "Extracted data is not valid coffee bean information",
+      "processingFailed": "Data processing failed: {error}",
+      "processingError": "Error processing data: {error}"
+    }
+  },
+  "beanConstants": {
+    "origins": {
+      "埃塞俄比亚": "Ethiopia",
+      "巴西": "Brazil",
+      "哥伦比亚": "Colombia",
+      "危地马拉": "Guatemala",
+      "肯尼亚": "Kenya",
+      "洪都拉斯": "Honduras",
+      "哥斯达黎加": "Costa Rica",
+      "秘鲁": "Peru",
+      "印度尼西亚": "Indonesia",
+      "牙买加": "Jamaica",
+      "也门": "Yemen",
+      "越南": "Vietnam",
+      "墨西哥": "Mexico",
+      "卢旺达": "Rwanda",
+      "坦桑尼亚": "Tanzania",
+      "巴拿马": "Panama",
+      "云南": "Yunnan",
+      "云南保山": "Yunnan Baoshan"
+    },
+    "processes": {
+      "水洗": "Washed",
+      "日晒": "Natural",
+      "蜜处理": "Honey Process",
+      "半水洗": "Semi-Washed",
+      "黑蜜": "Black Honey",
+      "白蜜": "White Honey",
+      "红蜜": "Red Honey",
+      "黄蜜": "Yellow Honey",
+      "厌氧发酵": "Anaerobic Fermentation",
+      "碳酸浸泡": "Carbonic Maceration",
+      "双重发酵": "Double Fermentation",
+      "干燥处理": "Dry Process",
+      "湿刷处理": "Wet Hulling"
+    },
+    "varieties": {
+      "铁皮卡": "Typica",
+      "卡杜拉": "Caturra",
+      "卡图拉": "Caturra",
+      "波旁": "Bourbon",
+      "原生种": "Heirloom",
+      "瑰夏": "Geisha",
+      "红波旁": "Red Bourbon",
+      "黄波旁": "Yellow Bourbon",
+      "SL28": "SL28",
+      "SL34": "SL34",
+      "西达摩": "Sidamo",
+      "卡蒂姆": "Catimor",
+      "帕卡马拉": "Pacamara",
+      "卡斯蒂洛": "Castillo",
+      "芒果": "Mango",
+      "卡杜艾": "Catuai",
+      "芒多当新": "Mundo Novo",
+      "巴西天然种": "Brazil Natural"
+    },
+    "flavorCategories": {
+      "水果类": "Fruity",
+      "花香类": "Floral",
+      "甜味类": "Sweet",
+      "坚果类": "Nutty",
+      "香料类": "Spicy",
+      "草本类": "Herbal",
+      "谷物/烘焙类": "Cereal/Roasted",
+      "酒类/发酵类": "Wine/Fermented",
+      "茶类": "Tea-like",
+      "烟草类": "Tobacco",
+      "青涩/植蔬类": "Green/Vegetal",
+      "口感类": "Mouthfeel",
+      "其他": "Others"
+    },
+    "roastLevels": {
+      "极浅烘焙": "Ultra Light",
+      "浅度烘焙": "Light",
+      "中浅烘焙": "Medium Light",
+      "中度烘焙": "Medium",
+      "中深烘焙": "Medium Dark",
+      "深度烘焙": "Dark"
+    }
   }
 }
