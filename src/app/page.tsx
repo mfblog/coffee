@@ -41,6 +41,7 @@ import CustomEquipmentFormModal from '@/components/equipment/forms/CustomEquipme
 import EquipmentImportModal from '@/components/equipment/import/EquipmentImportModal'
 import DataMigrationModal from '@/components/common/modals/DataMigrationModal'
 import { showToast } from '@/components/common/feedback/GlobalToast'
+import { useTranslations } from 'next-intl'
 
 // 为Window对象声明类型扩展
 declare global {
@@ -140,6 +141,8 @@ const AppContainer = () => {
 
 // 手冲咖啡配方页面组件 - 添加初始咖啡豆状态参数
 const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
+    const t = useTranslations('nav')
+
     // 使用设置相关状态
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [settings, setSettings] = useState<SettingsOptions>(() => {
@@ -452,6 +455,22 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         }
         setShowViewDropdown(!showViewDropdown);
     }, [showViewDropdown, updateBeanButtonPosition]);
+
+    // 获取翻译后的视图标签
+    const getTranslatedViewLabel = (view: ViewOption) => {
+        switch (view) {
+            case VIEW_OPTIONS.INVENTORY:
+                return t('views.inventory')
+            case VIEW_OPTIONS.RANKING:
+                return t('views.ranking')
+            case VIEW_OPTIONS.BLOGGER:
+                return t('views.blogger')
+            case VIEW_OPTIONS.STATS:
+                return t('views.stats')
+            default:
+                return t('main.beans')
+        }
+    }
 
     // 处理咖啡豆视图切换
     const handleBeanViewChange = (view: ViewOption) => {
@@ -1267,7 +1286,11 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             }, 50);
         } catch (error) {
             console.error('保存咖啡豆失败:', error);
-            alert('保存失败，请重试');
+            showToast({
+                type: 'error',
+                title: t('messages.saveFailed'),
+                duration: 2000
+            });
         }
     };
 
@@ -1409,7 +1432,11 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         setSelectedMethod(null);
 
         // 显示通知
-        alert('数据已更新，应用将重新加载数据');
+        showToast({
+            type: 'info',
+            title: t('messages.dataUpdated'),
+            duration: 3000
+        });
     };
 
     // 监听从历史记录直接导航的事件
@@ -1874,7 +1901,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                                     style={{ paddingBottom: '12px' }}
                                 >
                                     <span className="relative inline-block">
-                                        {VIEW_LABELS[currentBeanView]}
+                                        {getTranslatedViewLabel(currentBeanView)}
                                         {/* 移除下划线，保持统一外观 */}
                                     </span>
                                     {/* 下拉图标 */}
@@ -1923,11 +1950,11 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                             >
                                 {/* 其他视图选项 - 统一样式和间距 */}
                                 <div className="flex flex-col">
-                                    {Object.entries(VIEW_LABELS)
-                                        .filter(([key]) => key !== currentBeanView)
-                                        .map(([key, label], index) => (
+                                    {Object.values(VIEW_OPTIONS)
+                                        .filter((value) => value !== currentBeanView)
+                                        .map((value, index) => (
                                             <motion.button
-                                                key={key}
+                                                key={value}
                                                 initial={{
                                                     opacity: 0,
                                                     y: -6,
@@ -1948,17 +1975,17 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                                                     y: -4,
                                                     scale: 0.98,
                                                     transition: {
-                                                        delay: (Object.keys(VIEW_LABELS).length - index - 1) * 0.02,
+                                                        delay: (Object.values(VIEW_OPTIONS).length - index - 1) * 0.02,
                                                         duration: 0.12,
                                                         ease: [0.4, 0.0, 1, 1] // Apple 的退出缓动
                                                     }
                                                 }}
-                                                onClick={() => handleBeanViewChange(key as ViewOption)}
+                                                onClick={() => handleBeanViewChange(value as ViewOption)}
                                                 className="text-xs font-medium tracking-widest whitespace-nowrap transition-colors text-left pb-3 flex items-center text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
                                                 style={{ paddingBottom: '12px' }}
                                             >
                                                 <span className="relative inline-block">
-                                                    {label}
+                                                    {getTranslatedViewLabel(value as ViewOption)}
                                                 </span>
                                                 {/* 添加占位空间，保持与当前选项的对齐 */}
                                                 <span className="ml-1 w-3 h-3" />
@@ -2019,13 +2046,13 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                         await copyEquipmentToClipboard(equipment, methods);
                         showToast({
                             type: 'success',
-                            title: '已复制到剪贴板',
+                            title: t('messages.copiedToClipboard'),
                             duration: 2000
                         });
                     } catch (_error) {
                         showToast({
                             type: 'error',
-                            title: '复制失败，请重试',
+                            title: t('messages.copyFailed'),
                             duration: 2000
                         });
                     }

@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl'
 import { Equal, ArrowLeft, ChevronsUpDown } from 'lucide-react'
 import { saveStringState } from '@/lib/core/statePersistence'
 import { saveMainTabPreference } from '@/lib/navigation/navigationCache'
-import { ViewOption, VIEW_LABELS } from '@/components/coffee-bean/List/types'
+import { ViewOption } from '@/components/coffee-bean/List/types'
 
 // 统一类型定义
 type TabType = '方案' | '注水' | '记录'
@@ -98,6 +98,7 @@ const EquipmentIndicator: React.FC<EquipmentIndicatorProps> = ({
     selectedEquipment, customEquipments, onEquipmentSelect, onAddEquipment,
     onEditEquipment, onDeleteEquipment, onShareEquipment, settings
 }) => {
+    const t = useTranslations('nav')
     const triggerHaptic = useHapticFeedback(settings)
     const { editingEquipment, enterEditMode, exitEditMode } = useEditMode()
     const scrollContainerRef = React.useRef<HTMLDivElement>(null)
@@ -212,7 +213,7 @@ const EquipmentIndicator: React.FC<EquipmentIndicatorProps> = ({
         {
             type: 'addButton' as const,
             id: 'add',
-            name: '添加器具',
+            name: t('actions.addEquipment'),
             isSelected: false,
             isCustom: false,
             onClick: handlers.add
@@ -292,26 +293,26 @@ const EquipmentIndicator: React.FC<EquipmentIndicatorProps> = ({
                                             onClick={() => handlers.edit(equipment)}
                                             className="text-xs font-medium tracking-widest cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 pb-3 transition-colors duration-150"
                                         >
-                                            编辑
+                                            {t('actions.edit')}
                                         </button>
                                         <button
                                             onClick={() => handlers.delete(equipment)}
                                             className="text-xs font-medium tracking-widest cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 pb-3 transition-colors duration-150"
                                         >
-                                            删除
+                                            {t('actions.delete')}
                                         </button>
                                         <button
                                             onClick={() => handlers.share(equipment)}
                                             className="text-xs font-medium tracking-widest cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 pb-3 transition-colors duration-150"
                                         >
-                                            分享
+                                            {t('actions.share')}
                                         </button>
                                         <span className="text-[12px] tracking-widest text-neutral-400 dark:text-neutral-500 pb-3">｜</span>
                                         <button
                                             onClick={handlers.exitEdit}
                                             className="text-xs font-medium tracking-widest cursor-pointer text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 pb-3 transition-colors duration-150"
                                         >
-                                            返回
+                                            {t('actions.back')}
                                         </button>
                                     </>
                                 ) : null
@@ -334,7 +335,7 @@ const EquipmentIndicator: React.FC<EquipmentIndicatorProps> = ({
                                             onClick={item.onClick}
                                             className="text-xs font-medium tracking-widest cursor-pointer text-neutral-500 dark:text-neutral-400 flex items-center whitespace-nowrap pb-3 transition-colors duration-150"
                                         >
-                                            添加器具
+                                            {item.name}
                                         </div>
                                     ) : (
                                         <div className="whitespace-nowrap flex items-center relative">
@@ -580,7 +581,20 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     // 获取当前视图的显示名称
     const getCurrentViewLabel = () => {
         if (!currentBeanView) return t('main.beans')
-        return VIEW_LABELS[currentBeanView]
+
+        // 根据视图类型返回对应的翻译
+        switch (currentBeanView) {
+            case 'inventory':
+                return t('views.inventory')
+            case 'ranking':
+                return t('views.ranking')
+            case 'blogger':
+                return t('views.blogger')
+            case 'stats':
+                return t('views.stats')
+            default:
+                return t('main.beans')
+        }
     }
 
     // 处理咖啡豆按钮点击
@@ -882,7 +896,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                         className="cursor-pointer whitespace-nowrap"
                                                         onClick={() => {
                                                             setActiveBrewingStep('method');
-                                                            setActiveTab('方案');
+                                                            setActiveTab('方案'); // 这里保持硬编码，因为这是内部逻辑标识符
                                                         }}
                                                     >
                                                         {getSelectedEquipmentName() && (
@@ -994,7 +1008,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                                     <span className="truncate max-w-[30px] sm:max-w-[40px]">{parameterInfo.params.coffee}</span>
                                                                     <span className="shrink-0">·</span>
                                                                     <span className="whitespace-nowrap">
-                                                                        {espressoUtils.formatTime(espressoUtils.getExtractionTime(selectedMethod))}秒
+                                                                        {espressoUtils.formatTime(espressoUtils.getExtractionTime(selectedMethod))}{t('units.seconds')}
                                                                     </span>
                                                                     <span className="shrink-0">·</span>
                                                                     <span className="whitespace-nowrap">{parameterInfo.params.water}</span>

@@ -3,6 +3,7 @@
 import React, { useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { CoffeeBean } from '@/types/app'
+import { useTranslations } from 'next-intl'
 
 interface CoffeeBeanSelectorProps {
   coffeeBeans: CoffeeBean[]
@@ -82,6 +83,7 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
   searchQuery = '',
   highlightedBeanId = null
 }) => {
+  const t = useTranslations('nav')
   // 添加ref用于存储咖啡豆元素列表
   const beanItemsRef = useRef<Map<string, HTMLDivElement>>(new Map());
   
@@ -188,12 +190,12 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
                 <div className="flex-1 min-w-0 flex flex-col justify-center gap-y-1.5 h-14">
                   {/* 选项名称 */}
                   <div className="text-xs font-medium text-neutral-800 dark:text-neutral-100 leading-tight line-clamp-2 text-justify">
-                    不使用咖啡豆
+                    {t('labels.noBean')}
                   </div>
 
                   {/* 描述信息 */}
                   <div className="flex items-center text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-                    <span className="shrink-0">跳过咖啡豆选择</span>
+                    <span className="shrink-0">{t('labels.skipBeanSelection')}</span>
                   </div>
                 </div>
               </div>
@@ -208,23 +210,23 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
 
               if (bean.isInTransit) {
                 // 在途状态处理
-                freshStatus = "(在途)";
+                freshStatus = `(${t('status.inTransit')})`;
                 statusClass = "text-neutral-600 dark:text-neutral-400";
               } else if (bean.isFrozen) {
                 // 冰冻状态处理
-                freshStatus = "(冰冻)";
+                freshStatus = `(${t('status.frozen')})`;
                 statusClass = "text-blue-400 dark:text-blue-300";
               } else if (bean.roastDate) {
                 const { phase } = getFlavorInfo(bean);
-                
+
                 if (phase === '养豆期') {
-                  freshStatus = `(养豆期)`;
+                  freshStatus = `(${t('status.resting')})`;
                   statusClass = "text-neutral-500 dark:text-neutral-400";
                 } else if (phase === '赏味期') {
-                  freshStatus = `(赏味期)`;
+                  freshStatus = `(${t('status.peak')})`;
                   statusClass = "text-emerald-500 dark:text-emerald-400";
                 } else {
-                  freshStatus = "(衰退期)";
+                  freshStatus = `(${t('status.declining')})`;
                   statusClass = "text-neutral-500 dark:text-neutral-400";
                 }
               }
@@ -246,7 +248,7 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
                 const capacityNum = parseFloat(capacity.replace('g', ''));
                 if (isNaN(priceNum) || isNaN(capacityNum) || capacityNum === 0) return '';
                 const pricePerGram = priceNum / capacityNum;
-                return `${pricePerGram.toFixed(2)}元/克`;
+                return `${pricePerGram.toFixed(2)}${t('units.pricePerGram')}`;
               };
 
               // 构建参数信息项（使用与咖啡豆仓库列表相同的格式）
@@ -261,7 +263,7 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
               const remaining = typeof bean.remaining === 'string' ? parseFloat(bean.remaining) : bean.remaining ?? 0;
               const capacity = typeof bean.capacity === 'string' ? parseFloat(bean.capacity) : bean.capacity ?? 0;
               if (remaining > 0 && capacity > 0) {
-                infoItems.push(`${formatNumber(bean.remaining)}/${formatNumber(bean.capacity)}克`);
+                infoItems.push(`${formatNumber(bean.remaining)}/${formatNumber(bean.capacity)}${t('units.grams')}`);
               }
 
               // 添加价格信息
@@ -306,7 +308,7 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
                           {bean.image ? (
                             <Image
                               src={bean.image}
-                              alt={bean.name || '咖啡豆图片'}
+                              alt={bean.name || t('labels.beanImage')}
                               width={56}
                               height={56}
                               className="w-full h-full object-cover"
@@ -317,7 +319,7 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
                             />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-neutral-400 dark:text-neutral-600">
-                              {bean.name ? bean.name.charAt(0) : '豆'}
+                              {bean.name ? bean.name.charAt(0) : t('labels.bean')}
                             </div>
                           )}
                         </div>
@@ -363,8 +365,8 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
               <div className="flex-1 min-w-0 flex flex-col justify-center h-14">
                 <div className="text-xs text-neutral-500 dark:text-neutral-400">
                   {searchQuery.trim()
-                    ? `没有找到匹配"${searchQuery.trim()}"的咖啡豆`
-                    : "没有可用的咖啡豆，请先添加咖啡豆"
+                    ? `${t('messages.noSearchResults')} "${searchQuery.trim()}"`
+                    : t('messages.noAvailableBeans')
                   }
                 </div>
               </div>

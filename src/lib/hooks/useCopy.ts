@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { copyToClipboard } from "@/lib/utils/exportUtils"
 import { showToast } from "@/components/common/feedback/GlobalToast"
+import { useTranslations } from 'next-intl'
 
 interface UseCopyResult {
   copyText: (text: string) => Promise<void>
@@ -12,16 +13,17 @@ interface UseCopyResult {
 }
 
 export function useCopy(): UseCopyResult {
+  const t = useTranslations('nav')
   const [showFailureModal, setShowFailureModal] = useState(false)
   const [failureContent, setFailureContent] = useState<string | null>(null)
 
   const copyText = async (text: string) => {
     const result = await copyToClipboard(text)
-    
+
     if (result.success) {
       showToast({
         type: "success",
-        title: "已复制到剪贴板",
+        title: t('messages.copiedToClipboard'),
         duration: 2000,
       })
     } else {

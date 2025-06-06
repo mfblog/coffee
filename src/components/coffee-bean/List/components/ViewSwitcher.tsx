@@ -15,6 +15,7 @@ import {
 import { X, ArrowUpRight, AlignLeft } from 'lucide-react'
 import { Storage } from '@/lib/core/storage'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 // Apple风格动画配置
 const FILTER_ANIMATION = {
@@ -101,11 +102,12 @@ interface SortSectionProps {
 }
 
 const SortSection: React.FC<SortSectionProps> = ({ viewMode, sortOption, onSortChange }) => {
+    const t = useTranslations('nav')
     const { type: currentType, order: currentOrder } = getSortTypeAndOrder(sortOption)
 
     return (
         <div>
-            <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">排序</div>
+            <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">{t('filters.sort')}</div>
             <div className="space-y-3">
                 {/* 排序方式 */}
                 <div className="flex items-center flex-wrap gap-2">
@@ -153,33 +155,37 @@ const BeanTypeFilter: React.FC<BeanTypeFilterProps> = ({
     selectedBeanType,
     onBeanTypeChange,
     showAll = true
-}) => (
-    <div>
-        <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">类型</div>
-        <div className="flex items-center flex-wrap gap-2">
-            {showAll && (
+}) => {
+    const t = useTranslations('nav')
+
+    return (
+        <div>
+            <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">{t('filters.type')}</div>
+            <div className="flex items-center flex-wrap gap-2">
+                {showAll && (
+                    <FilterButton
+                        isActive={selectedBeanType === 'all' || !selectedBeanType}
+                        onClick={() => onBeanTypeChange?.('all')}
+                    >
+                        {t('filters.all')}
+                    </FilterButton>
+                )}
                 <FilterButton
-                    isActive={selectedBeanType === 'all' || !selectedBeanType}
-                    onClick={() => onBeanTypeChange?.('all')}
+                    isActive={selectedBeanType === 'espresso'}
+                    onClick={() => onBeanTypeChange?.('espresso')}
                 >
-                    全部
+                    {showAll ? t('filters.espresso') : t('filters.espressoBean')}
                 </FilterButton>
-            )}
-            <FilterButton
-                isActive={selectedBeanType === 'espresso'}
-                onClick={() => onBeanTypeChange?.('espresso')}
-            >
-                {showAll ? '意式' : '意式豆'}
-            </FilterButton>
-            <FilterButton
-                isActive={selectedBeanType === 'filter'}
-                onClick={() => onBeanTypeChange?.('filter')}
-            >
-                {showAll ? '手冲' : '手冲豆'}
-            </FilterButton>
+                <FilterButton
+                    isActive={selectedBeanType === 'filter'}
+                    onClick={() => onBeanTypeChange?.('filter')}
+                >
+                    {showAll ? t('filters.filter') : t('filters.filterBean')}
+                </FilterButton>
+            </div>
         </div>
-    </div>
-)
+    )
+}
 
 interface ViewSwitcherProps {
     viewMode: ViewOption
@@ -249,6 +255,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
     isImageFlowMode = false,
     onToggleImageFlowMode,
 }) => {
+    const t = useTranslations('nav')
     // 添加极简模式状态
     const [_isMinimalistMode, setIsMinimalistMode] = useState(false);
 
@@ -431,10 +438,10 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                 <div className="flex items-center space-x-3">
                     <div className="text-xs font-medium tracking-wide text-neutral-800 dark:text-neutral-100 break-words">
                         {viewMode === VIEW_OPTIONS.INVENTORY
-                            ? `${beansCount} 款咖啡豆${!hideTotalWeight && totalWeight ? `，共 ${totalWeight}` : ''}`
+                            ? `${beansCount} ${t('stats.beansCount')}${!hideTotalWeight && totalWeight ? `，${t('stats.totalWeight')} ${totalWeight}` : ''}`
                             : viewMode === VIEW_OPTIONS.BLOGGER
-                                ? `${bloggerBeansCount || 0} 款 (${bloggerYear}) 咖啡豆`
-                                : `${rankingBeansCount || 0} 款已评分咖啡豆`
+                                ? `${bloggerBeansCount || 0} ${t('stats.beansCount')} (${bloggerYear})`
+                                : `${rankingBeansCount || 0} ${t('stats.ratedBeansCount')}`
                         }
                     </div>
                 </div>
@@ -470,7 +477,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                         className="mr-1"
                                         dataTab="all"
                                     >
-                                        全部
+                                        {t('filters.all')}
                                     </TabButton>
 
                                     {/* 筛选图标按钮 */}
@@ -487,7 +494,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                         className="mr-3"
                                         dataTab="espresso"
                                     >
-                                        意式豆
+                                        {t('filters.espressoBean')}
                                     </TabButton>
                                     <TabButton
                                         isActive={rankingBeanType === 'filter'}
@@ -495,7 +502,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                         className="mr-3"
                                         dataTab="filter"
                                     >
-                                        手冲豆
+                                        {t('filters.filterBean')}
                                     </TabButton>
                                 </div>
                             </div>
@@ -528,7 +535,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                         onClick={() => onRankingEditModeChange(!rankingEditMode)}
                                         className="mr-3"
                                     >
-                                        {rankingEditMode ? '完成' : '编辑'}
+                                        {rankingEditMode ? t('actions.done') : t('actions.edit')}
                                     </TabButton>
                                 )}
 
@@ -538,7 +545,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                         onClick={onRankingShare}
                                         className="pb-1.5 text-xs font-medium relative text-neutral-600 dark:text-neutral-400"
                                     >
-                                        <span className="relative underline underline-offset-2 decoration-sky-500">分享</span>
+                                        <span className="relative underline underline-offset-2 decoration-sky-500">{t('actions.share')}</span>
                                         <ArrowUpRight className="inline-block ml-1 w-3 h-3" color="currentColor" />
                                     </button>
                                 )}
@@ -607,9 +614,9 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                         dataTab="all"
                                     >
                                         <span onDoubleClick={() => onToggleImageFlowMode?.()}>
-                                            全部
+                                            {t('filters.all')}
                                             {isImageFlowMode && (
-                                                <span> · 图片流</span>
+                                                <span> · {t('filters.imageFlow')}</span>
                                             )}
                                         </span>
                                     </TabButton>
@@ -644,7 +651,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                             value={searchQuery}
                                             onChange={handleSearchChange}
                                             onKeyDown={handleSearchKeyDown}
-                                            placeholder="输入咖啡豆名称..."
+                                            placeholder={t('search.placeholder')}
                                             className="w-full pr-2 text-xs font-medium bg-transparent border-none outline-hidden text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
                                             autoComplete="off"
                                         />
@@ -667,7 +674,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                                         onClick={handleSearchClick}
                                         className="pb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400 flex items-center whitespace-nowrap"
                                     >
-                                        <span className="relative">搜索</span>
+                                        <span className="relative">{t('actions.search')}</span>
                                     </button>
                                 </div>
                             )}
@@ -704,20 +711,20 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
 
                                                 {/* 显示选项区域 */}
                                                 <div>
-                                                    <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">显示</div>
+                                                    <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">{t('filters.display')}</div>
                                                     <div className="flex items-center flex-wrap gap-2">
                                                         <FilterButton
                                                             isActive={showEmptyBeans || false}
                                                             onClick={() => onToggleShowEmptyBeans?.()}
                                                         >
-                                                            已用完
+                                                            {t('filters.usedUp')}
                                                         </FilterButton>
                                                         {onToggleImageFlowMode && (
                                                             <FilterButton
                                                                 isActive={isImageFlowMode}
                                                                 onClick={() => onToggleImageFlowMode()}
                                                             >
-                                                                图片流
+                                                                {t('filters.imageFlow')}
                                                             </FilterButton>
                                                         )}
                                                     </div>

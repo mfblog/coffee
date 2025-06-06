@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { CoffeeBean } from '@/types/app'
 import { CoffeeBeanManager } from '@/lib/managers/coffeeBeanManager'
 import { globalCache } from './globalCache'
+import { useTranslations } from 'next-intl'
 
 // 每页加载的咖啡豆数量 - 增加到20个，减少分页频率
 const PAGE_SIZE = 8;
@@ -25,6 +26,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
     searchQuery = '',  // 添加搜索查询参数默认值
     highlightedBeanId = null // 添加高亮咖啡豆ID默认值
 }) => {
+    const t = useTranslations('nav')
     // 如果缓存已有数据，直接使用缓存初始化，避免闪烁
     const [beans, setBeans] = useState<CoffeeBean[]>(() =>
         globalCache.initialized ? globalCache.beans : []
@@ -340,12 +342,12 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                         <div className="flex-1 min-w-0 flex flex-col justify-center gap-y-1.5 h-14">
                             {/* 选项名称 */}
                             <div className="text-xs font-medium text-neutral-800 dark:text-neutral-100 leading-tight line-clamp-2 text-justify">
-                                不使用咖啡豆
+                                {t('labels.noBean')}
                             </div>
 
                             {/* 描述信息 */}
                             <div className="flex items-center text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-                                <span className="shrink-0">跳过咖啡豆选择</span>
+                                <span className="shrink-0">{t('labels.skipBeanSelection')}</span>
                             </div>
                         </div>
                     </div>
@@ -361,7 +363,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                     {/* 右侧内容区域 */}
                     <div className="flex-1 min-w-0 flex flex-col justify-center h-14">
                         <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                            没有找到匹配&quot;{searchQuery.trim()}&quot;的咖啡豆
+                            {t('messages.noSearchResults')} &quot;{searchQuery.trim()}&quot;
                         </div>
                     </div>
                 </div>
@@ -377,20 +379,32 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                 let statusClass = "text-neutral-500 dark:text-neutral-400";
 
                 if (bean.isInTransit) {
-                    freshStatus = "(在途)";
+                    freshStatus = `(${t('status.inTransit')})`;
                     statusClass = "text-neutral-600 dark:text-neutral-400";
                 } else if (bean.isFrozen) {
-                    freshStatus = "(冰冻)";
+                    freshStatus = `(${t('status.frozen')})`;
                     statusClass = "text-blue-400 dark:text-blue-300";
                 } else if (bean.roastDate) {
+                    // 将getFlavorInfo返回的硬编码中文状态映射为翻译键
+                    const getTranslatedStatus = (phase: string) => {
+                        switch (phase) {
+                            case '养豆期': return t('status.resting');
+                            case '赏味期': return t('status.peak');
+                            case '衰退期': return t('status.declining');
+                            case '在途': return t('status.inTransit');
+                            case '冰冻': return t('status.frozen');
+                            default: return phase;
+                        }
+                    };
+
+                    const translatedPhase = getTranslatedStatus(phase);
+                    freshStatus = `(${translatedPhase})`;
+
                     if (phase === '养豆期') {
-                        freshStatus = `(养豆期)`;
                         statusClass = "text-neutral-500 dark:text-neutral-400";
                     } else if (phase === '赏味期') {
-                        freshStatus = `(赏味期)`;
                         statusClass = "text-emerald-500 dark:text-emerald-400";
                     } else {
-                        freshStatus = "(衰退期)";
                         statusClass = "text-neutral-500 dark:text-neutral-400";
                     }
                 }
@@ -409,7 +423,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                     const priceNum = parseFloat(price);
                     const capacityNum = parseFloat(capacity.replace('g', ''));
                     if (isNaN(priceNum) || isNaN(capacityNum) || capacityNum === 0) return '';
-                    return `${(priceNum / capacityNum).toFixed(2)}元/克`;
+                    return `${(priceNum / capacityNum).toFixed(2)}${t('units.pricePerGram')}`;
                 };
 
                 // 构建参数信息项
@@ -421,14 +435,14 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                 const remaining = typeof bean.remaining === 'string' ? parseFloat(bean.remaining) : bean.remaining ?? 0;
                 const capacity = typeof bean.capacity === 'string' ? parseFloat(bean.capacity) : bean.capacity ?? 0;
                 if (remaining > 0 && capacity > 0) {
-                    infoItems.push(`${formatNumber(bean.remaining)}/${formatNumber(bean.capacity)}克`);
+                    infoItems.push(`${formatNumber(bean.remaining)}/${formatNumber(bean.capacity)}${t('units.grams')}`);
                 }
 
                 if (bean.price && bean.capacity) {
                     infoItems.push(formatPricePerGram(bean.price, bean.capacity));
                 }
 
-                // 获取状态圆点的颜色
+                // 获取状态圆点的颜色 - 使用原始的中文状态字符串进行比较
                 const getStatusDotColor = (phase: string): string => {
                     switch (phase) {
                         case '养豆期': return 'bg-amber-400';
@@ -455,7 +469,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                                         {bean.image ? (
                                             <Image
                                                 src={bean.image}
-                                                alt={bean.name || '咖啡豆图片'}
+                                                alt={bean.name || t('labels.beanImage')}
                                                 width={56}
                                                 height={56}
                                                 className="w-full h-full object-cover"
@@ -466,7 +480,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                                             />
                                         ) : (
                                             <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-neutral-400 dark:text-neutral-600">
-                                                {bean.name ? bean.name.charAt(0) : '豆'}
+                                                {bean.name ? bean.name.charAt(0) : t('labels.bean')}
                                             </div>
                                         )}
                                     </div>
@@ -511,7 +525,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                     className="flex justify-center items-center py-4"
                 >
                     <div className="text-[10px] tracking-widest text-neutral-500 dark:text-neutral-400">
-                        {isLoading ? '正在加载...' : '上滑加载更多'}
+                        {isLoading ? t('messages.loading') : t('messages.loadMore')}
                     </div>
                 </div>
             )}

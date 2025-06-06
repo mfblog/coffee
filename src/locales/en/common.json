@@ -11,6 +11,77 @@
       "method": "Plan",
       "pour": "Pour",
       "record": "Log"
+    },
+    "views": {
+      "inventory": "Bean Inventory",
+      "ranking": "Personal Ranking",
+      "blogger": "Blogger Ranking",
+      "stats": "Statistics"
+    },
+    "actions": {
+      "addEquipment": "Add Equipment",
+      "newMethod": "New Method",
+      "importMethod": "Import Method",
+      "edit": "Edit",
+      "delete": "Delete",
+      "share": "Share",
+      "back": "Back",
+      "done": "Done",
+      "search": "Search"
+    },
+    "filters": {
+      "type": "Type",
+      "all": "All",
+      "espresso": "Espresso",
+      "filter": "Filter",
+      "espressoBean": "Espresso Bean",
+      "filterBean": "Filter Bean",
+      "sort": "Sort",
+      "display": "Display",
+      "usedUp": "Used Up",
+      "imageFlow": "Image Flow"
+    },
+    "search": {
+      "placeholder": "Enter bean name..."
+    },
+    "messages": {
+      "noCustomMethods": "No custom methods for current equipment, please click the button below to add",
+      "noSearchResults": "No matching coffee beans found",
+      "noVarietyBeans": "No coffee beans of this variety",
+      "noTypeBeans": "No coffee beans of this type",
+      "noBeans": "No coffee beans, please click the button below to add",
+      "allBeansUsedUp": "All coffee beans used up, click \"Used Up\" to view",
+      "loading": "Loading...",
+      "loadMore": "Swipe up to load more",
+      "noAvailableBeans": "No available coffee beans, please add coffee beans first",
+      "saveFailed": "Save failed, please try again",
+      "dataUpdated": "Data updated, app will reload data",
+      "copiedToClipboard": "Copied to clipboard",
+      "copyFailed": "Copy failed, please try again"
+    },
+    "stats": {
+      "beansCount": "coffee beans",
+      "totalWeight": "total",
+      "ratedBeansCount": "rated coffee beans"
+    },
+    "units": {
+      "seconds": "s",
+      "grams": "g",
+      "pricePerGram": "/g"
+    },
+    "status": {
+      "inTransit": "In Transit",
+      "frozen": "Frozen",
+      "resting": "Resting",
+      "peak": "Peak",
+      "declining": "Declining"
+    },
+    "labels": {
+      "beanImage": "Coffee Bean Image",
+      "bean": "Bean",
+      "noBean": "No Coffee Bean",
+      "skipBeanSelection": "Skip bean selection",
+      "usedUp": "Used Up"
     }
   },
   "settings": {

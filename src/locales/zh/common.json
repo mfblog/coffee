@@ -11,6 +11,77 @@
       "method": "方案",
       "pour": "注水",
       "record": "记录"
+    },
+    "views": {
+      "inventory": "咖啡豆仓库",
+      "ranking": "个人榜单",
+      "blogger": "博主榜单",
+      "stats": "统计视图"
+    },
+    "actions": {
+      "addEquipment": "添加器具",
+      "newMethod": "新建方案",
+      "importMethod": "导入方案",
+      "edit": "编辑",
+      "delete": "删除",
+      "share": "分享",
+      "back": "返回",
+      "done": "完成",
+      "search": "搜索"
+    },
+    "filters": {
+      "type": "类型",
+      "all": "全部",
+      "espresso": "意式",
+      "filter": "手冲",
+      "espressoBean": "意式豆",
+      "filterBean": "手冲豆",
+      "sort": "排序",
+      "display": "显示",
+      "usedUp": "已用完",
+      "imageFlow": "图片流"
+    },
+    "search": {
+      "placeholder": "输入咖啡豆名称..."
+    },
+    "messages": {
+      "noCustomMethods": "当前器具暂无自定义方案，请点击下方按钮添加",
+      "noSearchResults": "没有找到匹配的咖啡豆",
+      "noVarietyBeans": "没有该品种的咖啡豆",
+      "noTypeBeans": "没有该类型的咖啡豆",
+      "noBeans": "暂无咖啡豆，请点击下方按钮添加",
+      "allBeansUsedUp": "所有咖啡豆已用完，点击\"已用完\"查看",
+      "loading": "正在加载...",
+      "loadMore": "上滑加载更多",
+      "noAvailableBeans": "没有可用的咖啡豆，请先添加咖啡豆",
+      "saveFailed": "保存失败，请重试",
+      "dataUpdated": "数据已更新，应用将重新加载数据",
+      "copiedToClipboard": "已复制到剪贴板",
+      "copyFailed": "复制失败，请重试"
+    },
+    "stats": {
+      "beansCount": "款咖啡豆",
+      "totalWeight": "共",
+      "ratedBeansCount": "款已评分咖啡豆"
+    },
+    "units": {
+      "seconds": "秒",
+      "grams": "克",
+      "pricePerGram": "元/克"
+    },
+    "status": {
+      "inTransit": "在途",
+      "frozen": "冰冻",
+      "resting": "养豆期",
+      "peak": "赏味期",
+      "declining": "衰退期"
+    },
+    "labels": {
+      "beanImage": "咖啡豆图片",
+      "bean": "豆",
+      "noBean": "不使用咖啡豆",
+      "skipBeanSelection": "跳过咖啡豆选择",
+      "usedUp": "已用完"
     }
   },
   "settings": {

@@ -6,6 +6,7 @@ import BeanListItem from './BeanListItem'
 import ImageFlowView from './ImageFlowView'
 import RemainingEditor from './RemainingEditor'
 import BeanDetailModal from '@/components/coffee-bean/Detail/BeanDetailModal'
+import { useTranslations } from 'next-intl'
 
 // 每页加载的咖啡豆数量 - 增大分页大小减少加载次数
 const PAGE_SIZE = 8;
@@ -51,6 +52,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
     searchQuery = '',
     isImageFlowMode = false
 }) => {
+    const t = useTranslations('nav')
     // 添加剩余量编辑状态
     const [editingRemaining, setEditingRemaining] = useState<{
         beanId: string,
@@ -236,14 +238,14 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                     className="flex h-32 items-center justify-center text-[10px] tracking-widest text-neutral-500 dark:text-neutral-400"
                 >
                     {searchQuery.trim() ?
-                        `[ 没有找到匹配"${searchQuery.trim()}"的咖啡豆 ]` :
+                        `[ ${t('messages.noSearchResults')} "${searchQuery.trim()}" ]` :
                         selectedVariety ?
-                            `[ 没有${selectedVariety}品种的咖啡豆 ]` :
+                            `[ ${t('messages.noVarietyBeans')} ${selectedVariety} ]` :
                             selectedBeanType !== 'all' ?
-                                `[ 没有${selectedBeanType === 'espresso' ? '意式' : '手冲'}咖啡豆 ]` :
+                                `[ ${t('messages.noTypeBeans')} ${selectedBeanType === 'espresso' ? t('filters.espresso') : t('filters.filter')} ]` :
                                 beans.length > 0 ?
-                                    (showEmptyBeans ? '[ 暂无咖啡豆，请点击下方按钮添加 ]' : '[ 所有咖啡豆已用完，点击"已用完"查看 ]') :
-                                    '[ 暂无咖啡豆，请点击下方按钮添加 ]'
+                                    (showEmptyBeans ? `[ ${t('messages.noBeans')} ]` : `[ ${t('messages.allBeansUsedUp')} ]`) :
+                                    `[ ${t('messages.noBeans')} ]`
                     }
                 </div>
             ) : (
@@ -267,7 +269,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                             className="flex justify-center items-center py-4"
                         >
                             <div className="text-[10px] tracking-widest text-neutral-500 dark:text-neutral-400">
-                                {isLoading ? '正在加载...' : '上滑加载更多'}
+                                {isLoading ? t('messages.loading') : t('messages.loadMore')}
                             </div>
                         </div>
                     )}

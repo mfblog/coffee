@@ -16,6 +16,7 @@ import CoffeeBeanList from '@/components/coffee-bean/List/ListView';
 import { saveCustomMethod } from '@/lib/managers/customMethods';
 import { Search, X, Shuffle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 // 分享模态框已移除，改为直接复制到剪贴板
 
 
@@ -126,6 +127,7 @@ const TabContent: React.FC<TabContentProps> = ({
     setEditingEquipment,
     handleDeleteEquipment,
 }) => {
+    const t = useTranslations('nav')
     // 笔记表单状态
     const [noteSaved, setNoteSaved] = useState(false);
 
@@ -683,7 +685,7 @@ const TabContent: React.FC<TabContentProps> = ({
                         {/* 暂时移除跳过方案选择选项，避免意外触发 */}
 
                         <div className="flex h-32 items-center justify-center text-[10px] tracking-widest text-neutral-600 dark:text-neutral-400 mt-4">
-                            [ 当前器具暂无自定义方案，请点击下方按钮添加 ]
+                            [ {t('messages.noCustomMethods')} ]
                         </div>
                     </>
                 ) : (
@@ -791,12 +793,12 @@ const TabContent: React.FC<TabContentProps> = ({
                     buttons={[
                         {
                             icon: '+',
-                            text: '新建方案',
+                            text: t('actions.newMethod'),
                             onClick: () => setShowCustomForm(true)
                         },
                         {
                             icon: '↓',
-                            text: '导入方案',
+                            text: t('actions.importMethod'),
                             onClick: () => setShowImportForm(true)
                         }
                     ]}

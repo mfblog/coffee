@@ -8,6 +8,7 @@ import { ExtendedCoffeeBean, generateBeanTitle } from '../types'
 import { isBeanEmpty } from '../globalCache'
 import { parseDateToTimestamp } from '@/lib/utils/dateUtils'
 import HighlightText from '@/components/common/ui/HighlightText'
+import { useTranslations } from 'next-intl'
 
 // 动态导入 ImageViewer 组件 - 移除加载占位符
 const ImageViewer = dynamic(() => import('@/components/common/ui/ImageViewer'), {
@@ -37,6 +38,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
     onDetailClick,
     searchQuery = ''
 }) => {
+    const t = useTranslations('nav')
     // 图片查看器状态和错误状态
     const [imageViewerOpen, setImageViewerOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -176,7 +178,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
         const capacityNum = parseFloat(capacity.replace('g', ''));
         if (isNaN(priceNum) || isNaN(capacityNum) || capacityNum === 0) return '';
         const pricePerGram = priceNum / capacityNum;
-        return `${pricePerGram.toFixed(2)}元/克`;
+        return `${pricePerGram.toFixed(2)}${t('units.pricePerGram')}`;
     };
 
     // 移除了不再使用的 infoItems 计算逻辑，因为现在直接在 JSX 中渲染
@@ -238,7 +240,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
                         {bean.image && !imageError ? (
                             <Image
                                 src={bean.image}
-                                alt={bean.name || '咖啡豆图片'}
+                                alt={bean.name || t('labels.beanImage')}
                                 height={48}
                                 width={48}
                                 unoptimized
@@ -254,7 +256,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
                         ) : (
                             // 没有图片时显示灰色背景和名称首字
                             <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-neutral-400 dark:text-neutral-600">
-                                {bean.name ? bean.name.charAt(0) : '豆'}
+                                {bean.name ? bean.name.charAt(0) : t('labels.bean')}
                             </div>
                         )}
                     </div>
@@ -270,7 +272,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
                     <ImageViewer
                         isOpen={imageViewerOpen}
                         imageUrl={bean.image}
-                        alt={bean.name || '咖啡豆图片'}
+                        alt={bean.name || t('labels.beanImage')}
                         onClose={() => setImageViewerOpen(false)}
                     />
                 )}
@@ -290,7 +292,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
                                 displayTitle
                             )}
                             {isEmpty && (
-                                <span className="text-neutral-500 dark:text-neutral-400 font-normal">（已用完）</span>
+                                <span className="text-neutral-500 dark:text-neutral-400 font-normal">（{t('labels.usedUp')}）</span>
                             )}
                         </div>
 
@@ -320,7 +322,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
                                             <span className="border-dashed border-b border-neutral-400 dark:border-neutral-600 transition-colors">
                                                 {formatNumber(bean.remaining)}
                                             </span>
-                                            /{formatNumber(bean.capacity)}克
+                                            /{formatNumber(bean.capacity)}{t('units.grams')}
                                         </span>
                                     </span>
                                     {bean.price && bean.capacity ? (

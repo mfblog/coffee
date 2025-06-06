@@ -27,12 +27,13 @@ export const VIEW_OPTIONS = {
 
 export type ViewOption = typeof VIEW_OPTIONS[keyof typeof VIEW_OPTIONS];
 
-// 视图选项的显示名称
+// 视图选项的显示名称 - 已移至翻译文件，使用 nav.views 命名空间
+// 这个常量保留用于类型检查，实际显示文本请使用 useTranslations('nav') 获取
 export const VIEW_LABELS: Record<ViewOption, string> = {
-    [VIEW_OPTIONS.INVENTORY]: '咖啡豆仓库',
-    [VIEW_OPTIONS.RANKING]: '个人榜单',
-    [VIEW_OPTIONS.BLOGGER]: '博主榜单',
-    [VIEW_OPTIONS.STATS]: '统计视图',
+    [VIEW_OPTIONS.INVENTORY]: 'nav.views.inventory',
+    [VIEW_OPTIONS.RANKING]: 'nav.views.ranking',
+    [VIEW_OPTIONS.BLOGGER]: 'nav.views.blogger',
+    [VIEW_OPTIONS.STATS]: 'nav.views.stats',
 };
 
 export interface CoffeeBeansProps {
