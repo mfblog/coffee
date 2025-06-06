@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import * as Popover from '@radix-ui/react-popover';
 import { Calendar } from "./Calendar";
 import { zhCN, enUS } from "date-fns/locale";
+import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils/classNameUtils";
 
 export interface DatePickerProps {
@@ -19,13 +20,22 @@ export interface DatePickerProps {
 export function DatePicker({
   date,
   onDateChange,
-  placeholder = "选择日期",
-  locale = "zh-CN",
+  placeholder,
+  locale: _locale = "zh-CN",
   className = "",
   disabled = false,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
-  const localeObj = locale === "zh-CN" ? zhCN : enUS;
+  const currentLocale = useLocale();
+  const localeObj = currentLocale === "en" ? enUS : zhCN;
+
+  // 直接使用简单的翻译
+  const getSelectDateText = () => {
+    return currentLocale === 'en' ? 'Select Date' : '选择日期';
+  };
+
+  // 使用翻译的默认占位符
+  const defaultPlaceholder = placeholder || getSelectDateText();
   
   const handleSelect = (selectedDate: Date) => {
     if (onDateChange) {
@@ -47,7 +57,7 @@ export function DatePicker({
             type="button"
           >
             <span className={`${!date ? 'text-neutral-500' : 'text-neutral-800 dark:text-white'}`}>
-              {date ? format(date, "yyyy/MM/dd", { locale: localeObj }) : placeholder}
+              {date ? format(date, "yyyy/MM/dd", { locale: localeObj }) : defaultPlaceholder}
             </span>
           </button>
         </Popover.Trigger>
@@ -67,7 +77,7 @@ export function DatePicker({
             <Calendar
               selected={date}
               onSelect={handleSelect}
-              locale={locale}
+              locale={currentLocale}
               initialFocus
             />
             <Popover.Arrow className="fill-white dark:fill-neutral-900" />

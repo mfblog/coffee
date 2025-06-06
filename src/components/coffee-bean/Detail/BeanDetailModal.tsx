@@ -88,6 +88,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
     const t = useTranslations('nav')
     const tStatus = useTranslations('nav.beanStatus')
     const tBeanConstants = useTranslations('beanConstants')
+    const tDetail = useTranslations('common.beanDetail')
     const { translateRoastLevel } = createTranslationHelpers(tBeanConstants)
 
     // 不再需要翻译风味标签，直接显示保存的值
@@ -168,7 +169,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         if (bean?.capacity && bean?.remaining) {
             items.push({
                 key: 'inventory',
-                label: '库存',
+                label: tDetail('fields.inventory'),
                 value: `${formatNumber(bean.remaining)}g`,
                 type: 'normal'
             })
@@ -178,7 +179,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         if (bean?.price) {
             items.push({
                 key: 'price',
-                label: '价格',
+                label: tDetail('fields.price'),
                 value: `¥${bean.price}`,
                 type: 'normal'
             })
@@ -188,7 +189,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         if (bean?.isInTransit) {
             items.push({
                 key: 'roastDate',
-                label: '状态',
+                label: tDetail('fields.status'),
                 value: tStatus('transit'),
                 type: 'status',
                 color: 'text-blue-600 dark:text-blue-400'
@@ -196,7 +197,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         } else if (bean?.roastDate) {
             items.push({
                 key: 'roastDate',
-                label: '烘焙日期',
+                label: tDetail('fields.roastDate'),
                 value: formatDateString(bean.roastDate),
                 type: 'normal'
             })
@@ -206,7 +207,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         if (bean?.isFrozen) {
             items.push({
                 key: 'flavor',
-                label: '状态',
+                label: tDetail('fields.status'),
                 value: tStatus('frozen'),
                 type: 'status',
                 color: 'text-cyan-600 dark:text-cyan-400'
@@ -214,7 +215,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         } else if (bean?.roastDate && !bean?.isInTransit) {
             items.push({
                 key: 'flavor',
-                label: '赏味期',
+                label: tDetail('fields.flavorPeriod'),
                 value: formatStatusText(flavorInfo.status),
                 type: 'normal'
             })
@@ -238,7 +239,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                 const uniqueOrigins = Array.from(new Set(origins))
                 items.push({
                     key: 'origin',
-                    label: '产地',
+                    label: tDetail('fields.origin'),
                     value: searchQuery ? (
                         <HighlightText text={uniqueOrigins.join(', ')} highlight={searchQuery} />
                     ) : uniqueOrigins.join(', ')
@@ -248,7 +249,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             // 兼容旧数据格式
             items.push({
                 key: 'origin',
-                label: '产地',
+                label: tDetail('fields.origin'),
                 value: searchQuery ? (
                     <HighlightText text={bean.origin} highlight={searchQuery} />
                 ) : bean.origin
@@ -266,7 +267,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                 const uniqueProcesses = Array.from(new Set(processes))
                 items.push({
                     key: 'process',
-                    label: '处理法',
+                    label: tDetail('fields.process'),
                     value: uniqueProcesses.join(', ')
                 })
             }
@@ -274,7 +275,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             // 兼容旧数据格式
             items.push({
                 key: 'process',
-                label: '处理法',
+                label: tDetail('fields.process'),
                 value: bean.process
             })
         }
@@ -290,7 +291,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                 const uniqueVarieties = Array.from(new Set(varieties))
                 items.push({
                     key: 'variety',
-                    label: '品种',
+                    label: tDetail('fields.variety'),
                     value: uniqueVarieties.join(', ')
                 })
             }
@@ -298,7 +299,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             // 兼容旧数据格式
             items.push({
                 key: 'variety',
-                label: '品种',
+                label: tDetail('fields.variety'),
                 value: bean.variety
             })
         }
@@ -306,7 +307,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         if (bean?.roastLevel) {
             items.push({
                 key: 'roastLevel',
-                label: '烘焙度',
+                label: tDetail('fields.roastLevel'),
                 value: translateRoastLevel(bean.roastLevel)
             })
         }
@@ -359,7 +360,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                             const name = await getEquipmentName(equipmentId)
                             namesMap[equipmentId] = name
                         } catch (error) {
-                            console.error(`获取设备名称失败: ${equipmentId}`, error)
+                            console.error(`Failed to get equipment name: ${equipmentId}`, error)
                             namesMap[equipmentId] = equipmentId
                         }
                     })
@@ -368,7 +369,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                 setEquipmentNames(namesMap)
                 setRelatedNotes(sortedNotes)
             } catch (error) {
-                console.error('加载冲煮记录失败:', error)
+                console.error('Failed to load brewing records:', error)
                 setRelatedNotes([])
             } finally {
                 setIsLoadingNotes(false)
@@ -399,7 +400,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                     }}
                                     className="text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors px-2 py-1"
                                 >
-                                    编辑
+                                    {tDetail('actions.edit')}
                                 </button>
                             )}
                         </div>
@@ -409,11 +410,11 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                             <div className="truncate text-center">
                                 {searchQuery ? (
                                     <HighlightText
-                                        text={bean?.name || '未命名'}
+                                        text={bean?.name || tDetail('status.unnamed')}
                                         highlight={searchQuery}
                                     />
                                 ) : (
-                                    bean?.name || '未命名'
+                                    bean?.name || tDetail('status.unnamed')
                                 )}
                             </div>
                         </DrawerTitle>
@@ -428,7 +429,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                     }}
                                     className="text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors px-2 py-1"
                                 >
-                                    分享
+                                    {tDetail('actions.share')}
                                 </button>
                             )}
                             {bean && onDelete && (
@@ -439,7 +440,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                     }}
                                     className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors px-2 py-1"
                                 >
-                                    删除
+                                    {tDetail('actions.delete')}
                                 </button>
                             )}
                         </div>
@@ -455,12 +456,12 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                 <div className="w-16 h-16 relative border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 overflow-hidden flex-shrink-0">
                                     {imageError ? (
                                         <div className="absolute inset-0 flex items-center justify-center text-xs text-neutral-500 dark:text-neutral-400">
-                                            失败
+                                            {tDetail('status.failed')}
                                         </div>
                                     ) : (
                                         <Image
                                             src={bean.image}
-                                            alt={bean.name || '咖啡豆图片'}
+                                            alt={bean.name || tDetail('status.unnamed')}
                                             fill
                                             className="object-cover"
                                             onError={() => setImageError(true)}
@@ -478,7 +479,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                         {/* 详细信息区域 - 更紧凑的布局 */}
                         {getOriginInfoItems().length > 0 && (
                             <div className="space-y-2">
-                                <div className="text-xs text-neutral-500 dark:text-neutral-400">详细信息</div>
+                                <div className="text-xs text-neutral-500 dark:text-neutral-400">{tDetail('sections.detailInfo')}</div>
                                 <InfoGrid items={getOriginInfoItems()} />
                             </div>
                         )}
@@ -491,12 +492,12 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                 {/* 拼配信息 */}
                                 {bean.blendComponents && bean.blendComponents.length > 1 && (
                                     <div>
-                                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">拼配组成</div>
+                                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">{tDetail('sections.blendComposition')}</div>
                                         <div className="grid grid-cols-2 gap-2">
                                             {bean.blendComponents.map((comp: any, index: number) => (
                                                 <div key={index} className="flex justify-between items-center">
                                                     <span className="text-xs text-neutral-800 dark:text-neutral-100 truncate">
-                                                        {comp.origin || `组成 ${index + 1}`}
+                                                        {comp.origin || `${tDetail('status.component')} ${index + 1}`}
                                                     </span>
                                                     {comp.percentage !== undefined && comp.percentage !== null && (
                                                         <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400 ml-2">
@@ -512,7 +513,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                 {/* 风味标签 */}
                                 {bean.flavor && bean.flavor.length > 0 && (
                                     <div>
-                                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">风味</div>
+                                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">{tDetail('sections.flavor')}</div>
                                         <div className="flex flex-wrap gap-1">
                                             {bean.flavor.map((flavor: any, index: number) => (
                                                 <span
@@ -529,7 +530,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                 {/* 备注 */}
                                 {bean.notes && (
                                     <div>
-                                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">备注</div>
+                                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">{tDetail('sections.notes')}</div>
                                         <div className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed whitespace-pre-line">
                                             {searchQuery ? (
                                                 <HighlightText
@@ -549,22 +550,22 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                         {/* 相关冲煮记录 - 简化布局 */}
                         <div className="border-t border-neutral-200/40 dark:border-neutral-800/40 pt-3">
                             <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
-                                冲煮记录 {relatedNotes.length > 0 && `(${relatedNotes.length})`}
+                                {tDetail('sections.brewingRecords')} {relatedNotes.length > 0 && `(${relatedNotes.length})`}
                             </div>
 
                             {isLoadingNotes ? (
                                 <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                    加载中...
+                                    {tDetail('status.loading')}
                                 </div>
                             ) : relatedNotes.length === 0 ? (
                                 <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                    暂无冲煮记录
+                                    {tDetail('status.noBrewingRecords')}
                                 </div>
                             ) : (
                                 <div className="space-y-2">
                                     {relatedNotes.map((note) => {
                                         // 获取器具名称
-                                        const equipmentName = note.equipment ? (equipmentNames[note.equipment] || note.equipment) : '未知器具'
+                                        const equipmentName = note.equipment ? (equipmentNames[note.equipment] || note.equipment) : tDetail('status.unknownEquipment')
 
                                         // 检查是否有备注
                                         const hasNotes = note.notes && note.notes.trim()
@@ -596,7 +597,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                                 {/* 评分行 - 简化显示 */}
                                                 <div className="flex justify-between items-center">
                                                     <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                                                        总体评分
+                                                        {tDetail('status.overallRating')}
                                                     </div>
                                                     <div className="text-xs text-neutral-600 dark:text-neutral-400">
                                                         {formatRating(note.rating)}
@@ -619,7 +620,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                 ) : (
                     <div className="flex-1 flex items-center justify-center p-4">
                         <div className="text-sm text-muted-foreground">
-                            加载中...
+                            {tDetail('status.loading')}
                         </div>
                     </div>
                 )}

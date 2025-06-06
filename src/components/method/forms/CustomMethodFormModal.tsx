@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import CustomMethodForm from '@/components/method/forms/CustomMethodForm'
 import MethodImportModal from '@/components/method/import/MethodImportModal'
 import { Method, CustomEquipment } from '@/lib/core/config'
@@ -28,6 +29,7 @@ const CustomMethodFormModal: React.FC<CustomMethodFormModalProps> = ({
     onCloseCustomForm,
     onCloseImportForm,
 }) => {
+    const t = useTranslations('common.customMethodForm')
     const [_validationError, setValidationError] = useState<string | null>(null)
     const [_customEquipments, setCustomEquipments] = useState<CustomEquipment[]>([])
     const [currentCustomEquipment, setCurrentCustomEquipment] = useState<CustomEquipment | null>(null)
@@ -63,7 +65,7 @@ const CustomMethodFormModal: React.FC<CustomMethodFormModalProps> = ({
                     }
                 }
             } catch (error) {
-                console.error('[CustomMethodFormModal] 加载自定义器具失败:', error);
+                console.error('[CustomMethodFormModal] Failed to load custom equipments:', error);
             }
         };
 
@@ -95,17 +97,17 @@ const CustomMethodFormModal: React.FC<CustomMethodFormModalProps> = ({
         try {
             // 检查必要字段
             if (!method.name) {
-                setValidationError('请输入方案名称');
+                setValidationError(t('validation.nameRequired'));
                 return null;
             }
 
             if (!method.params?.coffee || !method.params?.water) {
-                setValidationError('请输入咖啡粉量和水量');
+                setValidationError(t('validation.coffeeWaterRequired'));
                 return null;
             }
 
             if (!method.params.stages || method.params.stages.length === 0) {
-                setValidationError('至少需要添加一个阶段');
+                setValidationError(t('validation.stagesRequired'));
                 return null;
             }
 
@@ -126,8 +128,8 @@ const CustomMethodFormModal: React.FC<CustomMethodFormModalProps> = ({
 
             return methodWithId.id;
         } catch (error) {
-            console.error('保存方案失败:', error);
-            setValidationError('保存失败，请重试');
+            console.error(t('errors.saveMethodFailed'), error);
+            setValidationError(t('validation.saveFailed'));
             return null;
         }
     }

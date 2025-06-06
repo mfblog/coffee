@@ -4,6 +4,7 @@ import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addMonths, subMonths, isSameDay, isToday, startOfMonth, eachDayOfInterval, addDays, Locale } from "date-fns";
 import { zhCN, enUS } from "date-fns/locale";
+import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils/classNameUtils";
 
 export interface CalendarProps {
@@ -18,23 +19,44 @@ export interface CalendarProps {
 const getDaysOfWeek = (locale: Locale) => {
   const days = [];
   const now = new Date();
-  
+
   for (let i = 0; i < 7; i++) {
     const date = new Date(now);
     date.setDate(now.getDate() - now.getDay() + i);
-    days.push(format(date, "EEE", { locale }));
+    days.push(format(date, "EEEEEE", { locale }));
   }
-  
+
   return days;
 };
 
 export function Calendar({
   selected,
   onSelect,
-  locale = "zh-CN",
+  locale: _locale = "zh-CN",
   className,
   initialFocus = false,
 }: CalendarProps) {
+  const currentLocale = useLocale();
+
+  // 直接使用简单的翻译
+  const getText = (key: string) => {
+    if (currentLocale === 'en') {
+      switch (key) {
+        case 'today': return 'Today';
+        case 'previousMonth': return 'Previous Month';
+        case 'nextMonth': return 'Next Month';
+        default: return key;
+      }
+    } else {
+      switch (key) {
+        case 'today': return '今天';
+        case 'previousMonth': return '上个月';
+        case 'nextMonth': return '下个月';
+        default: return key;
+      }
+    }
+  };
+
   const [currentMonth, setCurrentMonth] = React.useState(() => {
     // 如果有选中的日期，则显示该日期所在的月份
     if (selected instanceof Date) {
@@ -42,8 +64,8 @@ export function Calendar({
     }
     return new Date();
   });
-  
-  const localeObj = locale === "zh-CN" ? zhCN : enUS;
+
+  const localeObj = currentLocale === "en" ? enUS : zhCN;
   const daysOfWeek = getDaysOfWeek(localeObj);
 
   // 前进一个月
@@ -115,7 +137,7 @@ export function Calendar({
         <button
           onClick={goToPrevMonth}
           className="p-2 hover:opacity-80 flex items-center justify-center"
-          aria-label="上个月"
+          aria-label={getText('previousMonth')}
         >
           <ChevronLeft className="icon-xs icon-secondary" />
         </button>
@@ -125,7 +147,7 @@ export function Calendar({
         <button
           onClick={goToNextMonth}
           className="p-2 hover:opacity-80 flex items-center justify-center"
-          aria-label="下个月"
+          aria-label={getText('nextMonth')}
         >
           <ChevronRight className="icon-xs icon-secondary" />
         </button>
@@ -179,7 +201,7 @@ export function Calendar({
           className="text-xs px-3 py-1.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-white hover:opacity-80 transition-opacity"
           type="button"
         >
-          今天
+          {getText('today')}
         </button>
       </div>
     </div>

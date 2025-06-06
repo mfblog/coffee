@@ -1,8 +1,54 @@
 {
+  "_version": "1.0.1",
   "common": {
     "rating": "评分",
     "points": "分",
-    "stars": "星"
+    "stars": "星",
+    "beanDetail": {
+      "fields": {
+        "inventory": "库存",
+        "price": "价格",
+        "status": "状态",
+        "roastDate": "烘焙日期",
+        "flavorPeriod": "赏味期",
+        "origin": "产地",
+        "process": "处理法",
+        "variety": "品种",
+        "roastLevel": "烘焙度"
+      },
+      "sections": {
+        "detailInfo": "详细信息",
+        "blendComposition": "拼配组成",
+        "flavor": "风味",
+        "notes": "备注",
+        "brewingRecords": "冲煮记录"
+      },
+      "actions": {
+        "edit": "编辑",
+        "share": "分享",
+        "delete": "删除"
+      },
+      "status": {
+        "loading": "加载中...",
+        "failed": "失败",
+        "noBrewingRecords": "暂无冲煮记录",
+        "overallRating": "总体评分",
+        "unknownEquipment": "未知器具",
+        "unnamed": "未命名",
+        "component": "组成"
+      }
+    },
+    "customMethodForm": {
+      "validation": {
+        "nameRequired": "请输入方案名称",
+        "coffeeWaterRequired": "请输入咖啡粉量和水量",
+        "stagesRequired": "至少需要添加一个阶段",
+        "saveFailed": "保存失败，请重试"
+      },
+      "errors": {
+        "saveMethodFailed": "保存方案失败"
+      }
+    }
   },
   "nav": {
     "title": "",
@@ -131,7 +177,8 @@
       "deleteNoteFailed": "删除笔记失败",
       "noteUpdated": "笔记已更新",
       "updateNoteFailed": "更新笔记失败",
-      "exportNotesFailed": "导出笔记失败"
+      "exportNotesFailed": "导出笔记失败",
+      "imageLoadFailed": "加载失败"
     },
     "stats": {
       "beansCount": "款咖啡豆",
@@ -224,6 +271,12 @@
       "currency": "元",
       "days": "天"
     },
+    "calendar": {
+      "today": "今天",
+      "previousMonth": "上个月",
+      "nextMonth": "下个月",
+      "selectDate": "选择日期"
+    },
     "beanStatus": {
       "aging": "养豆期",
       "peak": "赏味期",
@@ -251,6 +304,55 @@
       "noBean": "不使用咖啡豆",
       "skipBeanSelection": "跳过咖啡豆选择",
       "usedUp": "已用完"
+    },
+
+    "errorBoundary": {
+      "title": "渲染出现问题",
+      "description": "应用遇到了一个错误，正在尝试自动修复...",
+      "details": {
+        "errorMessage": "错误信息:",
+        "errorStack": "错误堆栈:",
+        "componentStack": "组件堆栈:",
+        "unknownError": "未知错误",
+        "noStackInfo": "无堆栈信息"
+      },
+      "actions": {
+        "retry": "重试",
+        "refresh": "刷新页面",
+        "showDetails": "显示错误详情",
+        "hideDetails": "隐藏错误详情"
+      }
+    },
+    "dataMigration": {
+      "title": "数据格式升级",
+      "description": "检测到您有 {count} 个咖啡豆使用旧的数据格式。为了获得更好的体验，建议升级到新格式。",
+      "advantages": {
+        "title": "新格式的优势：",
+        "betterClassification": "更好的品种分类显示",
+        "blendSupport": "支持拼配豆的详细信息",
+        "accurateStats": "更准确的数据统计"
+      },
+      "buttons": {
+        "backup": {
+          "idle": "1. 备份当前数据",
+          "loading": "备份中...",
+          "completed": "✓ 备份完成"
+        },
+        "migrate": {
+          "idle": "2. 开始数据迁移",
+          "loading": "迁移中..."
+        },
+        "skip": "暂时跳过",
+        "continue": "继续使用"
+      },
+      "completion": {
+        "title": "迁移完成！",
+        "description": "已成功将 {count} 个咖啡豆升级到新格式。现在您可以享受更好的分类显示和数据统计功能。"
+      },
+      "errors": {
+        "backupFailed": "备份失败: {error}",
+        "migrationFailed": "迁移失败: {error}"
+      }
     }
   },
   "settings": {

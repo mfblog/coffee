@@ -30,7 +30,9 @@ const NoteItem: React.FC<NoteItemProps> = ({
     onToggleSelect
 }) => {
     const t = useTranslations('nav.actions')
-    const tNotes = useTranslations('notes.form.flavorRatings')
+    const tNotes = useTranslations('notes.form.flavorAttributes')
+    const tFields = useTranslations('notes.form.fields')
+    const tCommon = useTranslations('common')
     const locale = useLocale()
     const { translateEquipment, translateBrewingMethod } = useConfigTranslation()
     // 添加用户设置状态
@@ -102,12 +104,12 @@ const NoteItem: React.FC<NoteItemProps> = ({
                         >
                             {imageError ? (
                                 <div className="absolute inset-0 flex items-center justify-center text-xs text-neutral-500 dark:text-neutral-400">
-                                    加载失败
+                                    {tCommon('messages.imageLoadFailed')}
                                 </div>
                             ) : (
                                 <Image
                                     src={note.image}
-                                    alt={beanName || '笔记图片'}
+                                    alt={beanName || tFields('image')}
                                     height={56}
                                     width={56}
                                     unoptimized
@@ -127,7 +129,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                         <ImageViewer
                             isOpen={imageViewerOpen}
                             imageUrl={note.image}
-                            alt={beanName || '笔记图片'}
+                            alt={beanName || tFields('image')}
                             onClose={() => setImageViewerOpen(false)}
                         />
                     )}
@@ -312,7 +314,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                         <div className="space-y-1">
                             <div className="flex items-center justify-between">
                                 <div className="text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-                                    总体评分
+                                    {tFields('overallRating')}
                                 </div>
                                 <div className="text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
                                     {note.rating}

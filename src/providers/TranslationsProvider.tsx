@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { ReactNode, useEffect, useState } from 'react'
 import { Storage } from '@/lib/core/storage'
 
-// 导入翻译文件
+// 导入翻译文件 - 强制刷新缓存
 import zhMessages from '@/locales/zh/common.json'
 import enMessages from '@/locales/en/common.json'
 

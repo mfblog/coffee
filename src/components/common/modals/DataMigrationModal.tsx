@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Download, ArrowRight, AlertTriangle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { DataManager } from '@/lib/core/dataManager'
 
 interface DataMigrationModalProps {
@@ -18,6 +19,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
     legacyCount,
     onMigrationComplete
 }) => {
+    const t = useTranslations('common.dataMigration')
     const [isBackingUp, setIsBackingUp] = useState(false)
     const [isMigrating, setIsMigrating] = useState(false)
     const [backupCompleted, setBackupCompleted] = useState(false)
@@ -50,7 +52,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
 
             setBackupCompleted(true)
         } catch (error) {
-            setError(`备份失败: ${(error as Error).message}`)
+            setError(t('errors.backupFailed', { error: (error as Error).message }))
         } finally {
             setIsBackingUp(false)
         }
@@ -63,7 +65,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
             setError(null)
 
             const result = await DataManager.migrateLegacyBeanData()
-            
+
             if (result.success) {
                 setMigrationCompleted(true)
                 // 延迟通知父组件迁移完成
@@ -74,7 +76,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
                 setError(result.message)
             }
         } catch (error) {
-            setError(`迁移失败: ${(error as Error).message}`)
+            setError(t('errors.migrationFailed', { error: (error as Error).message }))
         } finally {
             setIsMigrating(false)
         }
@@ -116,7 +118,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
                                 <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                             </div>
                             <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                                数据格式升级
+                                {t('title')}
                             </h2>
                         </div>
                         {migrationCompleted && (
@@ -135,15 +137,14 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
                             <>
                                 <div className="mb-6">
                                     <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-                                        检测到您有 <span className="font-semibold text-neutral-900 dark:text-neutral-100">{legacyCount}</span> 个咖啡豆使用旧的数据格式。
-                                        为了获得更好的体验，建议升级到新格式。
+                                        {t('description', { count: legacyCount })}
                                     </p>
                                     <div className="bg-neutral-50 dark:bg-neutral-700/50 rounded-lg p-4 text-xs text-neutral-600 dark:text-neutral-400">
-                                        <p className="mb-2">新格式的优势：</p>
+                                        <p className="mb-2">{t('advantages.title')}</p>
                                         <ul className="space-y-1 ml-4">
-                                            <li>• 更好的品种分类显示</li>
-                                            <li>• 支持拼配豆的详细信息</li>
-                                            <li>• 更准确的数据统计</li>
+                                            <li>• {t('advantages.betterClassification')}</li>
+                                            <li>• {t('advantages.blendSupport')}</li>
+                                            <li>• {t('advantages.accurateStats')}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -167,7 +168,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
                                     >
                                         <Download className="w-4 h-4" />
                                         <span>
-                                            {isBackingUp ? '备份中...' : backupCompleted ? '✓ 备份完成' : '1. 备份当前数据'}
+                                            {isBackingUp ? t('buttons.backup.loading') : backupCompleted ? t('buttons.backup.completed') : t('buttons.backup.idle')}
                                         </span>
                                     </button>
 
@@ -183,7 +184,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
                                     >
                                         <ArrowRight className="w-4 h-4" />
                                         <span>
-                                            {isMigrating ? '迁移中...' : '2. 开始数据迁移'}
+                                            {isMigrating ? t('buttons.migrate.loading') : t('buttons.migrate.idle')}
                                         </span>
                                     </button>
 
@@ -192,7 +193,7 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
                                         onClick={handleSkip}
                                         className="w-full px-4 py-2 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
                                     >
-                                        暂时跳过
+                                        {t('buttons.skip')}
                                     </button>
                                 </div>
                             </>
@@ -209,17 +210,16 @@ const DataMigrationModal: React.FC<DataMigrationModalProps> = ({
                                     </motion.div>
                                 </div>
                                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
-                                    迁移完成！
+                                    {t('completion.title')}
                                 </h3>
                                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
-                                    已成功将 {legacyCount} 个咖啡豆升级到新格式。
-                                    现在您可以享受更好的分类显示和数据统计功能。
+                                    {t('completion.description', { count: legacyCount })}
                                 </p>
                                 <button
                                     onClick={onClose}
                                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                                 >
-                                    继续使用
+                                    {t('buttons.continue')}
                                 </button>
                             </div>
                         )}

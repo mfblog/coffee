@@ -1,8 +1,54 @@
 {
+  "_version": "1.0.1",
   "common": {
     "rating": "rating",
     "points": "pts",
-    "stars": "stars"
+    "stars": "stars",
+    "beanDetail": {
+      "fields": {
+        "inventory": "Inventory",
+        "price": "Price",
+        "status": "Status",
+        "roastDate": "Roast Date",
+        "flavorPeriod": "Flavor Period",
+        "origin": "Origin",
+        "process": "Process",
+        "variety": "Variety",
+        "roastLevel": "Roast Level"
+      },
+      "sections": {
+        "detailInfo": "Detail Info",
+        "blendComposition": "Blend Composition",
+        "flavor": "Flavor",
+        "notes": "Notes",
+        "brewingRecords": "Brewing Records"
+      },
+      "actions": {
+        "edit": "Edit",
+        "share": "Share",
+        "delete": "Delete"
+      },
+      "status": {
+        "loading": "Loading...",
+        "failed": "Failed",
+        "noBrewingRecords": "No brewing records",
+        "overallRating": "Overall Rating",
+        "unknownEquipment": "Unknown Equipment",
+        "unnamed": "Unnamed",
+        "component": "Component"
+      }
+    },
+    "customMethodForm": {
+      "validation": {
+        "nameRequired": "Please enter method name",
+        "coffeeWaterRequired": "Please enter coffee and water amounts",
+        "stagesRequired": "At least one stage is required",
+        "saveFailed": "Save failed, please try again"
+      },
+      "errors": {
+        "saveMethodFailed": "Failed to save method"
+      }
+    }
   },
   "nav": {
     "title": "",
@@ -131,7 +177,8 @@
       "deleteNoteFailed": "Failed to delete note",
       "noteUpdated": "Note updated",
       "updateNoteFailed": "Failed to update note",
-      "exportNotesFailed": "Failed to export notes"
+      "exportNotesFailed": "Failed to export notes",
+      "imageLoadFailed": "Load failed"
     },
     "stats": {
       "beansCount": "coffee beans",
@@ -224,6 +271,12 @@
       "currency": "¥",
       "days": " days"
     },
+    "calendar": {
+      "today": "Today",
+      "previousMonth": "Previous Month",
+      "nextMonth": "Next Month",
+      "selectDate": "Select Date"
+    },
     "beanStatus": {
       "aging": "Aging",
       "peak": "Peak Flavor",
@@ -251,6 +304,55 @@
       "noBean": "No Coffee Bean",
       "skipBeanSelection": "Skip bean selection",
       "usedUp": "Used Up"
+    },
+
+    "errorBoundary": {
+      "title": "Rendering Error",
+      "description": "The application encountered an error and is attempting to auto-fix...",
+      "details": {
+        "errorMessage": "Error Message:",
+        "errorStack": "Error Stack:",
+        "componentStack": "Component Stack:",
+        "unknownError": "Unknown Error",
+        "noStackInfo": "No Stack Information"
+      },
+      "actions": {
+        "retry": "Retry",
+        "refresh": "Refresh Page",
+        "showDetails": "Show Error Details",
+        "hideDetails": "Hide Error Details"
+      }
+    },
+    "dataMigration": {
+      "title": "Data Format Upgrade",
+      "description": "Detected {count} coffee beans using the old data format. We recommend upgrading to the new format for a better experience.",
+      "advantages": {
+        "title": "Advantages of the new format:",
+        "betterClassification": "Better variety classification display",
+        "blendSupport": "Support for detailed blend information",
+        "accurateStats": "More accurate data statistics"
+      },
+      "buttons": {
+        "backup": {
+          "idle": "1. Backup Current Data",
+          "loading": "Backing up...",
+          "completed": "✓ Backup Complete"
+        },
+        "migrate": {
+          "idle": "2. Start Data Migration",
+          "loading": "Migrating..."
+        },
+        "skip": "Skip for Now",
+        "continue": "Continue"
+      },
+      "completion": {
+        "title": "Migration Complete!",
+        "description": "Successfully upgraded {count} coffee beans to the new format. You can now enjoy better classification display and data statistics features."
+      },
+      "errors": {
+        "backupFailed": "Backup failed: {error}",
+        "migrationFailed": "Migration failed: {error}"
+      }
     }
   },
   "settings": {

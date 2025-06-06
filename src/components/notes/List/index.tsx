@@ -34,6 +34,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
 }) => {
     const t = useTranslations('notes.form')
     const tCommon = useTranslations('common')
+    const tNotes = useTranslations('notes')
     // 用于跟踪用户选择
     const [sortOption, setSortOption] = useState<SortOption>(globalCache.sortOption)
     const [filterMode, setFilterMode] = useState<'equipment' | 'bean'>(globalCache.filterMode)
@@ -702,10 +703,10 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                         <div className="flex justify-between items-center mb-6 px-6">
                             <div className="text-xs font-medium tracking-wide text-neutral-800 dark:text-neutral-100 break-words">
                                 {(isSearching && searchQuery.trim())
-                                    ? `${searchFilteredNotes.length} ${tCommon('notes.list.recordsCount')}, ${tCommon('notes.list.consumed')} ${formatConsumption(currentConsumption)}`
+                                    ? `${searchFilteredNotes.length} ${tNotes('list.recordsCount')}, ${tNotes('list.consumed')} ${formatConsumption(currentConsumption)}`
                                     : `${selectedEquipment || selectedBean
                                         ? globalCache.filteredNotes.length
-                                        : globalCache.notes.length} ${tCommon('notes.list.recordsCount')}, ${tCommon('notes.list.consumed')} ${formatConsumption(currentConsumption)}`}
+                                        : globalCache.notes.length} ${tNotes('list.recordsCount')}, ${tNotes('list.consumed')} ${formatConsumption(currentConsumption)}`}
                             </div>
                         </div>
 
