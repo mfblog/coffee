@@ -3,6 +3,7 @@ import { isBeanEmpty } from '../../globalCache'
 import { StatsData, AnimationStyles } from './types'
 import { formatNumber } from './utils'
 import { StatCategory, StatItem, renderStatsRows } from './StatComponents'
+import { useTranslation } from 'react-i18next'
 
 interface StatsCategoriesProps {
     stats: StatsData
@@ -12,190 +13,191 @@ interface StatsCategoriesProps {
     styles: AnimationStyles
 }
 
-const StatsCategories: React.FC<StatsCategoriesProps> = ({ 
-    stats, 
-    beans, 
-    todayConsumption, 
-    todayCost, 
-    styles 
+const StatsCategories: React.FC<StatsCategoriesProps> = ({
+    stats,
+    beans,
+    todayConsumption,
+    todayCost,
+    styles
 }) => {
+    const { t } = useTranslation()
 
     return (
         <div className="flex flex-col gap-8">
             <div className="grid grid-cols-1 gap-8">
                 {/* 编号01 - 基本数据 */}
-                <StatCategory 
-                    number={1} 
-                    title="基本数据" 
+                <StatCategory
+                    number={1}
+                    title={t('nav.stats.categories.basicData')}
                     animStyle={styles.statsAnimStyle(0)}
                 >
-                    <StatItem label="咖啡豆总数" value={`${stats.totalBeans}`} unit="个" />
-                    <StatItem label="正在使用" value={`${stats.activeBeans}`} unit="个" />
-                    <StatItem label="已用完" value={`${stats.emptyBeans}`} unit="个" />
+                    <StatItem label={t('nav.stats.labels.totalBeans')} value={`${stats.totalBeans}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.activeBeans')} value={`${stats.activeBeans}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.emptyBeans')} value={`${stats.emptyBeans}`} unit={t('nav.units.pieces')} />
                 </StatCategory>
 
                 {/* 编号02 - 库存信息 */}
-                <StatCategory 
-                    number={2} 
-                    title="库存" 
+                <StatCategory
+                    number={2}
+                    title={t('nav.stats.categories.inventory')}
                     animStyle={styles.statsAnimStyle(0)}
                 >
-                    <StatItem label="总重量" value={`${formatNumber(stats.totalWeight)}`} unit="克" />
-                    <StatItem label="剩余重量" value={`${formatNumber(stats.remainingWeight)}`} unit="克" />
-                    <StatItem label="已消耗重量" value={`${formatNumber(stats.consumedWeight)}`} unit="克" />
-                    <StatItem label="消耗比例" value={`${stats.totalWeight > 0 ? formatNumber((stats.consumedWeight / stats.totalWeight) * 100) : '0'}`} unit="%" />
-                    <StatItem label="今日消耗" value={`${formatNumber(todayConsumption)}`} unit="克" />
+                    <StatItem label={t('nav.stats.labels.totalWeight')} value={`${formatNumber(stats.totalWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.remainingWeight')} value={`${formatNumber(stats.remainingWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.consumedWeight')} value={`${formatNumber(stats.consumedWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.consumptionRatio')} value={`${stats.totalWeight > 0 ? formatNumber((stats.consumedWeight / stats.totalWeight) * 100) : '0'}`} unit="%" />
+                    <StatItem label={t('nav.stats.labels.todayConsumption')} value={`${formatNumber(todayConsumption)}`} unit={t('nav.units.grams')} />
                 </StatCategory>
-                
+
                 {/* 编号03 - 费用数据 */}
-                <StatCategory 
-                    number={3} 
-                    title="费用数据" 
+                <StatCategory
+                    number={3}
+                    title={t('nav.stats.categories.costData')}
                     animStyle={styles.statsAnimStyle(0)}
                 >
-                    <StatItem label="总花费" value={`${formatNumber(stats.totalCost)}`} unit="元" />
-                    <StatItem label="剩余咖啡价值" value={`${formatNumber(stats.remainingWeight * stats.averageGramPrice)}`} unit="元" />
-                    <StatItem label="已消耗咖啡价值" value={`${formatNumber(stats.consumedWeight * stats.averageGramPrice)}`} unit="元" />
-                    <StatItem label="平均每包价格" value={`${formatNumber(stats.averageBeanPrice)}`} unit="元" />
-                    <StatItem label="每克平均价格" value={`${formatNumber(stats.averageGramPrice)}`} unit="元/克" />
-                    <StatItem label="今日花费" value={`${formatNumber(todayCost)}`} unit="元" />
+                    <StatItem label={t('nav.stats.labels.totalCost')} value={`${formatNumber(stats.totalCost)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.remainingCoffeeValue')} value={`${formatNumber(stats.remainingWeight * stats.averageGramPrice)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.consumedCoffeeValue')} value={`${formatNumber(stats.consumedWeight * stats.averageGramPrice)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.averageBeanPrice')} value={`${formatNumber(stats.averageBeanPrice)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.averageGramPrice')} value={`${formatNumber(stats.averageGramPrice)}`} unit={t('nav.units.pricePerGram')} />
+                    <StatItem label={t('nav.stats.labels.todayCost')} value={`${formatNumber(todayCost)}`} unit={t('nav.units.currency')} />
                 </StatCategory>
                 
                 {/* 编号04 - 豆子分类 */}
-                <StatCategory 
-                    number={4} 
-                    title="分类" 
+                <StatCategory
+                    number={4}
+                    title={t('nav.stats.categories.classification')}
                     animStyle={styles.statsAnimStyle(1)}
                 >
                     <StatItem
-                        label="单品豆"
+                        label={t('nav.stats.labels.singleOrigin')}
                         value={(() => {
                             const total = beans.filter(bean => !bean.blendComponents || bean.blendComponents.length <= 1).length;
                             const active = beans.filter(bean => (!bean.blendComponents || bean.blendComponents.length <= 1) && !isBeanEmpty(bean)).length;
                             return total === 0 ? '0' : `${active}/${total}`;
                         })()}
-                        unit="个"
+                        unit={t('nav.units.pieces')}
                     />
                     <StatItem
-                        label="拼配豆"
+                        label={t('nav.stats.labels.blend')}
                         value={(() => {
                             const total = beans.filter(bean => bean.blendComponents && bean.blendComponents.length > 1).length;
                             const active = beans.filter(bean => bean.blendComponents && bean.blendComponents.length > 1 && !isBeanEmpty(bean)).length;
                             return total === 0 ? '0' : `${active}/${total}`;
                         })()}
-                        unit="个"
+                        unit={t('nav.units.pieces')}
                     />
-                    <StatItem 
-                        label="意式豆" 
+                    <StatItem
+                        label={t('nav.filters.espressoBean')}
                         value={(() => {
                             const total = beans.filter(bean => bean.beanType === 'espresso').length;
                             const active = beans.filter(bean => bean.beanType === 'espresso' && !isBeanEmpty(bean)).length;
                             return total === 0 ? '0' : `${active}/${total}`;
-                        })()} 
-                        unit="个"
+                        })()}
+                        unit={t('nav.units.pieces')}
                     />
-                    <StatItem 
-                        label="手冲豆" 
+                    <StatItem
+                        label={t('nav.filters.filterBean')}
                         value={(() => {
                             const total = beans.filter(bean => bean.beanType === 'filter').length;
                             const active = beans.filter(bean => bean.beanType === 'filter' && !isBeanEmpty(bean)).length;
                             return total === 0 ? '0' : `${active}/${total}`;
-                        })()} 
-                        unit="个"
+                        })()}
+                        unit={t('nav.units.pieces')}
                     />
                 </StatCategory>
                 
                 {/* 编号05 - 赏味期状态 */}
-                <StatCategory 
-                    number={5} 
-                    title="赏味期" 
+                <StatCategory
+                    number={5}
+                    title={t('nav.stats.categories.flavorPeriod')}
                     animStyle={styles.statsAnimStyle(1)}
                 >
-                    <StatItem label="在赏味期内" value={`${stats.flavorPeriodStatus.inPeriod}`} unit="个" />
-                    <StatItem label="尚未进入赏味期" value={`${stats.flavorPeriodStatus.beforePeriod}`} unit="个" />
-                    <StatItem label="已过赏味期" value={`${stats.flavorPeriodStatus.afterPeriod}`} unit="个" />
-                    {/* <StatItem label="未设置赏味期" value={`${stats.flavorPeriodStatus.unknown}`} unit="个" /> */}
+                    <StatItem label={t('nav.stats.labels.inPeriod')} value={`${stats.flavorPeriodStatus.inPeriod}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.beforePeriod')} value={`${stats.flavorPeriodStatus.beforePeriod}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.afterPeriod')} value={`${stats.flavorPeriodStatus.afterPeriod}`} unit={t('nav.units.pieces')} />
+                    {/* <StatItem label={t('nav.stats.labels.unknown')} value={`${stats.flavorPeriodStatus.unknown}`} unit={t('nav.units.pieces')} /> */}
                 </StatCategory>
-                
+
                 {/* 编号06 - 烘焙度分布 */}
-                <StatCategory 
-                    number={6} 
-                    title="烘焙度" 
+                <StatCategory
+                    number={6}
+                    title={t('nav.stats.categories.roastLevel')}
                     animStyle={styles.statsAnimStyle(2)}
                 >
-                    {renderStatsRows(Object.entries(stats.roastLevelCount))}
+                    {renderStatsRows(Object.entries(stats.roastLevelCount), t('nav.units.pieces'))}
                 </StatCategory>
-                
+
                 {/* 编号07 - 产地分布 */}
-                <StatCategory 
-                    number={7} 
-                    title="产地" 
+                <StatCategory
+                    number={7}
+                    title={t('nav.stats.categories.origin')}
                     animStyle={styles.statsAnimStyle(2)}
                 >
-                    {renderStatsRows(Object.entries(stats.originCount))}
+                    {renderStatsRows(Object.entries(stats.originCount), t('nav.units.pieces'))}
                 </StatCategory>
-                
+
                 {/* 编号08 - 处理法分布 */}
-                <StatCategory 
-                    number={8} 
-                    title="处理法" 
+                <StatCategory
+                    number={8}
+                    title={t('nav.stats.categories.process')}
                     animStyle={styles.statsAnimStyle(3)}
                 >
-                    {renderStatsRows(Object.entries(stats.processCount))}
+                    {renderStatsRows(Object.entries(stats.processCount), t('nav.units.pieces'))}
                 </StatCategory>
-                
+
                 {/* 编号09 - 品种分布 */}
-                <StatCategory 
-                    number={9} 
-                    title="品种" 
+                <StatCategory
+                    number={9}
+                    title={t('nav.stats.categories.variety')}
                     animStyle={styles.statsAnimStyle(3)}
                 >
-                    {renderStatsRows(Object.entries(stats.varietyCount))}
+                    {renderStatsRows(Object.entries(stats.varietyCount), t('nav.units.pieces'))}
                 </StatCategory>
-                
+
                 {/* 编号10 - 风味标签分布 */}
                 <StatCategory
                     number={10}
-                    title="风味"
+                    title={t('nav.stats.categories.flavor')}
                     animStyle={styles.statsAnimStyle(3)}
                 >
-                    {renderStatsRows(stats.topFlavors, '次')}
+                    {renderStatsRows(stats.topFlavors, t('nav.units.times'))}
                 </StatCategory>
 
                 {/* 编号11 - 意式咖啡统计 */}
                 <StatCategory
                     number={11}
-                    title="意式咖啡"
+                    title={t('nav.stats.categories.espressoCoffee')}
                     animStyle={styles.statsAnimStyle(4)}
                 >
-                    <StatItem label="意式豆总数" value={`${stats.espressoStats.totalBeans}`} unit="个" />
-                    <StatItem label="正在使用" value={`${stats.espressoStats.activeBeans}`} unit="个" />
-                    <StatItem label="总重量" value={`${formatNumber(stats.espressoStats.totalWeight)}`} unit="克" />
-                    <StatItem label="剩余重量" value={`${formatNumber(stats.espressoStats.remainingWeight)}`} unit="克" />
-                    <StatItem label="已消耗重量" value={`${formatNumber(stats.espressoStats.consumedWeight)}`} unit="克" />
-                    <StatItem label="总花费" value={`${formatNumber(stats.espressoStats.totalCost)}`} unit="元" />
-                    <StatItem label="平均每包价格" value={`${formatNumber(stats.espressoStats.averageBeanPrice)}`} unit="元" />
-                    <StatItem label="每克平均价格" value={`${formatNumber(stats.espressoStats.averageGramPrice)}`} unit="元/克" />
-                    <StatItem label="今日消耗" value={`${formatNumber(stats.espressoStats.todayConsumption)}`} unit="克" />
-                    <StatItem label="今日花费" value={`${formatNumber(stats.espressoStats.todayCost)}`} unit="元" />
+                    <StatItem label={t('nav.stats.labels.espressoBeansTotal')} value={`${stats.espressoStats.totalBeans}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.activeBeans')} value={`${stats.espressoStats.activeBeans}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.totalWeight')} value={`${formatNumber(stats.espressoStats.totalWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.remainingWeight')} value={`${formatNumber(stats.espressoStats.remainingWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.consumedWeight')} value={`${formatNumber(stats.espressoStats.consumedWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.totalCost')} value={`${formatNumber(stats.espressoStats.totalCost)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.averageBeanPrice')} value={`${formatNumber(stats.espressoStats.averageBeanPrice)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.averageGramPrice')} value={`${formatNumber(stats.espressoStats.averageGramPrice)}`} unit={t('nav.units.pricePerGram')} />
+                    <StatItem label={t('nav.stats.labels.todayConsumption')} value={`${formatNumber(stats.espressoStats.todayConsumption)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.todayCost')} value={`${formatNumber(stats.espressoStats.todayCost)}`} unit={t('nav.units.currency')} />
                 </StatCategory>
 
                 {/* 编号12 - 手冲咖啡统计 */}
                 <StatCategory
                     number={12}
-                    title="手冲咖啡"
+                    title={t('nav.stats.categories.filterCoffee')}
                     animStyle={styles.statsAnimStyle(4)}
                 >
-                    <StatItem label="手冲豆总数" value={`${stats.filterStats.totalBeans}`} unit="个" />
-                    <StatItem label="正在使用" value={`${stats.filterStats.activeBeans}`} unit="个" />
-                    <StatItem label="总重量" value={`${formatNumber(stats.filterStats.totalWeight)}`} unit="克" />
-                    <StatItem label="剩余重量" value={`${formatNumber(stats.filterStats.remainingWeight)}`} unit="克" />
-                    <StatItem label="已消耗重量" value={`${formatNumber(stats.filterStats.consumedWeight)}`} unit="克" />
-                    <StatItem label="总花费" value={`${formatNumber(stats.filterStats.totalCost)}`} unit="元" />
-                    <StatItem label="平均每包价格" value={`${formatNumber(stats.filterStats.averageBeanPrice)}`} unit="元" />
-                    <StatItem label="每克平均价格" value={`${formatNumber(stats.filterStats.averageGramPrice)}`} unit="元/克" />
-                    <StatItem label="今日消耗" value={`${formatNumber(stats.filterStats.todayConsumption)}`} unit="克" />
-                    <StatItem label="今日花费" value={`${formatNumber(stats.filterStats.todayCost)}`} unit="元" />
+                    <StatItem label={t('nav.stats.labels.filterBeansTotal')} value={`${stats.filterStats.totalBeans}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.activeBeans')} value={`${stats.filterStats.activeBeans}`} unit={t('nav.units.pieces')} />
+                    <StatItem label={t('nav.stats.labels.totalWeight')} value={`${formatNumber(stats.filterStats.totalWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.remainingWeight')} value={`${formatNumber(stats.filterStats.remainingWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.consumedWeight')} value={`${formatNumber(stats.filterStats.consumedWeight)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.totalCost')} value={`${formatNumber(stats.filterStats.totalCost)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.averageBeanPrice')} value={`${formatNumber(stats.filterStats.averageBeanPrice)}`} unit={t('nav.units.currency')} />
+                    <StatItem label={t('nav.stats.labels.averageGramPrice')} value={`${formatNumber(stats.filterStats.averageGramPrice)}`} unit={t('nav.units.pricePerGram')} />
+                    <StatItem label={t('nav.stats.labels.todayConsumption')} value={`${formatNumber(stats.filterStats.todayConsumption)}`} unit={t('nav.units.grams')} />
+                    <StatItem label={t('nav.stats.labels.todayCost')} value={`${formatNumber(stats.filterStats.todayCost)}`} unit={t('nav.units.currency')} />
                 </StatCategory>
             </div>
         </div>

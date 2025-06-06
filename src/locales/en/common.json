@@ -62,12 +62,85 @@
     "stats": {
       "beansCount": "coffee beans",
       "totalWeight": "total",
-      "ratedBeansCount": "rated coffee beans"
+      "ratedBeansCount": "rated coffee beans",
+      "categories": {
+        "basicData": "Basic Data",
+        "inventory": "Inventory",
+        "costData": "Cost Data",
+        "classification": "Classification",
+        "roastLevel": "Roast Level",
+        "origin": "Origin",
+        "process": "Process",
+        "variety": "Variety",
+        "flavor": "Flavor",
+        "flavorPeriod": "Flavor Period",
+        "espressoCoffee": "Espresso Coffee",
+        "filterCoffee": "Filter Coffee"
+      },
+      "labels": {
+        "totalBeans": "Total Beans",
+        "activeBeans": "Active Beans",
+        "emptyBeans": "Used Up",
+        "totalWeight": "Total Weight",
+        "remainingWeight": "Remaining Weight",
+        "consumedWeight": "Consumed Weight",
+        "consumptionRatio": "Consumption Ratio",
+        "todayConsumption": "Today's Consumption",
+        "totalCost": "Total Cost",
+        "remainingCoffeeValue": "Remaining Coffee Value",
+        "consumedCoffeeValue": "Consumed Coffee Value",
+        "averageBeanPrice": "Average Bean Price",
+        "averageGramPrice": "Average Price per Gram",
+        "todayCost": "Today's Cost",
+        "singleOrigin": "Single Origin",
+        "blend": "Blend",
+        "espressoBeansTotal": "Espresso Beans Total",
+        "filterBeansTotal": "Filter Beans Total",
+        "inPeriod": "In Peak Period",
+        "beforePeriod": "Before Peak",
+        "afterPeriod": "After Peak",
+        "unknown": "Unknown"
+      },
+      "summary": {
+        "preferFilter": "Prefers filter beans",
+        "preferEspresso": "Prefers espresso beans",
+        "balanced": "Balanced between filter and espresso",
+        "mainlyRoast": "mainly",
+        "roast": "roast",
+        "flavorPreference": "Flavor preference for",
+        "and": "and",
+        "defaultRoast": "medium"
+      },
+      "timeRanges": {
+        "thisWeek": "(This Week)",
+        "thisMonth": "(This Month)",
+        "overOneYear": "Over 1 Year"
+      },
+      "share": {
+        "title": "My Coffee Bean Statistics",
+        "text": "My Coffee Bean Statistics",
+        "dialogTitle": "Share My Coffee Bean Statistics",
+        "success": "Statistics saved as image",
+        "error": "Failed to generate image",
+        "notFound": "Statistics view container not found",
+        "button": "Share (includes cost data)"
+      },
+      "consumption": {
+        "today": "Today",
+        "average": "Average",
+        "estimatedFinish": "Est. Finish",
+        "perDay": "/day",
+        "capacityOverview": "Capacity Overview",
+        "capacityRemaining": "Capacity Remaining"
+      }
     },
     "units": {
       "seconds": "s",
       "grams": "g",
-      "pricePerGram": "/g"
+      "pricePerGram": "/g",
+      "pieces": "pcs",
+      "times": "times",
+      "currency": "¥"
     },
     "status": {
       "inTransit": "In Transit",

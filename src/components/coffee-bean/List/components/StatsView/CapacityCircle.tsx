@@ -1,14 +1,17 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface CapacityCircleProps {
   remainingPercentage: number;
   size?: number;
 }
 
-const CapacityCircle: React.FC<CapacityCircleProps> = ({ 
-  remainingPercentage, 
-  size = 200 
+const CapacityCircle: React.FC<CapacityCircleProps> = ({
+  remainingPercentage,
+  size = 200
 }) => {
+  const { t } = useTranslation();
+
   // 将百分比限制在0-100范围内
   const safeRemainingPercentage = useMemo(() => {
     return Math.max(0, Math.min(100, remainingPercentage));
@@ -90,7 +93,7 @@ const CapacityCircle: React.FC<CapacityCircleProps> = ({
           animation: 'fadeIn 1.2s ease-out forwards',
         }}
       >
-        容量剩余 {safeRemainingPercentage.toFixed(0)}%
+        {t('nav.stats.consumption.capacityRemaining')} {safeRemainingPercentage.toFixed(0)}%
       </div>
       
       {/* 添加CSS动画 */}

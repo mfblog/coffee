@@ -24,7 +24,7 @@ export async function exportStatsView({
   try {
     // 检查容器是否存在
     if (!statsContainerRef.current) {
-      onError('找不到统计视图容器');
+      onError('找不到统计视图容器'); // 暂时保持硬编码
       return;
     }
     
@@ -65,7 +65,7 @@ export async function exportStatsView({
         directory: Directory.Cache
       });
       
-      // 分享文件
+      // 分享文件 - 这里暂时保持硬编码，因为这个函数在没有组件上下文的地方调用
       await Share.share({
         title: '我的咖啡豆统计数据',
         text: '我的咖啡豆统计数据',
@@ -80,10 +80,10 @@ export async function exportStatsView({
       link.click();
     }
     
-    onSuccess('统计数据已保存为图片');
+    onSuccess('统计数据已保存为图片'); // 暂时保持硬编码
   } catch (error) {
     console.error('生成统计图片失败', error);
-    onError('生成图片失败');
+    onError('生成图片失败'); // 暂时保持硬编码
   } finally {
     onComplete();
   }

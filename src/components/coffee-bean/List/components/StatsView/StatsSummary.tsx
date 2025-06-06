@@ -1,6 +1,7 @@
 import React from 'react'
 import { formatNumber2Digits } from './utils'
 import { StatsSummaryProps } from './types'
+import { useTranslation } from 'react-i18next'
 
 // 咖啡消耗量计算专家系统
 // 基于数据科学和咖啡爱好者经验的综合计算方法
@@ -269,7 +270,7 @@ export const calculateEstimatedFinishDateAdvanced = (
         dateString = `${month}-${day}`;
     }
 
-    // 添加时间范围提示
+    // 添加时间范围提示 - 这里暂时保持硬编码，因为这个函数可能在没有组件上下文的地方调用
     if (daysRemaining <= 7) {
         dateString += ' (本周内)';
     } else if (daysRemaining <= 30) {
@@ -295,17 +296,19 @@ export const calculateEstimatedFinishDateAdvanced = (
 
 
 const StatsSummary: React.FC<StatsSummaryProps> = ({ stats, todayConsumption: _todayConsumption }) => {
+    const { t } = useTranslation()
+
     return (
         <div className="p-4 text-justify text-sm font-medium max-w-xs">
-{stats.beanTypeCount.filter > stats.beanTypeCount.espresso ?
-                `偏爱手冲豆` :
+            {stats.beanTypeCount.filter > stats.beanTypeCount.espresso ?
+                t('nav.stats.summary.preferFilter') :
                 stats.beanTypeCount.espresso > stats.beanTypeCount.filter ?
-                    `偏爱意式豆` :
-                    `手冲意式均衡`}，
-            以{Object.entries(stats.roastLevelCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '中度'}烘焙为主。
-            
-            {stats.topFlavors.length > 0 ? 
-                `风味偏爱${stats.topFlavors.slice(0, 2).map(([flavor]) => flavor).join('和')}` : ''}。
+                    t('nav.stats.summary.preferEspresso') :
+                    t('nav.stats.summary.balanced')}，
+            {t('nav.stats.summary.mainlyRoast')}{Object.entries(stats.roastLevelCount).sort((a, b) => b[1] - a[1])[0]?.[0] || t('nav.stats.summary.defaultRoast')}{t('nav.stats.summary.roast')}。
+
+            {stats.topFlavors.length > 0 ?
+                `${t('nav.stats.summary.flavorPreference')}${stats.topFlavors.slice(0, 2).map(([flavor]) => flavor).join(t('nav.stats.summary.and'))}` : ''}。
         </div>
     )
 }
