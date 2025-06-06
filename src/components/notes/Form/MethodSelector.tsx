@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Method } from '@/lib/core/config'
 
 interface MethodSelectorProps {
@@ -22,6 +23,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
   onParamsChange,
   // onSkipMethodSelection // 暂时移除
 }) => {
+  const t = useTranslations('notes.form')
   // 本地状态管理参数
   const [coffeeAmount, setCoffeeAmount] = useState<string>('15')
   const [ratioAmount, setRatioAmount] = useState<string>('15')
@@ -288,7 +290,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
           </div>
         ) : (
           <div className="text-xs text-neutral-500 dark:text-neutral-400 border-l border-neutral-200 dark:border-neutral-800 pl-6">
-            请先选择器具
+            {t('messages.selectEquipmentFirst')}
           </div>
         )}
       </div>

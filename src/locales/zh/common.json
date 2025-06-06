@@ -265,5 +265,61 @@
       "sponsorMessage": "感谢以下赞助者的支持",
       "sponsorEnding": " 。 and You。"
     }
+  },
+  "notes": {
+    "form": {
+      "title": {
+        "edit": "编辑记录",
+        "new": "新建记录"
+      },
+      "fields": {
+        "image": "笔记图片",
+        "beanInfo": "咖啡豆信息",
+        "methodParams": "方案参数",
+        "flavorRating": "风味评分",
+        "overallRating": "总体评分",
+        "notes": "笔记"
+      },
+      "placeholders": {
+        "beanName": "咖啡豆名称",
+        "coffeeAmount": "咖啡粉量 (如: 15g)",
+        "ratio": "粉水比 (如: 1:15)",
+        "grindSize": "研磨度 (如: 中细)",
+        "temperature": "水温 (如: 92°C)",
+        "notesText": "记录一下这次冲煮的感受、改进点等...",
+        "selectImage": "选择图片",
+        "imageCompress": "200kb以上将自动压缩"
+      },
+      "buttons": {
+        "save": "保存",
+        "back": "返回",
+        "camera": "拍照",
+        "gallery": "相册",
+        "expand": "展开",
+        "collapse": "收起",
+        "addManually": "手动添加"
+      },
+      "roastLevels": {
+        "lightPlus": "极浅烘焙",
+        "light": "浅度烘焙",
+        "mediumLight": "中浅烘焙",
+        "medium": "中度烘焙",
+        "mediumDark": "中深烘焙",
+        "dark": "深度烘焙"
+      },
+      "flavorAttributes": {
+        "acidity": "酸度",
+        "sweetness": "甜度",
+        "bitterness": "苦度",
+        "body": "口感"
+      },
+      "messages": {
+        "unknownBean": "未知咖啡豆",
+        "noMethods": "没有可用的冲煮方案，请前往\"冲煮\"页面添加",
+        "selectEquipmentFirst": "请先选择器具",
+        "generating": "生成中...",
+        "saveAsImage": "保存为图片"
+      }
+    }
   }
 }
