@@ -5,17 +5,28 @@
 
 // 烘焙度映射表
 export const ROAST_LEVEL_MAP = {
-  // 中文 -> 英文键
+  // 中文完整版 -> 英文键
   '极浅烘焙': 'ultraLight',
-  '浅度烘焙': 'light', 
+  '浅度烘焙': 'light',
   '中浅烘焙': 'mediumLight',
   '中度烘焙': 'medium',
   '中深烘焙': 'mediumDark',
   '深度烘焙': 'dark',
+  // 中文简化版 -> 英文键
+  '极浅': 'ultraLight',
+  '浅度': 'light',
+  '中浅': 'mediumLight',
+  '中度': 'medium',
+  '中深': 'mediumDark',
+  '深度': 'dark',
+  // 更多变体
+  '中深度': 'mediumDark',
+  '浅': 'light',
+  '深': 'dark',
   // 英文键 -> 中文
   'ultraLight': '极浅烘焙',
   'light': '浅度烘焙',
-  'mediumLight': '中浅烘焙', 
+  'mediumLight': '中浅烘焙',
   'medium': '中度烘焙',
   'mediumDark': '中深烘焙',
   'dark': '深度烘焙'
@@ -53,13 +64,33 @@ export const BEAN_TYPE_MAP = {
  * 获取烘焙度的翻译键
  */
 export function getRoastLevelKey(roastLevel: string): string {
-  // 如果是中文，转换为英文键
+  if (!roastLevel) return 'medium'; // 默认值
+
+  // 直接匹配
   if (roastLevel in ROAST_LEVEL_MAP) {
     const key = ROAST_LEVEL_MAP[roastLevel as keyof typeof ROAST_LEVEL_MAP];
-    // 如果映射结果是英文键，返回它；否则返回原值
-    return typeof key === 'string' && key.match(/^[a-zA-Z]+$/) ? key : roastLevel;
+    // 如果映射结果是英文键，返回它；否则继续处理
+    if (typeof key === 'string' && key.match(/^[a-zA-Z]+$/)) {
+      return key;
+    }
   }
-  return roastLevel;
+
+  // 模糊匹配 - 处理包含关系，按照优先级排序
+  if (roastLevel.includes('极浅')) return 'ultraLight';
+  if (roastLevel.includes('中浅')) return 'mediumLight';  // 必须在 '浅' 之前
+  if (roastLevel.includes('中深')) return 'mediumDark';   // 必须在 '深' 之前
+  if (roastLevel.includes('浅')) return 'light';
+  if (roastLevel.includes('深')) return 'dark';
+  if (roastLevel.includes('中')) return 'medium';
+
+  // 如果已经是英文键，直接返回
+  if (['ultraLight', 'light', 'mediumLight', 'medium', 'mediumDark', 'dark'].includes(roastLevel)) {
+    return roastLevel;
+  }
+
+  // 默认返回中度
+  console.warn(`Unknown roast level: ${roastLevel}, defaulting to medium`);
+  return 'medium';
 }
 
 /**
@@ -155,24 +186,43 @@ export function createTranslationHelpers(t: (key: string) => string) {
      * 翻译烘焙度
      */
     translateRoastLevel: (roastLevel: string): string => {
-      const key = getRoastLevelKey(roastLevel);
-      return t(`roastLevels.${key}`);
+      try {
+        const key = getRoastLevelKey(roastLevel);
+        const translated = t(`roastLevels.${key}`);
+        return translated;
+      } catch (error) {
+        // 如果翻译失败，返回原值或默认值
+        console.warn(`Failed to translate roast level: ${roastLevel}`, error);
+        return roastLevel || '中度烘焙';
+      }
     },
 
     /**
      * 翻译咖啡豆状态
      */
     translateBeanStatus: (status: string): string => {
-      const key = getBeanStatusKey(status);
-      return t(`beanStatus.${key}`);
+      try {
+        const key = getBeanStatusKey(status);
+        const translated = t(`beanStatus.${key}`);
+        return translated;
+      } catch (error) {
+        console.warn(`Failed to translate bean status: ${status}`, error);
+        return status || '未知';
+      }
     },
 
     /**
      * 翻译咖啡豆类型
      */
     translateBeanType: (beanType: string): string => {
-      const key = getBeanTypeKey(beanType);
-      return t(`beanTypes.${key}`);
+      try {
+        const key = getBeanTypeKey(beanType);
+        const translated = t(`beanTypes.${key}`);
+        return translated;
+      } catch (error) {
+        console.warn(`Failed to translate bean type: ${beanType}`, error);
+        return beanType || '手冲豆';
+      }
     }
   };
 }
