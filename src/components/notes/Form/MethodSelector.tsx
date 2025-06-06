@@ -31,7 +31,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
   const [coffeeAmount, setCoffeeAmount] = useState<string>('15')
   const [ratioAmount, setRatioAmount] = useState<string>('15')
   const [waterAmount, setWaterAmount] = useState<string>('225g')
-  const [grindSize, setGrindSize] = useState<string>('中细')
+  const [grindSize, setGrindSize] = useState<string>(t('placeholders.grindSizeInput'))
   const [_tempValue, setTempValue] = useState<string>('92')
 
   // 处理咖啡粉量变化
@@ -92,12 +92,33 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
     }
   }
 
+  // 反向翻译函数：从翻译后的值找到原始值
+  const reverseTranslateBrewingTerm = (translatedTerm: string): string => {
+    // 常见研磨度的反向映射
+    const reverseMap: Record<string, string> = {
+      'Extra Fine': '极细',
+      'Very Fine': '特细',
+      'Fine': '细',
+      'Medium Fine': '中细',
+      'Medium Fine to Medium': '中细偏粗',
+      'Medium Coarse': '中粗',
+      'Coarse': '粗',
+      'Very Coarse': '特粗',
+      'Espresso': '意式'
+    }
+
+    // 如果找到反向映射，返回原始中文值；否则返回输入值
+    return reverseMap[translatedTerm] || translatedTerm
+  }
+
   // 处理研磨度变化
   const handleGrindSizeChange = (value: string, method: Method) => {
-    setGrindSize(value)
+    // 将翻译后的值转换回原始值进行存储
+    const originalValue = reverseTranslateBrewingTerm(value)
+    setGrindSize(originalValue)
 
-    // 更新方法参数
-    method.params.grindSize = value
+    // 更新方法参数（存储原始值）
+    method.params.grindSize = originalValue
 
     // 通知父组件参数已更改
     onParamsChange(method)
@@ -250,7 +271,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
                   <div className="w-20 flex justify-end">
                     <input
                       type="text"
-                      value={grindSize}
+                      value={translateBrewingTerm(grindSize)}
                       onChange={(e) => handleGrindSizeChange(e.target.value, method)}
                       className="w-16 py-0.5 px-1 border border-neutral-300 dark:border-neutral-700 rounded-sm bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-right text-xs font-medium  focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
                       placeholder={t('placeholders.grindSizeInput')}

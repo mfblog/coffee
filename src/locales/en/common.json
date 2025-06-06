@@ -82,7 +82,9 @@
       "addManually": "Add Manually",
       "quickAdd": "Quick Add",
       "addRating": "Rate",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "next": "Next",
+      "saveNote": "Save Note"
     },
     "rating": {
       "title": "Rating",
@@ -135,7 +137,8 @@
     },
     "search": {
       "placeholder": "Enter bean name...",
-      "notes": "Search notes..."
+      "notes": "Search notes...",
+      "beanPlaceholder": "Search coffee bean name..."
     },
     "messages": {
       "noCustomMethods": "No custom methods for current equipment, please click the button below to add",
@@ -147,6 +150,8 @@
       "loading": "Loading...",
       "loadMore": "Swipe up to load more",
       "noAvailableBeans": "No available coffee beans, please add coffee beans first",
+      "noAvailableBeansForRandom": "No available coffee beans",
+      "randomSelectionFailed": "Random selection failed",
       "saveFailed": "Save failed, please try again",
       "dataUpdated": "Data updated, app will reload data",
       "copiedToClipboard": "Copied to clipboard",
@@ -1307,6 +1312,16 @@
         "noAvailableMethods": "No brewing methods available, please go to \"Brew\" page to add",
         "generating": "Generating...",
         "saveAsImage": "Save as Image"
+      },
+      "share": {
+        "title": "Coffee Brewing Notes",
+        "shareTitle": "My Coffee Brewing Notes",
+        "shareText": "My Coffee Brewing Notes",
+        "shareDialogTitle": "Share My Coffee Brewing Notes",
+        "successMessage": "Notes saved as image",
+        "errorSelectNotes": "Please select at least one note",
+        "errorContainerNotFound": "Notes container not found",
+        "errorGenerateFailed": "Failed to generate image"
       },
       "methodParams": {
         "coffee": "Coffee:",

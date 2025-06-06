@@ -5,13 +5,23 @@ import { Share } from '@capacitor/share'
 import { Filesystem, Directory } from '@capacitor/filesystem'
 import { toPng } from 'html-to-image'
 import { Storage } from '@/lib/core/storage'
-
 interface NotesExporterProps {
   selectedNotes: string[]
   notesContainerRef: React.RefObject<HTMLDivElement | null>
   onSuccess: (message: string) => void
   onError: (message: string) => void
   onComplete: () => void
+  translations: {
+    title: string
+    shareTitle: string
+    shareText: string
+    shareDialogTitle: string
+    successMessage: string
+    errorSelectNotes: string
+    errorContainerNotFound: string
+    errorGenerateFailed: string
+    overallRating: string
+  }
 }
 
 /**
@@ -22,17 +32,18 @@ export async function exportSelectedNotes({
   notesContainerRef,
   onSuccess,
   onError,
-  onComplete
+  onComplete,
+  translations
 }: NotesExporterProps) {
   if (selectedNotes.length === 0) {
-    onError('请选择至少一条笔记');
+    onError(translations.errorSelectNotes);
     return;
   }
   
   try {
     // 首先，从原始列表中找出选中的笔记元素
     if (!notesContainerRef.current) {
-      onError('找不到笔记容器');
+      onError(translations.errorContainerNotFound);
       return;
     }
     
@@ -55,7 +66,7 @@ export async function exportSelectedNotes({
     
     // 添加标题
     const title = document.createElement('h2');
-    title.innerText = selectedNotes.length === 1 ? '咖啡冲煮笔记' : `${selectedNotes.length}条咖啡冲煮笔记`;
+    title.innerText = selectedNotes.length === 1 ? translations.title : `${selectedNotes.length} ${translations.title}`;
     title.style.textAlign = 'left';
     title.style.marginBottom = '8px';
     title.style.fontSize = '12px';
@@ -97,7 +108,7 @@ export async function exportSelectedNotes({
         // 有风味评分的情况，评分显示在右下角
         const ratingElement = clone.querySelector('.flex.items-baseline.justify-between div:last-child');
         if (ratingElement && ratingElement.textContent && ratingElement.textContent.includes('[') && ratingElement.textContent.includes('/5')) {
-          ratingElement.textContent = `总体评分 ${ratingElement.textContent}`;
+          ratingElement.textContent = `${translations.overallRating} ${ratingElement.textContent}`;
         }
       } else {
         // 没有风味评分的情况，总体评分已经有标签，不需要处理
@@ -146,7 +157,7 @@ export async function exportSelectedNotes({
         const settings = JSON.parse(settingsStr);
         username = settings.username?.trim() || '';
       } catch (e) {
-        console.error('解析用户设置失败', e);
+        console.error('Failed to parse user settings', e);
       }
     }
     
@@ -215,10 +226,10 @@ export async function exportSelectedNotes({
       
       // 分享文件 - 确保使用files参数
       await Share.share({
-        title: '我的咖啡冲煮笔记',
-        text: '我的咖啡冲煮笔记',
+        title: translations.shareTitle,
+        text: translations.shareText,
         files: [uriResult.uri],
-        dialogTitle: '分享我的咖啡冲煮笔记'
+        dialogTitle: translations.shareDialogTitle
       });
     } else {
       // 在网页上下载图片
@@ -228,10 +239,10 @@ export async function exportSelectedNotes({
       link.click();
     }
     
-    onSuccess('笔记已保存为图片');
+    onSuccess(translations.successMessage);
   } catch (error) {
-    console.error('生成笔记图片失败', error);
-    onError('生成图片失败');
+    console.error('Failed to generate notes image', error);
+    onError(translations.errorGenerateFailed);
   } finally {
     onComplete();
   }

@@ -3,6 +3,7 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Search, X, Shuffle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { CoffeeBeanManager } from '@/lib/managers/coffeeBeanManager'
 import { showToast } from "@/components/common/feedback/GlobalToast"
 
@@ -38,6 +39,11 @@ const SteppedFormModal: React.FC<SteppedFormModalProps> = ({
     setCurrentStep,
     onRandomBean
 }) => {
+    // 翻译 hooks
+    const tActions = useTranslations('nav.actions')
+    const tSearch = useTranslations('nav.search')
+    const tMessages = useTranslations('nav.messages')
+
     const [internalStepIndex, setInternalStepIndex] = useState(initialStep)
 
     // 使用外部或内部状态控制当前步骤
@@ -212,15 +218,15 @@ const SteppedFormModal: React.FC<SteppedFormModalProps> = ({
             } else {
                 showToast({
                     type: 'info',
-                    title: '没有可用的咖啡豆',
+                    title: tMessages('noAvailableBeansForRandom'),
                     duration: 2000
                 });
             }
         } catch (error) {
-            console.error('随机选择咖啡豆失败:', error);
+            console.error('Random coffee bean selection failed:', error);
             showToast({
                 type: 'error',
-                title: '随机选择失败',
+                title: tMessages('randomSelectionFailed'),
                 duration: 2000
             });
         }
@@ -257,7 +263,7 @@ const SteppedFormModal: React.FC<SteppedFormModalProps> = ({
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="搜索咖啡豆名称..."
+                                    placeholder={tSearch('beanPlaceholder')}
                                     className="w-48 text-sm font-medium bg-neutral-100 dark:bg-neutral-800 rounded-full py-[14px] px-5 border-none outline-hidden text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
                                     autoComplete="off"
                                     onKeyDown={(e) => {
@@ -297,10 +303,10 @@ const SteppedFormModal: React.FC<SteppedFormModalProps> = ({
                             whileTap={{ scale: 0.95 }}
                         >
                             {isLastStep && !isCoffeeBeanStep ? (
-                                <span className="font-medium">保存笔记</span>
+                                <span className="font-medium">{tActions('saveNote')}</span>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <span className="font-medium">{isCoffeeBeanStep ? "搜索" : "下一步"}</span>
+                                    <span className="font-medium">{isCoffeeBeanStep ? tActions('search') : tActions('next')}</span>
                                     {isCoffeeBeanStep ? (
                                         <Search className="w-4 h-4" strokeWidth="3" />
                                     ) : (

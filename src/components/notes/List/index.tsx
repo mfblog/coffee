@@ -35,6 +35,10 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
     const t = useTranslations('notes.form')
     const tCommon = useTranslations('common')
     const tNotes = useTranslations('notes')
+    const tActions = useTranslations('nav.actions')
+    const tMessages = useTranslations('nav.messages')
+    const tUnits = useTranslations('nav.units')
+    const tShare = useTranslations('notes.form.share')
     // 用于跟踪用户选择
     const [sortOption, setSortOption] = useState<SortOption>(globalCache.sortOption)
     const [filterMode, setFilterMode] = useState<'equipment' | 'bean'>(globalCache.filterMode)
@@ -325,10 +329,10 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
             });
             window.dispatchEvent(event);
             
-            showToast(tCommon('nav.messages.noteDeleted'), 'success');
+            showToast(tMessages('noteDeleted'), 'success');
         } catch (error) {
             console.error('Failed to delete note:', error);
-            showToast(tCommon('nav.messages.deleteNoteFailed'), 'error');
+            showToast(tMessages('deleteNoteFailed'), 'error');
         }
     };
     
@@ -443,10 +447,10 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
             }
 
             // 显示成功提示
-            showToast(tCommon('nav.messages.noteUpdated'), 'success')
+            showToast(tMessages('noteUpdated'), 'success')
         } catch (error) {
             console.error('Failed to update note:', error)
-            showToast(tCommon('nav.messages.updateNoteFailed'), 'error')
+            showToast(tMessages('updateNoteFailed'), 'error')
         }
     }
     
@@ -526,11 +530,22 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                 onComplete: () => {
                     setIsSaving(false);
                     handleCancelShare();
+                },
+                translations: {
+                    title: tShare('title'),
+                    shareTitle: tShare('shareTitle'),
+                    shareText: tShare('shareText'),
+                    shareDialogTitle: tShare('shareDialogTitle'),
+                    successMessage: tShare('successMessage'),
+                    errorSelectNotes: tShare('errorSelectNotes'),
+                    errorContainerNotFound: tShare('errorContainerNotFound'),
+                    errorGenerateFailed: tShare('errorGenerateFailed'),
+                    overallRating: tCommon('beanDetail.status.overallRating')
                 }
             });
         } catch (error) {
             console.error('Failed to export notes:', error);
-            showToast(tCommon('nav.messages.exportNotesFailed'), 'error');
+            showToast(tMessages('exportNotesFailed'), 'error');
             setIsSaving(false);
         }
     };
@@ -583,14 +598,14 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
             const temp = note.params?.temp?.toLowerCase() || '';
             
             // 处理口味评分信息
-            const tasteInfo = `${tCommon('notes.form.flavorAttributes.acidity')}${note.taste?.acidity || 0} ${tCommon('notes.form.flavorAttributes.sweetness')}${note.taste?.sweetness || 0} ${tCommon('notes.form.flavorAttributes.bitterness')}${note.taste?.bitterness || 0} ${tCommon('notes.form.flavorAttributes.body')}${note.taste?.body || 0}`.toLowerCase();
+            const tasteInfo = `${t('flavorAttributes.acidity')}${note.taste?.acidity || 0} ${t('flavorAttributes.sweetness')}${note.taste?.sweetness || 0} ${t('flavorAttributes.bitterness')}${note.taste?.bitterness || 0} ${t('flavorAttributes.body')}${note.taste?.body || 0}`.toLowerCase();
             
             // 处理时间信息
             const dateInfo = note.timestamp ? new Date(note.timestamp).toLocaleDateString() : '';
-            const totalTime = note.totalTime ? `${note.totalTime}${tCommon('nav.units.seconds')}` : '';
+            const totalTime = note.totalTime ? `${note.totalTime}${tUnits('seconds')}` : '';
 
             // 将评分转换为可搜索文本，如"评分4"、"4分"、"4星"
-            const ratingText = note.rating ? `${tCommon('common.rating')}${note.rating} ${note.rating}${tCommon('common.points')} ${note.rating}${tCommon('common.stars')}`.toLowerCase() : '';
+            const ratingText = note.rating ? `${tCommon('rating')}${note.rating} ${note.rating}${tCommon('points')} ${note.rating}${tCommon('stars')}`.toLowerCase() : '';
             
             // 组合所有可搜索文本到一个数组，为不同字段分配权重
             const searchableTexts = [
@@ -759,7 +774,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                                     onClick={handleCancelShare}
                                     className="flex items-center justify-center text-xs font-medium text-neutral-600 dark:text-neutral-400 hover:opacity-80 mx-3"
                                 >
-                                    {tCommon('nav.actions.cancel')}
+                                    {tActions('cancel')}
                                 </button>
                                 <div className="grow border-t border-neutral-200 dark:border-neutral-800"></div>
                                 <button

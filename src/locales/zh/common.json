@@ -82,7 +82,9 @@
       "addManually": "手动添加",
       "quickAdd": "快速添加",
       "addRating": "添加评分",
-      "cancel": "取消"
+      "cancel": "取消",
+      "next": "下一步",
+      "saveNote": "保存笔记"
     },
     "rating": {
       "title": "评分",
@@ -135,7 +137,8 @@
     },
     "search": {
       "placeholder": "输入咖啡豆名称...",
-      "notes": "搜索笔记..."
+      "notes": "搜索笔记...",
+      "beanPlaceholder": "搜索咖啡豆名称..."
     },
     "messages": {
       "noCustomMethods": "当前器具暂无自定义方案，请点击下方按钮添加",
@@ -147,6 +150,8 @@
       "loading": "正在加载...",
       "loadMore": "上滑加载更多",
       "noAvailableBeans": "没有可用的咖啡豆，请先添加咖啡豆",
+      "noAvailableBeansForRandom": "没有可用的咖啡豆",
+      "randomSelectionFailed": "随机选择失败",
       "saveFailed": "保存失败，请重试",
       "dataUpdated": "数据已更新，应用将重新加载数据",
       "copiedToClipboard": "已复制到剪贴板",
@@ -1307,6 +1312,16 @@
         "noAvailableMethods": "没有可用的冲煮方案，请前往\"冲煮\"页面添加",
         "generating": "生成中...",
         "saveAsImage": "保存为图片"
+      },
+      "share": {
+        "title": "咖啡冲煮笔记",
+        "shareTitle": "我的咖啡冲煮笔记",
+        "shareText": "我的咖啡冲煮笔记",
+        "shareDialogTitle": "分享我的咖啡冲煮笔记",
+        "successMessage": "笔记已保存为图片",
+        "errorSelectNotes": "请选择至少一条笔记",
+        "errorContainerNotFound": "找不到笔记容器",
+        "errorGenerateFailed": "生成图片失败"
       },
       "methodParams": {
         "coffee": "咖啡粉:",
