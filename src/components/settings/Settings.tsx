@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { APP_VERSION, sponsorsList } from '@/lib/core/config'
 import { Storage } from '@/lib/core/storage'
 import DataManager from '../common/data/DataManager'
@@ -86,6 +87,9 @@ const Settings: React.FC<SettingsProps> = ({
     setSettings,
     onDataChange,
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('settings')
+
     // 添加数据管理状态
     const [isDataManagerOpen, setIsDataManagerOpen] = useState(false)
 
@@ -351,7 +355,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         />
                     </svg>
                 </button>
-                <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-200">设置</h2>
+                <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-200">{t('title')}</h2>
             </div>
 
             {/* 滚动内容区域 - 新的简洁设计 */}
@@ -359,7 +363,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                 {/* 赞助支持 */}
                 <div className="px-6 py-4">
                     <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
-                        支持 & 交流
+                        {t('sections.support')}
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
                         <button
@@ -374,7 +378,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                             }}
                             className="flex items-center justify-between py-3 px-4 text-sm font-medium text-neutral-800 bg-neutral-100 rounded-lg transition-colors hover:bg-neutral-200 dark:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
                         >
-                            <span>{qrCodeType === 'appreciation' ? '收起二维码' : '赞赏码'}</span>
+                            <span>{qrCodeType === 'appreciation' ? t('support.hideQRCode') : t('support.appreciationCode')}</span>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className={`h-4 w-4 ml-2 text-neutral-600 dark:text-neutral-400 transition-transform ${qrCodeType === 'appreciation' ? 'rotate-180' : ''}`}
@@ -402,7 +406,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                             }}
                             className="flex items-center justify-between py-3 px-4 text-sm font-medium text-neutral-800 bg-neutral-100 rounded-lg transition-colors hover:bg-neutral-200 dark:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
                         >
-                            <span>{qrCodeType === 'group' ? '收起二维码' : '交流群'}</span>
+                            <span>{qrCodeType === 'group' ? t('support.hideQRCode') : t('support.communityGroup')}</span>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className={`h-4 w-4 ml-2 text-neutral-600 dark:text-neutral-400 transition-transform ${qrCodeType === 'group' ? 'rotate-180' : ''}`}
@@ -428,18 +432,18 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                         <div className="w-full aspect-square relative rounded-lg overflow-hidden">
                                             <Image
                                                 src="/images/content/appreciation-code.jpg"
-                                                alt="赞赏码"
+                                                alt={t('grinder.altText.appreciationCode')}
                                                 fill
                                                 className="object-cover"
                                             />
                                         </div>
-                                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">赞赏码</p>
+                                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t('support.appreciationCode')}</p>
                                     </div>
                                     <div className="flex flex-col items-center opacity-0">
                                         <div className="w-full aspect-square relative rounded-lg overflow-hidden invisible">
                                             <div className="w-full h-full" />
                                         </div>
-                                        <p className="mt-2 text-xs invisible">占位</p>
+                                        <p className="mt-2 text-xs invisible">{t('grinder.placeholder.invisible')}</p>
                                     </div>
                                 </>
                             ) : qrCodeType === 'group' ? (
@@ -448,18 +452,18 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                         <div className="w-full aspect-square relative rounded-lg overflow-hidden invisible">
                                             <div className="w-full h-full" />
                                         </div>
-                                        <p className="mt-2 text-xs invisible">占位</p>
+                                        <p className="mt-2 text-xs invisible">{t('grinder.placeholder.invisible')}</p>
                                     </div>
                                     <div className="flex flex-col items-center">
                                         <div className="w-full aspect-square relative rounded-lg overflow-hidden">
                                             <Image
                                                 src="https://coffee.chu3.top/images/content/group-code.jpg"
-                                                alt="交流群"
+                                                alt={t('grinder.altText.communityGroup')}
                                                 fill
                                                 className="object-cover"
                                             />
                                         </div>
-                                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">交流群</p>
+                                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t('support.communityGroup')}</p>
                                     </div>
                                 </>
                             ) : null}
@@ -473,18 +477,18 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 用户名 */}
                         <div>
                             <label htmlFor="username" className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                                用户名
+                                {t('profile.username')}
                             </label>
                             <input
                                 type="text"
                                 id="username"
                                 value={settings.username}
                                 onChange={(e) => handleChange('username', e.target.value)}
-                                placeholder="请输入您的用户名"
+                                placeholder={t('profile.usernamePlaceholder')}
                                 className="w-full py-2 px-3 text-sm font-medium rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 appearance-none focus:outline-hidden focus:ring-2 focus:ring-neutral-500"
                             />
                             <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-                                用于在分享时显示签名
+                                {t('profile.usernameDescription')}
                             </p>
                         </div>
                     </div>
@@ -493,7 +497,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                 {/* 时间框架设置组 */}
                 <div className="px-6 py-4">
                     <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
-                        通知
+                        {t('sections.notifications')}
                     </h3>
 
                     {/* 统一样式的设置项 */}
@@ -501,7 +505,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 提示音 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                提示音
+                                {t('notifications.sound')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -519,7 +523,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 震动反馈 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                震动反馈
+                                {t('notifications.haptic')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -542,15 +546,15 @@ const handleChange = async <K extends keyof SettingsOptions>(
 
                 {/* 显示设置组 */}
                 <div className="px-6 py-4">
-                    <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-40 mb-3">
-                        显示
+                    <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
+                        {t('sections.display')}
                     </h3>
 
                     <div className="space-y-5">
                         {/* 语言选择 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                语言(Beta)
+                                {t('display.language')}
                             </div>
                             <div className="text-sm text-neutral-400 dark:text-neutral-500">
                                 <div className="inline-flex rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
@@ -567,7 +571,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                             }
                                         }}
                                     >
-                                        中文
+                                        {t('display.chinese')}
                                     </button>
                                     <button
                                         className={`px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
@@ -582,7 +586,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                             }
                                         }}
                                     >
-                                        English
+                                        {t('display.english')}
                                     </button>
                                 </div>
                             </div>
@@ -591,7 +595,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 外观模式 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                外观模式
+                                {t('display.appearance')}
                             </div>
                             <div className="text-sm text-neutral-400 dark:text-neutral-500">
                                 <div className="inline-flex rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
@@ -608,7 +612,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                             }
                                         }}
                                     >
-                                        浅色
+                                        {t('display.light')}
                                     </button>
                                     <button
                                         className={`px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
@@ -623,7 +627,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                             }
                                         }}
                                     >
-                                        深色
+                                        {t('display.dark')}
                                     </button>
                                     <button
                                         className={`px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${
@@ -638,7 +642,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                             }
                                         }}
                                     >
-                                        系统
+                                        {t('display.system')}
                                     </button>
                                 </div>
                             </div>
@@ -649,7 +653,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                             <div className="mb-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                        文本大小
+                                        {t('display.textSize')}
                                     </div>
                                     <div className="text-sm text-neutral-400 dark:text-neutral-500">
                                         {zoomLevel.toFixed(1)}×
@@ -666,14 +670,14 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                         className="w-full h-1.5 bg-neutral-200 rounded-full appearance-none cursor-pointer dark:bg-neutral-700"
                                     />
                                     <div className="flex justify-between mt-1 text-xs text-neutral-500">
-                                        <span>小</span>
+                                        <span>{t('display.small')}</span>
                                         <span
                                             className={`px-2 py-0.5 rounded-sm ${Math.abs(zoomLevel - 1.0) < 0.05 ? 'bg-neutral-800 text-neutral-100 dark:bg-neutral-200 dark:text-neutral-900' : ''}`}
                                             onClick={() => handleTextZoomChange(1.0)}
                                         >
-                                            标准
+                                            {t('display.standard')}
                                         </span>
-                                        <span>大</span>
+                                        <span>{t('display.large')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -687,7 +691,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                 <div className="px-6 py-4">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400">
-                            安全区域边距
+                            {t('sections.safeArea')}
                         </h3>
                         <button
                             onClick={() => {
@@ -699,11 +703,11 @@ const handleChange = async <K extends keyof SettingsOptions>(
                             }}
                             className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors px-2 py-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800"
                         >
-                            还原默认
+                            {t('safeArea.resetDefault')}
                         </button>
                     </div>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-4">
-                        调整应用界面的上下边距，影响导航栏和内容区域的间距
+                        {t('safeArea.description')}
                     </p>
 
                     <div className="space-y-4">
@@ -711,7 +715,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                    顶部边距
+                                    {t('safeArea.topMargin')}
                                 </div>
                                 <button
                                     onClick={() => {
@@ -726,7 +730,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                         }
                                     }}
                                     className="text-sm text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors px-1 py-0.5 rounded"
-                                    title="点击重置为默认值"
+                                    title={t('safeArea.resetTooltip')}
                                 >
                                     {settings.safeAreaMargins?.top || defaultSettings.safeAreaMargins!.top}px
                                 </button>
@@ -759,7 +763,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                    底部边距
+                                    {t('safeArea.bottomMargin')}
                                 </div>
                                 <button
                                     onClick={() => {
@@ -774,7 +778,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                         }
                                     }}
                                     className="text-sm text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors px-1 py-0.5 rounded"
-                                    title="点击重置为默认值"
+                                    title={t('safeArea.resetTooltip')}
                                 >
                                     {settings.safeAreaMargins?.bottom || defaultSettings.safeAreaMargins!.bottom}px
                                 </button>
@@ -814,7 +818,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                 {/* 库存扣除量预设值设置组 */}
                 <div className="px-6 py-4">
                     <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
-                        库存扣除预设值
+                        {t('sections.inventory')}
                     </h3>
 
                     <div className="flex gap-2 mb-3 flex-wrap">
@@ -856,7 +860,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                         addDecrementPreset()
                                     }
                                 }}
-                                placeholder="克数"
+                                placeholder={t('inventory.placeholder')}
                                 className="w-16 py-1.5 px-2 text-sm bg-neutral-100 dark:bg-neutral-800 border-y border-l border-neutral-200/50 dark:border-neutral-700 rounded-l-lg rounded-r-none focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
                             />
                             <button
@@ -864,7 +868,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                 disabled={!decrementValue || isNaN(parseFloat(decrementValue)) || parseFloat(decrementValue) <= 0}
                                 className="py-1.5 px-2 bg-neutral-700 dark:bg-neutral-600 text-white rounded-r-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                             >
-                                +
+                                {t('inventory.addButton')}
                             </button>
                         </div>
                     </div>
@@ -873,14 +877,14 @@ const handleChange = async <K extends keyof SettingsOptions>(
                 {/* 咖啡豆显示设置组 */}
                 <div className="px-6 py-4">
                     <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
-                        豆仓列表显示设置
+                        {t('sections.beanDisplay')}
                     </h3>
 
                     <div className="space-y-5">
                         {/* 简化咖啡豆名称 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                简化咖啡豆名称
+                                {t('beanDisplay.simplifyName')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -896,7 +900,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 显示赏味期信息 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                显示赏味期信息
+                                {t('beanDisplay.showFlavorPeriod')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -914,7 +918,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                 {/* 计时器布局设置组 */}
                 <div className="px-6 py-4">
                     <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
-                        计时器布局
+                        {t('sections.timerLayout')}
                     </h3>
 
                     <div className="space-y-5">
@@ -922,7 +926,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 阶段信息布局反转 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                阶段信息布局反转
+                                {t('timerLayout.stageInfoReversed')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -944,7 +948,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 控制区布局反转 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                控制区布局反转
+                                {t('timerLayout.controlsReversed')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -966,7 +970,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 始终显示计时器信息 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                始终显示计时器信息
+                                {t('timerLayout.alwaysShowTimerInfo')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -988,7 +992,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 显示阶段分隔线 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                显示阶段分隔线
+                                {t('timerLayout.showStageDivider')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -1010,7 +1014,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 显示流速 */}
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                显示流速
+                                {t('timerLayout.showFlowRate')}
                             </div>
                             <label className="relative inline-flex cursor-pointer items-center">
                                 <input
@@ -1026,10 +1030,10 @@ const handleChange = async <K extends keyof SettingsOptions>(
                         {/* 进度条高度 */}
                         <div className="flex items-center justify-between mb-2">
                             <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                进度条高度
+                                {t('timerLayout.progressBarHeight')}
                             </div>
                             <div className="text-sm text-neutral-400 dark:text-neutral-500">
-                                {settings.layoutSettings?.progressBarHeight || 4}px (默认 4px)
+                                {settings.layoutSettings?.progressBarHeight || 4}{t('timerLayout.progressBarDefault')}
                             </div>
                         </div>
                         <div className="px-1 mb-3">
@@ -1049,8 +1053,8 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                 className="w-full h-1.5 bg-neutral-200 rounded-full appearance-none cursor-pointer dark:bg-neutral-700"
                             />
                             <div className="flex justify-between mt-1 text-xs text-neutral-500">
-                                <span>细</span>
-                                <span>粗</span>
+                                <span>{t('timerLayout.thin')}</span>
+                                <span>{t('timerLayout.thick')}</span>
                             </div>
                         </div>
                     </div>
@@ -1059,35 +1063,29 @@ const handleChange = async <K extends keyof SettingsOptions>(
                 {/* 数据管理组 */}
                 <div className="px-6 py-4">
                     <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
-                        数据管理
+                        {t('sections.dataManagement')}
                     </h3>
                     <button
                         onClick={() => setIsDataManagerOpen(true)}
                         className="w-full py-3 text-sm font-medium text-neutral-800 bg-neutral-100 rounded-lg transition-colors hover:bg-neutral-200 dark:text-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
                     >
-                        打开数据管理
+                        {t('dataManagement.openDataManager')}
                     </button>
                 </div>
 
                 {/* 版本信息 */}
                 <div className="px-6 pt-12 text-xs text-center text-neutral-400 dark:text-neutral-600">
-                    <p>[版本号]</p>
+                    <p>{t('version.versionNumber')}</p>
                     <p>v{APP_VERSION}</p>
 
-                    <p className='mt-12'>[来自开发者的小废话]</p>
+                    <p className='mt-12'>{t('version.developerNote')}</p>
                     <div className="mt-4 whitespace-pre-wrap text-left mx-auto max-w-52 leading-relaxed">
-                       Hi！感谢你愿意尝试这个小工具，还看到了这里，
-                       <br /><br />
-                       起初，因为自己记不住方案，也把握不好注水节奏，就开发了这个小工具
-                       <br /> <br />
-                       没想到发到群里后，能收到这么多支持和反馈，还认识到了好多大佬！
-                       <br /> <br />
-                       真的谢谢你们，希望我们能一起进步ww
+                       {t('version.developerMessage')}
                     </div>
 
-                    <p className='mt-12'>[感谢]</p>
+                    <p className='mt-12'>{t('version.thanks')}</p>
 
-                    <p>感谢以下赞助者的支持</p>
+                    <p>{t('version.sponsorMessage')}</p>
                     <p className="mt-4 mx-auto max-w-56">
                         {sponsorsList
                             .sort((a, b) => {
@@ -1099,7 +1097,7 @@ const handleChange = async <K extends keyof SettingsOptions>(
                                 return a.localeCompare(b, 'zh-CN');
                             })
                             .join('、')}
-                        {' 。 and You。'}
+                        {t('version.sponsorEnding')}
                     </p>
                     <p className="mt-12">
                         <a

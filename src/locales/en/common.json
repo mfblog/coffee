@@ -12,5 +12,150 @@
       "pour": "Pour",
       "record": "Log"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "support": "Support & Community",
+      "notifications": "Notifications",
+      "display": "Display",
+      "safeArea": "Safe Area Margins",
+      "grinder": "Grinder Settings",
+      "inventory": "Inventory Presets",
+      "beanDisplay": "Bean List Display",
+      "timerLayout": "Timer Layout",
+      "dataManagement": "Data Management"
+    },
+    "support": {
+      "appreciationCode": "Tip Code",
+      "communityGroup": "Community",
+      "hideQRCode": "Hide QR Code"
+    },
+    "profile": {
+      "username": "Username",
+      "usernamePlaceholder": "Enter your username",
+      "usernameDescription": "Used for signature when sharing"
+    },
+    "notifications": {
+      "sound": "Notification Sound",
+      "haptic": "Haptic Feedback"
+    },
+    "display": {
+      "language": "Language (Beta)",
+      "appearance": "Appearance",
+      "textSize": "Text Size",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "small": "Small",
+      "standard": "Standard",
+      "large": "Large",
+      "chinese": "中文",
+      "english": "English"
+    },
+    "safeArea": {
+      "title": "Safe Area Margins",
+      "description": "Adjust the top and bottom margins of the app interface, affecting the spacing of navigation bar and content area",
+      "resetDefault": "Reset Default",
+      "topMargin": "Top Margin",
+      "bottomMargin": "Bottom Margin",
+      "resetTooltip": "Click to reset to default value"
+    },
+    "inventory": {
+      "title": "Inventory Decrement Presets",
+      "placeholder": "Grams",
+      "addButton": "+"
+    },
+    "beanDisplay": {
+      "title": "Bean Storage List Display Settings",
+      "simplifyName": "Simplify Bean Names",
+      "showFlavorPeriod": "Show Flavor Period Info"
+    },
+    "timerLayout": {
+      "title": "Timer Layout",
+      "stageInfoReversed": "Reverse Stage Info Layout",
+      "controlsReversed": "Reverse Controls Layout",
+      "alwaysShowTimerInfo": "Always Show Timer Info",
+      "showStageDivider": "Show Stage Divider",
+      "showFlowRate": "Show Flow Rate",
+      "progressBarHeight": "Progress Bar Height",
+      "progressBarDefault": "px (default 4px)",
+      "thin": "Thin",
+      "thick": "Thick"
+    },
+    "dataManagement": {
+      "openDataManager": "Open Data Manager"
+    },
+    "grinder": {
+      "title": "Grinder Settings",
+      "grinderType": "Grinder Type",
+      "selectGrinder": "Select Grinder",
+      "addCustomGrinder": "+ Add Custom Grinder",
+      "editCustomGrinder": "Edit Custom Grinder",
+      "createCustomGrinder": "Create Custom Grinder",
+      "grinderReference": "Grind Size Reference",
+      "basicGrindSizes": "Basic Grind Sizes:",
+      "applicationGrindSizes": "Application-Specific Grind Sizes:",
+      "customGrinderActions": "Custom Grinder Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "export": "Export",
+      "save": "Save",
+      "cancel": "Cancel",
+      "import": "Import Config",
+      "grinderName": "Grinder Name:",
+      "grinderNamePlaceholder": "Enter grinder name",
+      "grinderUnit": "Grind Size Unit:",
+      "customUnitPlaceholder": "Or enter custom unit",
+      "unitDescription": "After selecting a unit, just enter numbers in the input fields below, the unit will be displayed after the input",
+      "grindSizePlaceholder": "e.g: 1-2",
+      "dataSource": "Data source: Online collection and user research, for reference only",
+      "surveyLink": "→ Participate in grind size survey",
+      "deleteConfirm": "Are you sure you want to delete this custom grinder?",
+      "exportSuccess": "Grinder configuration copied to clipboard!",
+      "exportFallback": "Copy failed, please manually copy the following content:\n\n",
+      "importPrompt": "Please paste the grinder configuration JSON data:",
+      "importSuccess": "Grinder configuration imported successfully!",
+      "importError": "Import failed: Incorrect JSON format or incomplete data",
+      "nameRequired": "Please enter grinder name",
+      "grindSizes": {
+        "ultraFine": "Ultra Fine",
+        "extraFine": "Extra Fine",
+        "fine": "Fine",
+        "mediumFine": "Medium Fine",
+        "mediumFineCoarse": "Medium Fine-Coarse",
+        "mediumCoarse": "Medium Coarse",
+        "coarse": "Coarse",
+        "extraCoarse": "Extra Coarse",
+        "espresso": "Espresso",
+        "moka": "Moka Pot",
+        "pourOver": "Pour Over",
+        "frenchPress": "French Press",
+        "coldBrew": "Cold Brew"
+      },
+      "units": {
+        "grid": "Grid",
+        "circle": "Circle",
+        "gear": "Gear",
+        "scale": "Scale",
+        "mm": "mm",
+        "level": "Level"
+      },
+      "altText": {
+        "appreciationCode": "Tip Code",
+        "communityGroup": "Community Group"
+      },
+      "placeholder": {
+        "invisible": "Placeholder"
+      }
+    },
+    "version": {
+      "versionNumber": "[Version Number]",
+      "developerNote": "[A Little Note from Developer]",
+      "developerMessage": "Hi! Thank you for trying this little tool and reading this far,\n\nInitially, because I couldn't remember brewing methods and couldn't control the pouring rhythm well, I developed this little tool\n\nI didn't expect that after sharing it in the group, I would receive so much support and feedback, and meet so many experts!\n\nThank you all so much, I hope we can progress together ww",
+      "thanks": "[Thanks]",
+      "sponsorMessage": "Thanks to the following sponsors for their support",
+      "sponsorEnding": " . and You."
+    }
   }
 }

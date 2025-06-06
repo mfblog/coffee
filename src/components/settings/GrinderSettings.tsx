@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { availableGrinders } from '@/lib/core/config'
 import { getCategorizedGrindSizes } from '@/lib/utils/grindUtils'
+import { useConfigTranslation } from '@/lib/utils/i18n-config'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectSeparator } from '@/components/coffee-bean/ui/select'
 import { SettingsOptions, CustomGrinder } from './Settings'
 import hapticsUtils from '@/lib/ui/haptics'
@@ -17,11 +19,43 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
     settings,
     handleChange
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('settings.grinder')
+    const configT = useConfigTranslation()
+
     // 状态管理
     const [isCreatingCustom, setIsCreatingCustom] = useState(false)
     const [editingCustomId, setEditingCustomId] = useState<string | null>(null)
     const [previousGrinderType, setPreviousGrinderType] = useState<string>('generic')
     const [pendingGrinderId, setPendingGrinderId] = useState<string | null>(null)
+    // 研磨度键名映射
+    const grindSizeKeys = {
+        '极细': 'ultraFine',
+        '特细': 'extraFine',
+        '细': 'fine',
+        '中细': 'mediumFine',
+        '中细偏粗': 'mediumFineCoarse',
+        '中粗': 'mediumCoarse',
+        '粗': 'coarse',
+        '特粗': 'extraCoarse',
+        '意式': 'espresso',
+        '摩卡壶': 'moka',
+        '手冲': 'pourOver',
+        '法压壶': 'frenchPress',
+        '冷萃': 'coldBrew'
+    }
+
+    // 获取翻译的研磨度名称
+    const getTranslatedGrindSizeName = (chineseKey: string): string => {
+        const englishKey = grindSizeKeys[chineseKey as keyof typeof grindSizeKeys]
+        return englishKey ? t(`grindSizes.${englishKey}`) : chineseKey
+    }
+
+    // 基础研磨度列表（用于表单）
+    const basicGrindSizeKeys = ['极细', '特细', '细', '中细', '中细偏粗', '中粗', '粗', '特粗']
+    // 应用研磨度列表（用于表单）
+    const applicationGrindSizeKeys = ['意式', '摩卡壶', '手冲', '法压壶', '冷萃']
+
     const [customGrinderForm, setCustomGrinderForm] = useState({
         name: '',
         unit: '', // 添加研磨度单位字段
@@ -43,7 +77,14 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
     })
 
     // 常见研磨度单位预设
-    const commonUnits = ['格', '圈', '档', '刻度', 'mm', '级']
+    const commonUnits = useMemo(() => [
+        { key: 'grid', value: t('units.grid') },
+        { key: 'circle', value: t('units.circle') },
+        { key: 'gear', value: t('units.gear') },
+        { key: 'scale', value: t('units.scale') },
+        { key: 'mm', value: t('units.mm') },
+        { key: 'level', value: t('units.level') }
+    ], [t])
 
     // 从研磨度数据中提取单位的辅助函数
     const extractUnitFromGrindSizes = (grindSizes: Record<string, string>): string => {
@@ -90,13 +131,17 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
     // 获取所有磨豆机（包括自定义的和添加选项）- 使用 useMemo 缓存
     const allGrinders = useMemo(() => {
         const customGrinders = settings.customGrinders || []
+        const translatedGrinders = availableGrinders.map(grinder => ({
+            ...grinder,
+            name: configT.translateGrinder(grinder.id)
+        }))
         const addCustomOption = {
             id: 'add_custom',
-            name: '添加自定义磨豆机',
+            name: t('addCustomGrinder'),
             grindSizes: {}
         }
-        return [...availableGrinders, ...customGrinders, addCustomOption]
-    }, [settings.customGrinders])
+        return [...translatedGrinders, ...customGrinders, addCustomOption]
+    }, [settings.customGrinders, t, configT])
 
     // 生成自定义磨豆机ID
     const generateCustomGrinderId = () => {
@@ -167,7 +212,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
     // 保存自定义磨豆机
     const saveCustomGrinder = () => {
         if (!customGrinderForm.name.trim()) {
-            alert('请输入磨豆机名称')
+            alert(t('nameRequired'))
             return
         }
 
@@ -228,7 +273,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
 
     // 删除自定义磨豆机
     const deleteCustomGrinder = (grinderId: string) => {
-        if (confirm('确定要删除这个自定义磨豆机吗？')) {
+        if (confirm(t('deleteConfirm'))) {
             const customGrinders = settings.customGrinders || []
             const updatedGrinders = customGrinders.filter(grinder => grinder.id !== grinderId)
 
@@ -258,7 +303,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
         }
         const jsonString = JSON.stringify(exportData, null, 2)
         navigator.clipboard.writeText(jsonString).then(() => {
-            alert('磨豆机配置已复制到剪贴板！')
+            alert(t('exportSuccess'))
         }).catch(() => {
             // 降级方案：显示文本供用户手动复制
             const textarea = document.createElement('textarea')
@@ -271,9 +316,9 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
             textarea.select()
             try {
                 document.execCommand('copy')
-                alert('磨豆机配置已复制到剪贴板！')
+                alert(t('exportSuccess'))
             } catch (_err) {
-                alert('复制失败，请手动复制以下内容：\n\n' + jsonString)
+                alert(t('exportFallback') + jsonString)
             }
             document.body.removeChild(textarea)
         })
@@ -281,7 +326,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
 
     // 导入自定义磨豆机
     const importCustomGrinder = () => {
-        const jsonString = prompt('请粘贴磨豆机配置的 JSON 数据：')
+        const jsonString = prompt(t('importPrompt'))
         if (!jsonString) return
 
         try {
@@ -323,9 +368,9 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
             // 更新磨豆机列表
             handleChange('customGrinders', [...customGrinders, newGrinder])
 
-            alert('磨豆机配置导入成功！')
+            alert(t('importSuccess'))
         } catch (_error) {
-            alert('导入失败：JSON 格式不正确或数据不完整')
+            alert(t('importError'))
         }
     }
 
@@ -370,12 +415,20 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
     // 获取当前选中磨豆机的显示名称（使用 useMemo 缓存结果）
     const currentGrinderDisplayName = useMemo(() => {
         if (settings.grindType === 'add_custom') {
-            return editingCustomId ? '编辑自定义磨豆机' : '添加自定义磨豆机';
+            return editingCustomId ? t('editCustomGrinder') : t('addCustomGrinder');
         }
 
         const selectedGrinder = allGrinders.find(g => g.id === settings.grindType);
-        return selectedGrinder ? selectedGrinder.name : '选择磨豆机';
-    }, [settings.grindType, allGrinders, editingCustomId]);
+        if (selectedGrinder) {
+            // 如果是自定义磨豆机，直接使用名称；否则使用翻译
+            if ('isCustom' in selectedGrinder && selectedGrinder.isCustom) {
+                return selectedGrinder.name;
+            } else {
+                return configT.translateGrinder(selectedGrinder.id);
+            }
+        }
+        return t('selectGrinder');
+    }, [settings.grindType, allGrinders, editingCustomId, t, configT]);
 
     // 处理磨豆机类型变更
     const handleGrinderChange = (value: string) => {
@@ -424,13 +477,13 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
         elements.push(
             <div key="basic-grind-sizes" className="mb-3">
                 <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">
-                    基础研磨度:
+                    {t('basicGrindSizes')}
                 </p>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                     {Object.entries(basicGrindSizes).map(([key, value]) => (
                         <div key={key} className="flex justify-between text-sm text-neutral-700 dark:text-neutral-300">
-                            <span className="font-medium">{key}</span>
-                            <span>{value}</span>
+                            <span className="font-medium">{getTranslatedGrindSizeName(key)}</span>
+                            <span>{configT.translateGrindSizeValue(value as string)}</span>
                         </div>
                     ))}
                 </div>
@@ -442,13 +495,13 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
             elements.push(
                 <div key="application-grind-sizes" className="mb-3">
                     <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">
-                        特定应用研磨度:
+                        {t('applicationGrindSizes')}
                     </p>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                         {Object.entries(applicationGrindSizes).map(([key, value]) => (
                             <div key={key} className="flex justify-between text-sm text-neutral-700 dark:text-neutral-300">
-                                <span className="font-medium">{key}</span>
-                                <span>{value as string}</span>
+                                <span className="font-medium">{getTranslatedGrindSizeName(key)}</span>
+                                <span>{configT.translateGrindSizeValue(value as string)}</span>
                             </div>
                         ))}
                     </div>
@@ -461,26 +514,26 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
             elements.push(
                 <div key="custom-grinder-actions" className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700">
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">
-                        自定义磨豆机操作
+                        {t('customGrinderActions')}
                     </p>
                     <div className="flex flex-wrap gap-2">
                         <button
                             onClick={() => startEditingCustomGrinder(selectedGrinder as CustomGrinder)}
                             className="px-3 py-1.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                         >
-                            编辑
+                            {t('edit')}
                         </button>
                         <button
                             onClick={() => deleteCustomGrinder(selectedGrinder.id)}
                             className="px-3 py-1.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                         >
-                            删除
+                            {t('delete')}
                         </button>
                         <button
                             onClick={() => exportCustomGrinder(selectedGrinder as CustomGrinder)}
                             className="px-3 py-1.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                         >
-                            导出
+                            {t('export')}
                         </button>
                     </div>
                 </div>
@@ -491,7 +544,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
         elements.push(
             <div key="data-source" className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700">
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    数据来源：网络收集和用户调研，仅供参考
+                    {t('dataSource')}
                 </p>
                 <div className="mt-2">
                     <a
@@ -500,7 +553,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                         rel="noopener noreferrer"
                         className="text-xs text-blue-600 dark:text-blue-400 flex items-center"
                     >
-                        <span>→ 参与研磨度调研问卷</span>
+                        <span>{t('surveyLink')}</span>
                     </a>
                 </div>
             </div>
@@ -509,7 +562,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
         return (
             <div className="mt-3 border-l-2 border-neutral-300 dark:border-neutral-700 pl-4 py-2">
                 <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                    {selectedGrinder.name} 研磨度参考
+                    {configT.translateGrinder(selectedGrinder.id) || selectedGrinder.name} {t('grinderReference')}
                 </p>
                 {elements}
             </div>
@@ -519,7 +572,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
     return (
         <div className="px-6 py-4">
             <h3 className="text-sm uppercase font-medium tracking-wider text-neutral-500 dark:text-neutral-400 mb-3">
-                研磨度设置
+                {t('title')}
             </h3>
 
             <div className="flex items-center justify-between py-2">
@@ -527,7 +580,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                     htmlFor={`grinder-select-${settings.grindType}`}
                     className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
                 >
-                    磨豆机类型
+                    {t('grinderType')}
                 </label>
                 <div className="relative">
                     <Select
@@ -539,7 +592,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                             variant="minimal"
                             className="w-auto text-right text-sm text-neutral-600 dark:text-neutral-400"
                         >
-                            <SelectValue placeholder="选择磨豆机">
+                            <SelectValue placeholder={t('selectGrinder')}>
                                 {currentGrinderDisplayName}
                             </SelectValue>
                             <svg
@@ -557,7 +610,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                                     key={grinder.id}
                                     value={grinder.id}
                                 >
-                                    {grinder.name}
+                                    {configT.translateGrinder(grinder.id)}
                                 </SelectItem>
                             ))}
 
@@ -578,7 +631,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
 
                             <SelectSeparator />
                             <SelectItem value="add_custom">
-                                <span className="text-neutral-600 dark:text-neutral-400">+ 添加自定义磨豆机</span>
+                                <span className="text-neutral-600 dark:text-neutral-400">{t('addCustomGrinder')}</span>
                             </SelectItem>
                         </SelectContent>
                     </Select>
@@ -589,19 +642,19 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
             {settings.grindType === 'add_custom' && (
                 <div className="mt-3 border-l-2 border-neutral-300 dark:border-neutral-700 pl-4 py-2">
                     <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                        {editingCustomId ? '编辑自定义磨豆机' : '创建自定义磨豆机'}
+                        {editingCustomId ? t('editCustomGrinder') : t('createCustomGrinder')}
                     </p>
 
                     {/* 磨豆机名称输入 */}
                     <div className="mb-4">
                         <label className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2 block">
-                            磨豆机名称:
+                            {t('grinderName')}
                         </label>
                         <input
                             type="text"
                             value={customGrinderForm.name}
                             onChange={(e) => setCustomGrinderForm(prev => ({ ...prev, name: e.target.value }))}
-                            placeholder="请输入磨豆机名称"
+                            placeholder={t('grinderNamePlaceholder')}
                             className="w-full px-3 py-2 text-sm bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700 rounded-lg text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-500"
                         />
                     </div>
@@ -609,21 +662,21 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                     {/* 研磨度单位选择 */}
                     <div className="mb-4">
                         <label className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2 block">
-                            研磨度单位:
+                            {t('grinderUnit')}
                         </label>
                         <div className="flex gap-2 mb-2">
                             {/* 常用单位快速选择 */}
                             {commonUnits.map((unit) => (
                                 <button
-                                    key={unit}
-                                    onClick={() => updateUnit(unit)}
+                                    key={unit.key}
+                                    onClick={() => updateUnit(unit.value)}
                                     className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
-                                        customGrinderForm.unit === unit
+                                        customGrinderForm.unit === unit.value
                                             ? 'bg-neutral-700 dark:bg-neutral-600 text-white'
                                             : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700'
                                     }`}
                                 >
-                                    {unit}
+                                    {unit.value}
                                 </button>
                             ))}
                         </div>
@@ -632,23 +685,23 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                             type="text"
                             value={customGrinderForm.unit}
                             onChange={(e) => updateUnit(e.target.value)}
-                            placeholder="或输入自定义单位"
+                            placeholder={t('customUnitPlaceholder')}
                             className="w-full px-3 py-2 text-sm bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700 rounded-lg text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-500"
                         />
                         <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                            选择单位后，在下方输入框中只需输入数值，单位会显示在输入框后方
+                            {t('unitDescription')}
                         </p>
                     </div>
 
                     {/* 基础研磨度部分 */}
                     <div className="mb-3">
                         <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">
-                            基础研磨度:
+                            {t('basicGrindSizes')}
                         </p>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                            {['极细', '特细', '细', '中细', '中细偏粗', '中粗', '粗', '特粗'].map((key) => (
+                            {basicGrindSizeKeys.map((key) => (
                                 <div key={key} className="flex justify-between items-center text-sm text-neutral-700 dark:text-neutral-300">
-                                    <span className="font-medium">{key}</span>
+                                    <span className="font-medium">{getTranslatedGrindSizeName(key)}</span>
                                     <div className="flex items-center gap-1">
                                         <input
                                             type="text"
@@ -660,7 +713,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                                                     [key]: e.target.value
                                                 }
                                             }))}
-                                            placeholder="如: 1-2"
+                                            placeholder={t('grindSizePlaceholder')}
                                             className="w-16 px-2 py-1 text-xs bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700 rounded text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-500"
                                         />
                                         {customGrinderForm.unit && (
@@ -677,12 +730,12 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                     {/* 特定应用研磨度部分 */}
                     <div className="mb-3">
                         <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">
-                            特定应用研磨度:
+                            {t('applicationGrindSizes')}
                         </p>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                            {['意式', '摩卡壶', '手冲', '法压壶', '冷萃'].map((key) => (
+                            {applicationGrindSizeKeys.map((key) => (
                                 <div key={key} className="flex justify-between items-center text-sm text-neutral-700 dark:text-neutral-300">
-                                    <span className="font-medium">{key}</span>
+                                    <span className="font-medium">{getTranslatedGrindSizeName(key)}</span>
                                     <div className="flex items-center gap-1">
                                         <input
                                             type="text"
@@ -694,7 +747,7 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                                                     [key]: e.target.value
                                                 }
                                             }))}
-                                            placeholder="如: 2-4"
+                                            placeholder={t('grindSizePlaceholder')}
                                             className="w-16 px-2 py-1 text-xs bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700 rounded text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-500"
                                         />
                                         {customGrinderForm.unit && (
@@ -714,19 +767,19 @@ const GrinderSettings: React.FC<GrinderSettingsProps> = ({
                             onClick={saveCustomGrinder}
                             className="px-3 py-1.5 text-xs font-medium bg-neutral-700 dark:bg-neutral-600 text-white rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-500 transition-colors"
                         >
-                            保存
+                            {t('save')}
                         </button>
                         <button
                             onClick={cancelEditing}
                             className="px-3 py-1.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                         >
-                            取消
+                            {t('cancel')}
                         </button>
                         <button
                             onClick={importCustomGrinder}
                             className="px-3 py-1.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                         >
-                            导入配置
+                            {t('import')}
                         </button>
                     </div>
                 </div>

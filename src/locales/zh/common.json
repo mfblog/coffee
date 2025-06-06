@@ -12,5 +12,150 @@
       "pour": "注水",
       "record": "记录"
     }
+  },
+  "settings": {
+    "title": "设置",
+    "sections": {
+      "support": "支持 & 交流",
+      "notifications": "通知",
+      "display": "显示",
+      "safeArea": "安全区域边距",
+      "grinder": "研磨度设置",
+      "inventory": "库存扣除预设值",
+      "beanDisplay": "豆仓列表显示设置",
+      "timerLayout": "计时器布局",
+      "dataManagement": "数据管理"
+    },
+    "support": {
+      "appreciationCode": "赞赏码",
+      "communityGroup": "交流群",
+      "hideQRCode": "收起二维码"
+    },
+    "profile": {
+      "username": "用户名",
+      "usernamePlaceholder": "请输入您的用户名",
+      "usernameDescription": "用于在分享时显示签名"
+    },
+    "notifications": {
+      "sound": "提示音",
+      "haptic": "震动反馈"
+    },
+    "display": {
+      "language": "语言(Beta)",
+      "appearance": "外观模式",
+      "textSize": "文本大小",
+      "light": "浅色",
+      "dark": "深色",
+      "system": "系统",
+      "small": "小",
+      "standard": "标准",
+      "large": "大",
+      "chinese": "中文",
+      "english": "English"
+    },
+    "safeArea": {
+      "title": "安全区域边距",
+      "description": "调整应用界面的上下边距，影响导航栏和内容区域的间距",
+      "resetDefault": "还原默认",
+      "topMargin": "顶部边距",
+      "bottomMargin": "底部边距",
+      "resetTooltip": "点击重置为默认值"
+    },
+    "inventory": {
+      "title": "库存扣除预设值",
+      "placeholder": "克数",
+      "addButton": "+"
+    },
+    "beanDisplay": {
+      "title": "豆仓列表显示设置",
+      "simplifyName": "简化咖啡豆名称",
+      "showFlavorPeriod": "显示赏味期信息"
+    },
+    "timerLayout": {
+      "title": "计时器布局",
+      "stageInfoReversed": "阶段信息布局反转",
+      "controlsReversed": "控制区布局反转",
+      "alwaysShowTimerInfo": "始终显示计时器信息",
+      "showStageDivider": "显示阶段分隔线",
+      "showFlowRate": "显示流速",
+      "progressBarHeight": "进度条高度",
+      "progressBarDefault": "px (默认 4px)",
+      "thin": "细",
+      "thick": "粗"
+    },
+    "dataManagement": {
+      "openDataManager": "打开数据管理"
+    },
+    "grinder": {
+      "title": "研磨度设置",
+      "grinderType": "磨豆机类型",
+      "selectGrinder": "选择磨豆机",
+      "addCustomGrinder": "添加自定义磨豆机",
+      "editCustomGrinder": "编辑自定义磨豆机",
+      "createCustomGrinder": "创建自定义磨豆机",
+      "grinderReference": "研磨度参考",
+      "basicGrindSizes": "基础研磨度:",
+      "applicationGrindSizes": "特定应用研磨度:",
+      "customGrinderActions": "自定义磨豆机操作",
+      "edit": "编辑",
+      "delete": "删除",
+      "export": "导出",
+      "save": "保存",
+      "cancel": "取消",
+      "import": "导入配置",
+      "grinderName": "磨豆机名称:",
+      "grinderNamePlaceholder": "请输入磨豆机名称",
+      "grinderUnit": "研磨度单位:",
+      "customUnitPlaceholder": "或输入自定义单位",
+      "unitDescription": "选择单位后，在下方输入框中只需输入数值，单位会显示在输入框后方",
+      "grindSizePlaceholder": "如: 1-2",
+      "dataSource": "数据来源：网络收集和用户调研，仅供参考",
+      "surveyLink": "→ 参与研磨度调研问卷",
+      "deleteConfirm": "确定要删除这个自定义磨豆机吗？",
+      "exportSuccess": "磨豆机配置已复制到剪贴板！",
+      "exportFallback": "复制失败，请手动复制以下内容：\n\n",
+      "importPrompt": "请粘贴磨豆机配置的 JSON 数据：",
+      "importSuccess": "磨豆机配置导入成功！",
+      "importError": "导入失败：JSON 格式不正确或数据不完整",
+      "nameRequired": "请输入磨豆机名称",
+      "grindSizes": {
+        "ultraFine": "极细",
+        "extraFine": "特细",
+        "fine": "细",
+        "mediumFine": "中细",
+        "mediumFineCoarse": "中细偏粗",
+        "mediumCoarse": "中粗",
+        "coarse": "粗",
+        "extraCoarse": "特粗",
+        "espresso": "意式",
+        "moka": "摩卡壶",
+        "pourOver": "手冲",
+        "frenchPress": "法压壶",
+        "coldBrew": "冷萃"
+      },
+      "units": {
+        "grid": "格",
+        "circle": "圈",
+        "gear": "档",
+        "scale": "刻度",
+        "mm": "mm",
+        "level": "级"
+      },
+      "altText": {
+        "appreciationCode": "赞赏码",
+        "communityGroup": "交流群"
+      },
+      "placeholder": {
+        "invisible": "占位"
+      }
+    },
+    "version": {
+      "versionNumber": "[版本号]",
+      "developerNote": "[来自开发者的小废话]",
+      "developerMessage": "Hi！感谢你愿意尝试这个小工具，还看到了这里，\n\n起初，因为自己记不住方案，也把握不好注水节奏，就开发了这个小工具\n\n没想到发到群里后，能收到这么多支持和反馈，还认识到了好多大佬！\n\n真的谢谢你们，希望我们能一起进步ww",
+      "thanks": "[感谢]",
+      "sponsorMessage": "感谢以下赞助者的支持",
+      "sponsorEnding": " 。 and You。"
+    }
   }
 }
