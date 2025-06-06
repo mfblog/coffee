@@ -1172,7 +1172,8 @@
         "temperature": "Temperature (e.g: 92°C)",
         "notesText": "Record your brewing experience, improvements, etc...",
         "selectImage": "Select Image",
-        "imageCompress": "Images over 200kb will be compressed"
+        "imageCompress": "Images over 200kb will be compressed",
+        "grindSizeInput": "Medium Fine"
       },
       "buttons": {
         "save": "Save",
@@ -1201,8 +1202,15 @@
         "unknownBean": "Unknown Bean",
         "noMethods": "No brewing methods available, please go to \"Brew\" page to add",
         "selectEquipmentFirst": "Please select equipment first",
+        "noAvailableMethods": "No brewing methods available, please go to \"Brew\" page to add",
         "generating": "Generating...",
         "saveAsImage": "Save as Image"
+      },
+      "methodParams": {
+        "coffee": "Coffee:",
+        "water": "Water:",
+        "ratio": "Ratio:",
+        "grindSize": "Grind:"
       }
     }
   },

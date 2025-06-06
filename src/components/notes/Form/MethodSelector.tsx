@@ -185,19 +185,19 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
           {!isSelected && (
             <div className="mt-1.5 space-y-0.5 text-neutral-500 dark:text-neutral-400">
               <div className="flex items-center">
-                <span className="text-xs font-medium w-14">咖啡粉:</span>
+                <span className="text-xs font-medium w-14">{t('methodParams.coffee')}</span>
                 <span className="text-xs font-medium">{method.params.coffee}</span>
               </div>
               <div className="flex items-center">
-                <span className="text-xs font-medium w-14">水量:</span>
+                <span className="text-xs font-medium w-14">{t('methodParams.water')}</span>
                 <span className="text-xs font-medium">{method.params.water}</span>
               </div>
               <div className="flex items-center">
-                <span className="text-xs font-medium w-14">粉水比:</span>
+                <span className="text-xs font-medium w-14">{t('methodParams.ratio')}</span>
                 <span className="text-xs font-medium">{method.params.ratio}</span>
               </div>
               <div className="flex items-center">
-                <span className="text-xs font-medium w-14">研磨度:</span>
+                <span className="text-xs font-medium w-14">{t('methodParams.grindSize')}</span>
                 <span className="text-xs font-medium">{translateBrewingTerm(method.params.grindSize)}</span>
               </div>
             </div>
@@ -208,7 +208,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
               <div className="space-y-2">
                 {/* 咖啡粉量 */}
                 <div className="flex items-center">
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">咖啡粉:</label>
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">{t('methodParams.coffee')}</label>
                   <div className="w-20 flex justify-end">
                     <input
                       type="text"
@@ -223,7 +223,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
 
                 {/* 水量 - 不可编辑，仅显示计算结果 */}
                 <div className="flex items-center">
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">水量:</label>
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">{t('methodParams.water')}</label>
                   <div className="w-20 flex justify-end">
                     <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{waterAmount}</span>
                   </div>
@@ -231,7 +231,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
 
                 {/* 粉水比 */}
                 <div className="flex items-center">
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">粉水比:</label>
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">{t('methodParams.ratio')}</label>
                   <div className="w-20 flex justify-end items-center">
                     <span className="mr-0.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">1:</span>
                     <input
@@ -246,14 +246,14 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
 
                 {/* 研磨度 */}
                 <div className="flex items-center">
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">研磨度:</label>
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 w-14">{t('methodParams.grindSize')}</label>
                   <div className="w-20 flex justify-end">
                     <input
                       type="text"
                       value={grindSize}
                       onChange={(e) => handleGrindSizeChange(e.target.value, method)}
                       className="w-16 py-0.5 px-1 border border-neutral-300 dark:border-neutral-700 rounded-sm bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 text-right text-xs font-medium  focus:outline-hidden focus:ring-1 focus:ring-neutral-500"
-                      placeholder="中细"
+                      placeholder={t('placeholders.grindSizeInput')}
                     />
                   </div>
                 </div>
@@ -284,7 +284,7 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
             ) : (
               !customMethods.length && (
                 <div className="text-xs text-neutral-500 dark:text-neutral-400 border-l border-neutral-200 dark:border-neutral-800 pl-6">
-                  没有可用的冲煮方案，请前往“冲煮”页面添加
+                  {t('messages.noAvailableMethods')}
                 </div>
               )
             )}

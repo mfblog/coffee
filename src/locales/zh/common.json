@@ -1172,7 +1172,8 @@
         "temperature": "水温 (如: 92°C)",
         "notesText": "记录一下这次冲煮的感受、改进点等...",
         "selectImage": "选择图片",
-        "imageCompress": "200kb以上将自动压缩"
+        "imageCompress": "200kb以上将自动压缩",
+        "grindSizeInput": "中细"
       },
       "buttons": {
         "save": "保存",
@@ -1201,8 +1202,15 @@
         "unknownBean": "未知咖啡豆",
         "noMethods": "没有可用的冲煮方案，请前往\"冲煮\"页面添加",
         "selectEquipmentFirst": "请先选择器具",
+        "noAvailableMethods": "没有可用的冲煮方案，请前往\"冲煮\"页面添加",
         "generating": "生成中...",
         "saveAsImage": "保存为图片"
+      },
+      "methodParams": {
+        "coffee": "咖啡粉:",
+        "water": "水量:",
+        "ratio": "粉水比:",
+        "grindSize": "研磨度:"
       }
     }
   },
