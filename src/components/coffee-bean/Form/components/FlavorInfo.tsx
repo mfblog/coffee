@@ -1,6 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl'
+
+// 导入翻译文件
+import zhTranslations from '@/locales/zh/common.json'
+import enTranslations from '@/locales/en/common.json';
 import AutocompleteInput from '@/components/common/forms/AutocompleteInput';
 import { ExtendedCoffeeBean } from '../types';
 import { pageVariants, pageTransition, FLAVOR_TAGS, FLAVOR_CATEGORIES } from '../constants';
@@ -22,7 +26,33 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
 }) => {
     // 使用翻译钩子
     const t = useTranslations('beanForm.flavorInfo')
-    const tConstants = useTranslations('beanConstants')
+    const locale = useLocale()
+
+    // 翻译风味标签的函数
+    const translateFlavorTag = (flavor: string): string => {
+        // 直接从翻译文件中查找，避免 useTranslations 的错误
+        const translations = locale === 'en' ? enTranslations : zhTranslations;
+        const flavorTags = translations.beanConstants?.flavorTags;
+
+        if (flavorTags && flavorTags[flavor as keyof typeof flavorTags]) {
+            return flavorTags[flavor as keyof typeof flavorTags];
+        }
+
+        // 如果翻译不存在，返回原始文本
+        return flavor;
+    };
+
+    // 翻译风味分类的函数
+    const translateFlavorCategory = (category: string): string => {
+        const translations = locale === 'en' ? enTranslations : zhTranslations;
+        const flavorCategories = translations.beanConstants?.flavorCategories;
+
+        if (flavorCategories && flavorCategories[category as keyof typeof flavorCategories]) {
+            return flavorCategories[category as keyof typeof flavorCategories];
+        }
+
+        return category;
+    };
     return (
         <motion.div
             key="flavor-step"
@@ -44,7 +74,7 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
                                 key={index}
                                 className="flex items-center bg-neutral-200 dark:bg-neutral-800 rounded-full px-3 py-1"
                             >
-                                <span className="text-xs">{flavor}</span>
+                                <span className="text-xs">{translateFlavorTag(flavor)}</span>
                                 <button
                                     type="button"
                                     onClick={() => onRemoveFlavor(flavor)}
@@ -95,7 +125,7 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
                 {Object.entries(FLAVOR_CATEGORIES).map(([category, tags]) => (
                     <div key={category} className="space-y-2">
                         <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                            {tConstants(`flavorCategories.${category}`) || category}
+                            {translateFlavorCategory(category)}
                         </div>
                         <div className="flex flex-wrap gap-2 mb-3">
                             {tags.map((flavor) => (
@@ -116,7 +146,7 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
                                             : 'bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300'
                                     }`}
                                 >
-                                    {bean.flavor?.includes(flavor) ? `${flavor} ×` : flavor}
+                                    {bean.flavor?.includes(flavor) ? `${translateFlavorTag(flavor)} ×` : translateFlavorTag(flavor)}
                                 </button>
                             ))}
                         </div>

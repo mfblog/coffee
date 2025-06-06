@@ -46,6 +46,11 @@ import { toPng } from 'html-to-image'
 import { useToast } from '@/components/common/feedback/GlobalToast'
 import { Storage } from '@/lib/core/storage'
 import { exportStatsView } from './components/StatsView/StatsExporter'
+import { useLocale } from 'next-intl'
+
+// 导入翻译文件
+import zhTranslations from '@/locales/zh/common.json'
+import enTranslations from '@/locales/en/common.json'
 
 // 重命名导入组件以避免混淆
 const CoffeeBeanRanking = _CoffeeBeanRanking;
@@ -63,6 +68,23 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
     onExternalViewChange
 }) => {
     const { copyText, showFailureModal, failureContent, closeFailureModal } = useCopy()
+
+    // 翻译钩子
+    const locale = useLocale()
+
+    // 翻译风味标签的函数
+    const translateFlavorTag = (flavor: string): string => {
+        // 直接从翻译文件中查找，避免 useTranslations 的错误
+        const translations = locale === 'en' ? enTranslations : zhTranslations;
+        const flavorTags = translations.beanConstants?.flavorTags;
+
+        if (flavorTags && flavorTags[flavor as keyof typeof flavorTags]) {
+            return flavorTags[flavor as keyof typeof flavorTags];
+        }
+
+        // 如果翻译不存在，返回原始文本
+        return flavor;
+    };
 
     // 基础状态
     const [beans, setBeans] = useState<ExtendedCoffeeBean[]>(globalCache.beans)
@@ -1087,7 +1109,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                             beans={beans}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
-                            onShare={(bean) => handleShare(bean, copyText)}
+                            onShare={(bean) => handleShare(bean, copyText, translateFlavorTag)}
                             _onRemainingUpdate={handleRemainingUpdate}
                             onQuickDecrement={handleQuickDecrement}
                             isSearching={isSearching}

@@ -1,7 +1,11 @@
 import React from 'react'
 import { formatNumber2Digits } from './utils'
 import { StatsSummaryProps } from './types'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+
+// 导入翻译文件
+import zhTranslations from '@/locales/zh/common.json'
+import enTranslations from '@/locales/en/common.json'
 
 // 咖啡消耗量计算专家系统
 // 基于数据科学和咖啡爱好者经验的综合计算方法
@@ -297,6 +301,21 @@ export const calculateEstimatedFinishDateAdvanced = (
 
 const StatsSummary: React.FC<StatsSummaryProps> = ({ stats, todayConsumption: _todayConsumption }) => {
     const t = useTranslations()
+    const locale = useLocale()
+
+    // 翻译风味标签的函数
+    const translateFlavorTag = (flavor: string): string => {
+        // 直接从翻译文件中查找，避免 useTranslations 的错误
+        const translations = locale === 'en' ? enTranslations : zhTranslations;
+        const flavorTags = translations.beanConstants?.flavorTags;
+
+        if (flavorTags && flavorTags[flavor as keyof typeof flavorTags]) {
+            return flavorTags[flavor as keyof typeof flavorTags];
+        }
+
+        // 如果翻译不存在，返回原始文本
+        return flavor;
+    };
 
     return (
         <div className="p-4 text-justify text-sm font-medium max-w-xs">
@@ -308,7 +327,7 @@ const StatsSummary: React.FC<StatsSummaryProps> = ({ stats, todayConsumption: _t
             {t('nav.stats.summary.mainlyRoast')}{Object.entries(stats.roastLevelCount).sort((a, b) => b[1] - a[1])[0]?.[0] || t('nav.stats.summary.defaultRoast')}{t('nav.stats.summary.roast')}。
 
             {stats.topFlavors.length > 0 ?
-                `${t('nav.stats.summary.flavorPreference')}${stats.topFlavors.slice(0, 2).map(([flavor]) => flavor).join(t('nav.stats.summary.and'))}` : ''}。
+                `${t('nav.stats.summary.flavorPreference')}${stats.topFlavors.slice(0, 2).map(([flavor]) => translateFlavorTag(flavor)).join(t('nav.stats.summary.and'))}` : ''}。
         </div>
     )
 }

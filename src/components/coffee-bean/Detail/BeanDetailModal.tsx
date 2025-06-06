@@ -9,6 +9,11 @@ import HighlightText from '@/components/common/ui/HighlightText'
 import { Storage } from '@/lib/core/storage'
 import { getEquipmentName } from '@/components/notes/utils'
 import { formatDate, formatRating } from '@/components/notes/utils'
+import { useTranslations, useLocale } from 'next-intl'
+
+// 导入翻译文件
+import zhTranslations from '@/locales/zh/common.json'
+import enTranslations from '@/locales/en/common.json'
 import {
     Drawer,
     DrawerContent,
@@ -79,6 +84,23 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
     const [relatedNotes, setRelatedNotes] = useState<BrewingNote[]>([])
     const [isLoadingNotes, setIsLoadingNotes] = useState(false)
     const [equipmentNames, setEquipmentNames] = useState<Record<string, string>>({})
+
+    // 翻译钩子
+    const locale = useLocale()
+
+    // 翻译风味标签的函数
+    const translateFlavorTag = (flavor: string): string => {
+        // 直接从翻译文件中查找，避免 useTranslations 的错误
+        const translations = locale === 'en' ? enTranslations : zhTranslations;
+        const flavorTags = translations.beanConstants?.flavorTags;
+
+        if (flavorTags && flavorTags[flavor as keyof typeof flavorTags]) {
+            return flavorTags[flavor as keyof typeof flavorTags];
+        }
+
+        // 如果翻译不存在，返回原始文本
+        return flavor;
+    };
 
     // 重置图片错误状态
     useEffect(() => {
@@ -498,7 +520,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                                     key={index}
                                                     className="px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-700/50 text-xs text-neutral-700 dark:text-neutral-300"
                                                 >
-                                                    {flavor}
+                                                    {translateFlavorTag(flavor)}
                                                 </span>
                                             ))}
                                         </div>
