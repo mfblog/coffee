@@ -768,7 +768,7 @@ export function brewingNoteToReadableText(note: BrewingNote): string {
 		text += `酸度: ${taste.acidity || 0}/5\n`;
 		text += `甜度: ${taste.sweetness || 0}/5\n`;
 		text += `苦度: ${taste.bitterness || 0}/5\n`;
-		text += `醇厚度: ${taste.body || 0}/5\n`;
+		text += `口感: ${taste.body || 0}/5\n`;
 	}
 
 	if (rating) {
@@ -1262,7 +1262,7 @@ function parseBrewingNoteText(text: string): BrewingNote | null {
 			note.taste.bitterness = parseInt(bitternessMatch[1]);
 		}
 
-		const bodyMatch = text.match(/醇厚度:\s*(\d+)\/5/);
+		const bodyMatch = text.match(/口感:\s*(\d+)\/5/);
 		if (bodyMatch && bodyMatch[1]) {
 			note.taste.body = parseInt(bodyMatch[1]);
 		}

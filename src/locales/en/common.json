@@ -1303,7 +1303,7 @@
         "acidity": "Acidity",
         "sweetness": "Sweetness",
         "bitterness": "Bitterness",
-        "body": "Body"
+        "body": "Mouthfeel"
       },
       "messages": {
         "unknownBean": "Unknown Bean",
