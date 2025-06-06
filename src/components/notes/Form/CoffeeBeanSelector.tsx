@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import type { CoffeeBean } from '@/types/app'
 import { useTranslations } from 'next-intl'
+import { createTranslationHelpers } from '@/lib/utils/dataTranslation'
 
 interface CoffeeBeanSelectorProps {
   coffeeBeans: CoffeeBean[]
@@ -84,6 +85,8 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
   highlightedBeanId = null
 }) => {
   const t = useTranslations('nav')
+  const tBeanConstants = useTranslations('beanConstants')
+  const { translateRoastLevel } = createTranslationHelpers(tBeanConstants)
   // 添加ref用于存储咖啡豆元素列表
   const beanItemsRef = useRef<Map<string, HTMLDivElement>>(new Map());
   
@@ -335,7 +338,7 @@ const CoffeeBeanSelector: React.FC<CoffeeBeanSelectorProps> = ({
                         {/* 咖啡豆名称和烘焙度 */}
                         <div className="text-xs font-medium text-neutral-800 dark:text-neutral-100 leading-tight line-clamp-2 text-justify">
                           {bean.name}
-                          {bean.roastLevel && ` ${bean.roastLevel}`}
+                          {bean.roastLevel && ` ${translateRoastLevel(bean.roastLevel)}`}
                           <span className={statusClass}> {freshStatus}</span>
                         </div>
 

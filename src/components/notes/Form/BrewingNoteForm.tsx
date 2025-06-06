@@ -86,7 +86,7 @@ const compressBase64 = (base64: string, quality = 0.7, maxWidth = 800): Promise<
 
 // 标准化烘焙度值 - 现在接受翻译函数作为参数
 const normalizeRoastLevel = (roastLevel?: string, t?: any): string => {
-    const defaultRoast = t ? t('roastLevels.medium') : '中度烘焙';
+    const defaultRoast = t ? t('roastLevels.medium') : 'medium';
 
     if (!roastLevel) return defaultRoast;
     if (roastLevel.endsWith('烘焙') || roastLevel.endsWith('Light') || roastLevel.endsWith('Dark')) return roastLevel;

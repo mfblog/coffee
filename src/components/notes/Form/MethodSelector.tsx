@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Method } from '@/lib/core/config'
 import { useConfigTranslation } from '@/lib/utils/i18n-config'
-import { formatGrindSize } from '@/lib/utils/grindUtils'
+
 
 interface MethodSelectorProps {
   selectedEquipment: string
@@ -26,7 +26,6 @@ const MethodSelector: React.FC<MethodSelectorProps> = ({
   // onSkipMethodSelection // 暂时移除
 }) => {
   const t = useTranslations('notes.form')
-  const locale = useLocale()
   const { translateBrewingMethod, translateBrewingTerm } = useConfigTranslation()
   // 本地状态管理参数
   const [coffeeAmount, setCoffeeAmount] = useState<string>('15')

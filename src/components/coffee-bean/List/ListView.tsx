@@ -6,6 +6,7 @@ import { CoffeeBean } from '@/types/app'
 import { CoffeeBeanManager } from '@/lib/managers/coffeeBeanManager'
 import { globalCache } from './globalCache'
 import { useTranslations } from 'next-intl'
+import { createTranslationHelpers } from '@/lib/utils/dataTranslation'
 
 // 每页加载的咖啡豆数量 - 增加到20个，减少分页频率
 const PAGE_SIZE = 8;
@@ -27,6 +28,8 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
     highlightedBeanId = null // 添加高亮咖啡豆ID默认值
 }) => {
     const t = useTranslations('nav')
+    const tBeanConstants = useTranslations('beanConstants')
+    const { translateRoastLevel } = createTranslationHelpers(tBeanConstants)
     // 如果缓存已有数据，直接使用缓存初始化，避免闪烁
     const [beans, setBeans] = useState<CoffeeBean[]>(() =>
         globalCache.initialized ? globalCache.beans : []
@@ -496,7 +499,7 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                                     {/* 咖啡豆名称和烘焙度 */}
                                     <div className="text-xs font-medium text-neutral-800 dark:text-neutral-100 leading-tight line-clamp-2 text-justify">
                                         {bean.name}
-                                        {bean.roastLevel && ` ${bean.roastLevel}`}
+                                        {bean.roastLevel && ` ${translateRoastLevel(bean.roastLevel)}`}
                                         <span className={statusClass}> {freshStatus}</span>
                                     </div>
 

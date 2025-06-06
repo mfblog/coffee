@@ -361,7 +361,7 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
     // 构造咖啡豆信息
     const coffeeBeanInfo = {
       name: "",
-      roastLevel: "中度烘焙",
+      roastLevel: "medium",
       roastDate: "",
     };
 
@@ -809,29 +809,34 @@ const BrewingTimer: React.FC<BrewingTimerProps> = ({
       if (e.detail && noteFormInitialData) {
         // 标准化烘焙度值，确保与下拉列表选项匹配
         const normalizeRoastLevel = (roastLevel?: string): string => {
-          if (!roastLevel) return "中度烘焙";
+          if (!roastLevel) return "medium";
 
-          // 如果已经是完整格式，直接返回
-          if (roastLevel.endsWith("烘焙")) return roastLevel;
+          // 如果已经是英文键，直接返回
+          if (['ultraLight', 'light', 'mediumLight', 'medium', 'mediumDark', 'dark'].includes(roastLevel)) {
+            return roastLevel;
+          }
 
-          // 否则添加"烘焙"后缀
-          if (roastLevel === "极浅") return "极浅烘焙";
-          if (roastLevel === "浅度") return "浅度烘焙";
-          if (roastLevel === "中浅") return "中浅烘焙";
-          if (roastLevel === "中度") return "中度烘焙";
-          if (roastLevel === "中深") return "中深烘焙";
-          if (roastLevel === "深度") return "深度烘焙";
+          // 处理中文格式
+          if (roastLevel.includes("极浅") || roastLevel === "极浅") return "ultraLight";
+          if (roastLevel.includes("浅度") || roastLevel === "浅度") return "light";
+          if (roastLevel.includes("中浅") || roastLevel === "中浅") return "mediumLight";
+          if (roastLevel.includes("中深") || roastLevel === "中深") return "mediumDark";
+          if (roastLevel.includes("深度") || roastLevel === "深度") return "dark";
+          if (roastLevel.includes("中度") || roastLevel === "中度" || roastLevel.includes("中")) return "medium";
 
-          // 尝试匹配部分字符串
-          if (roastLevel.includes("极浅")) return "极浅烘焙";
-          if (roastLevel.includes("浅")) return "浅度烘焙";
-          if (roastLevel.includes("中浅")) return "中浅烘焙";
-          if (roastLevel.includes("中深")) return "中深烘焙";
-          if (roastLevel.includes("深")) return "深度烘焙";
-          if (roastLevel.includes("中")) return "中度烘焙";
+          // 处理英文格式
+          if (roastLevel.toLowerCase().includes("light")) {
+            if (roastLevel.toLowerCase().includes("ultra")) return "ultraLight";
+            if (roastLevel.toLowerCase().includes("medium")) return "mediumLight";
+            return "light";
+          }
+          if (roastLevel.toLowerCase().includes("dark")) {
+            if (roastLevel.toLowerCase().includes("medium")) return "mediumDark";
+            return "dark";
+          }
 
           // 默认返回中度烘焙
-          return "中度烘焙";
+          return "medium";
         };
 
         // 更新笔记表单数据

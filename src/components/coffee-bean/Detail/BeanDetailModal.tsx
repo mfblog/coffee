@@ -9,11 +9,10 @@ import HighlightText from '@/components/common/ui/HighlightText'
 import { Storage } from '@/lib/core/storage'
 import { getEquipmentName } from '@/components/notes/utils'
 import { formatDate, formatRating } from '@/components/notes/utils'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
+import { createTranslationHelpers } from '@/lib/utils/dataTranslation'
 
-// 导入翻译文件
-import zhTranslations from '@/locales/zh/common.json'
-import enTranslations from '@/locales/en/common.json'
+
 import {
     Drawer,
     DrawerContent,
@@ -86,10 +85,10 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
     const [equipmentNames, setEquipmentNames] = useState<Record<string, string>>({})
 
     // 翻译钩子
-    const locale = useLocale()
     const t = useTranslations('nav')
     const tStatus = useTranslations('nav.beanStatus')
-    const tRoast = useTranslations('beanConstants.roastLevels')
+    const tBeanConstants = useTranslations('beanConstants')
+    const { translateRoastLevel } = createTranslationHelpers(tBeanConstants)
 
     // 不再需要翻译风味标签，直接显示保存的值
 
@@ -308,7 +307,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             items.push({
                 key: 'roastLevel',
                 label: '烘焙度',
-                value: tRoast(bean.roastLevel)
+                value: translateRoastLevel(bean.roastLevel)
             })
         }
 

@@ -693,7 +693,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                         },
                         coffeeBean: selectedCoffeeBeanData ? {
                             name: selectedCoffeeBeanData.name || '',
-                            roastLevel: selectedCoffeeBeanData.roastLevel || '中度烘焙',
+                            roastLevel: selectedCoffeeBeanData.roastLevel || 'medium',
                             roastDate: selectedCoffeeBeanData.roastDate || ''
                         } : null
                     }
@@ -1024,7 +1024,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                 // 将导入的咖啡豆转换为ExtendedCoffeeBean类型
                 const bean = {
                     name: beanData.name,
-                    roastLevel: beanData.roastLevel || '浅度烘焙',
+                    roastLevel: beanData.roastLevel || 'light',
                     capacity: beanData.capacity || '200',
                     remaining: beanData.remaining || beanData.capacity || '200',
                     price: beanData.price || '',
@@ -1635,7 +1635,7 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         setCurrentEditingNote({
             coffeeBeanInfo: {
                 name: '',
-                roastLevel: '中度烘焙',
+                roastLevel: 'medium',
                 roastDate: ''
             },
             taste: {

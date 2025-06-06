@@ -5,6 +5,7 @@ import { CoffeeBean } from '@/types/app'
 import { CoffeeBeanManager } from '@/lib/managers/coffeeBeanManager'
 import { getBloggerBeans, BloggerBean, getVideoUrlFromEpisode } from '@/lib/utils/csvUtils'
 import { useTranslations } from 'next-intl'
+import { createTranslationHelpers } from '@/lib/utils/dataTranslation'
 
 // 用于检测当前运行环境
 const isMobileApp = typeof window !== 'undefined' && 
@@ -101,6 +102,8 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
 }) => {
     const t = useTranslations('nav')
     const tUnits = useTranslations('nav.units')
+    const tBeanConstants = useTranslations('beanConstants')
+    const { translateRoastLevel } = createTranslationHelpers(tBeanConstants)
     const [ratedBeans, setRatedBeans] = useState<(CoffeeBean | BloggerBean)[]>([])
     const [unratedBeans, setUnratedBeans] = useState<CoffeeBean[]>([])
     const [beanType, setBeanType] = useState<'all' | 'espresso' | 'filter'>(externalBeanType || 'all')
@@ -397,7 +400,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                             
                                             // Roast Level - Conditionally display
                                             if (bean.roastLevel && bean.roastLevel !== '未知') {
-                                                infoArray.push(bean.roastLevel);
+                                                infoArray.push(translateRoastLevel(bean.roastLevel));
                                             }
                                             
                                             // 视频期数 - 博主榜单模式下显示
@@ -533,7 +536,7 @@ const CoffeeBeanRanking: React.FC<CoffeeBeanRankingProps> = ({
                                                         
                                                         // Roast Level - Conditionally display
                                                         if (bean.roastLevel && bean.roastLevel !== '未知') {
-                                                            infoArray.push(bean.roastLevel);
+                                                            infoArray.push(translateRoastLevel(bean.roastLevel));
                                                         }
                                                         
                                                         // 每克价格

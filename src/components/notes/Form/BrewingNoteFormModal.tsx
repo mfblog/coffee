@@ -223,11 +223,11 @@ const BrewingNoteFormModal: React.FC<BrewingNoteFormModalProps> = ({
       coffeeBean: selectedCoffeeBean,
       coffeeBeanInfo: selectedCoffeeBean ? {
         name: selectedCoffeeBean.name || '',
-        roastLevel: selectedCoffeeBean.roastLevel || '中度烘焙',
+        roastLevel: selectedCoffeeBean.roastLevel || 'medium',
         roastDate: selectedCoffeeBean.roastDate || ''
       } : {
         name: initialNote?.coffeeBeanInfo?.name || '',
-        roastLevel: initialNote?.coffeeBeanInfo?.roastLevel || '中度烘焙',
+        roastLevel: initialNote?.coffeeBeanInfo?.roastLevel || 'medium',
         roastDate: initialNote?.coffeeBeanInfo?.roastDate || ''
       },
       params: initialNote?.params || params,
@@ -291,7 +291,7 @@ const BrewingNoteFormModal: React.FC<BrewingNoteFormModalProps> = ({
       // 始终设置咖啡豆信息，无论是否已存在
       completeNote.coffeeBeanInfo = {
         name: selectedCoffeeBean.name || '',
-        roastLevel: selectedCoffeeBean.roastLevel || '中度烘焙',
+        roastLevel: selectedCoffeeBean.roastLevel || 'medium',
         roastDate: selectedCoffeeBean.roastDate || ''
       }
 

@@ -233,7 +233,7 @@ const RemainingEditor: React.FC<RemainingEditorProps> = ({
                 beanId: coffeeBean.id,
                 coffeeBeanInfo: {
                     name: coffeeBean.name || '',
-                    roastLevel: coffeeBean.roastLevel || '中度烘焙',
+                    roastLevel: coffeeBean.roastLevel || 'medium',
                     roastDate: coffeeBean.roastDate
                 },
                 notes: `快捷扣除${decrementAmount}g咖啡豆`,
