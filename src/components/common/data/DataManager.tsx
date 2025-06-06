@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { DataManager as DataManagerUtil } from '@/lib/core/dataManager'
 import { APP_VERSION } from '@/lib/core/config'
 import { Capacitor } from '@capacitor/core'
@@ -15,6 +16,8 @@ interface DataManagerProps {
 }
 
 const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange }) => {
+    const t = useTranslations('dataManager')
+    const tUtil = useTranslations('dataManager.dataManagerUtil')
     const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info' | null; message: string }>({
         type: null,
         message: ''
@@ -30,9 +33,9 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
     const handleExport = async () => {
         try {
             setIsExporting(true)
-            setStatus({ type: 'info', message: '正在导出数据...' })
+            setStatus({ type: 'info', message: t('export.messages.exporting') })
 
-            const jsonData = await DataManagerUtil.exportAllData()
+            const jsonData = await DataManagerUtil.exportAllData(tUtil)
             const fileName = `brew-guide-data-${new Date().toISOString().slice(0, 10)}.json`
 
             if (isNative) {
@@ -53,10 +56,10 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
 
                     // 使用分享功能让用户选择保存位置
                     await Share.share({
-                        title: '导出数据',
-                        text: '请选择保存位置',
+                        title: t('export.shareTitle'),
+                        text: t('export.shareText'),
                         url: uriResult.uri,
-                        dialogTitle: '导出数据'
+                        dialogTitle: t('export.shareDialogTitle')
                     })
 
                     // 清理临时文件
@@ -67,10 +70,10 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
 
                     setStatus({
                         type: 'success',
-                        message: '数据已成功导出'
+                        message: t('export.messages.success')
                     })
                 } catch (error) {
-                    throw new Error(`保存文件失败: ${(error as Error).message}`)
+                    throw new Error(t('export.messages.saveError', { error: (error as Error).message }))
                 }
             } else {
                 // Web平台的处理保持不变
@@ -88,10 +91,10 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                     URL.revokeObjectURL(url)
                 }, 100)
 
-                setStatus({ type: 'success', message: '数据导出成功，文件已下载' })
+                setStatus({ type: 'success', message: t('export.messages.webSuccess') })
             }
         } catch (_error) {
-            setStatus({ type: 'error', message: `导出失败: ${(_error as Error).message}` })
+            setStatus({ type: 'error', message: t('export.messages.exportError', { error: (_error as Error).message }) })
         } finally {
             setIsExporting(false)
         }
@@ -109,13 +112,13 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
 
         try {
             setIsImporting(true)
-            setStatus({ type: 'info', message: '正在导入数据...' })
+            setStatus({ type: 'info', message: t('import.messages.importing') })
 
             const reader = new FileReader()
             reader.onload = async (event) => {
                 try {
                     const jsonString = event.target?.result as string
-                    const result = await DataManagerUtil.importAllData(jsonString)
+                    const result = await DataManagerUtil.importAllData(jsonString, tUtil)
 
                     if (result.success) {
                         setStatus({ type: 'success', message: result.message })
@@ -126,7 +129,7 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                         setStatus({ type: 'error', message: result.message })
                     }
                 } catch (_error) {
-                    setStatus({ type: 'error', message: `导入失败: ${(_error as Error).message}` })
+                    setStatus({ type: 'error', message: t('import.messages.importError', { error: (_error as Error).message }) })
                 } finally {
                     setIsImporting(false)
                     // 重置文件输入，以便可以重新选择同一个文件
@@ -137,13 +140,13 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
             }
 
             reader.onerror = () => {
-                setStatus({ type: 'error', message: '读取文件失败' })
+                setStatus({ type: 'error', message: t('import.messages.readError') })
                 setIsImporting(false)
             }
 
             reader.readAsText(file)
         } catch (_error) {
-            setStatus({ type: 'error', message: `导入失败: ${(_error as Error).message}` })
+            setStatus({ type: 'error', message: t('import.messages.importError', { error: (_error as Error).message }) })
             setIsImporting(false)
         }
     }
@@ -151,16 +154,16 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
     const handleReset = async () => {
         try {
             setIsResetting(true)
-            setStatus({ type: 'info', message: '正在重置数据...' })
+            setStatus({ type: 'info', message: t('reset.messages.resetting') })
 
-            const result = await DataManagerUtil.resetAllData(true)
+            const result = await DataManagerUtil.resetAllData(true, tUtil)
 
             if (result.success) {
                 setStatus({ type: 'success', message: result.message })
                 if (onDataChange) {
                     onDataChange()
                 }
-                
+
                 // 设置一个短暂延迟后刷新页面
                 setTimeout(() => {
                     window.location.reload()
@@ -169,7 +172,7 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                 setStatus({ type: 'error', message: result.message })
             }
         } catch (_error) {
-            setStatus({ type: 'error', message: `重置失败: ${(_error as Error).message}` })
+            setStatus({ type: 'error', message: t('reset.messages.resetError', { error: (_error as Error).message }) })
         } finally {
             setIsResetting(false)
             setShowConfirmReset(false)
@@ -196,7 +199,7 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-lg font-medium">数据管理</h2>
+                        <h2 className="text-lg font-medium">{t('title')}</h2>
                         <button
                             onClick={onClose}
                             className="rounded-full p-1 text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
@@ -219,8 +222,8 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                     </div>
 
                     <div className="mb-6 text-xs text-neutral-500 dark:text-neutral-400">
-                        <p>管理您的应用数据，包括导出、导入和重置</p>
-                        <p className="mt-1">当前版本: v{APP_VERSION}</p>
+                        <p>{t('description')}</p>
+                        <p className="mt-1">{t('currentVersion', { version: APP_VERSION })}</p>
                     </div>
 
                     {status.type && (
@@ -245,12 +248,12 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                                 disabled={isExporting}
                                 className="w-full rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-800 transition-colors hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600"
                             >
-                                {isExporting ? '导出中...' : '导出所有数据'}
+                                {isExporting ? t('export.button.loading') : t('export.button.idle')}
                             </button>
                             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                                 {isNative
-                                    ? '将所有数据导出到文档目录'
-                                    : '将所有数据下载为 JSON 文件'}
+                                    ? t('export.description.native')
+                                    : t('export.description.web')}
                             </p>
                         </div>
 
@@ -260,7 +263,7 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                                 disabled={isImporting}
                                 className="w-full rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-800 transition-colors hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600"
                             >
-                                {isImporting ? '导入中...' : '导入数据（替换）'}
+                                {isImporting ? t('import.button.loading') : t('import.button.idle')}
                             </button>
                             <input
                                 ref={fileInputRef}
@@ -270,7 +273,7 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                                 className="hidden"
                             />
                             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                                导入数据将替换所有现有数据
+                                {t('import.description')}
                             </p>
                         </div>
 
@@ -280,7 +283,7 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                                     onClick={() => setShowConfirmReset(true)}
                                     className="w-full rounded-md bg-red-100 px-4 py-2 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
                                 >
-                                    重置所有数据
+                                    {t('reset.button.idle')}
                                 </button>
                             ) : (
                                 <div className="mt-4">
@@ -299,24 +302,24 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                                                 />
                                             </svg>
                                             <h3 className="text-sm font-medium text-red-800 dark:text-red-300">
-                                                确认重置所有数据
+                                                {t('reset.confirm.title')}
                                             </h3>
                                         </div>
                                         <p className="text-xs text-red-600 dark:text-red-400 mb-4">
-                                            此操作无法撤销，所有数据将被删除。建议在重置前先导出备份。
+                                            {t('reset.confirm.warning')}
                                         </p>
-                                        
+
                                         <p className="text-xs text-red-600 dark:text-red-400 mb-4">
-                                            将彻底重置所有数据，包括自定义器具、应用设置和导航状态。
+                                            {t('reset.confirm.details')}
                                         </p>
-                                        
+
                                         <div className="flex space-x-2 justify-end">
                                             <button
                                                 type="button"
                                                 onClick={() => setShowConfirmReset(false)}
                                                 className="px-3 py-1.5 text-xs rounded-md bg-neutral-100 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100 transition-colors hover:bg-neutral-200 dark:hover:bg-neutral-600"
                                             >
-                                                取消
+                                                {t('reset.confirm.cancel')}
                                             </button>
                                             <button
                                                 type="button"
@@ -324,14 +327,14 @@ const DataManager: React.FC<DataManagerProps> = ({ isOpen, onClose, onDataChange
                                                 disabled={isResetting}
                                                 className="px-3 py-1.5 text-xs rounded-md bg-red-600 text-neutral-100 transition-colors hover:bg-red-700 disabled:opacity-50"
                                             >
-                                                {isResetting ? '重置中...' : '确认重置'}
+                                                {isResetting ? t('reset.button.loading') : t('reset.confirm.confirm')}
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             )}
                             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                                完全删除所有数据并恢复到初始状态，包括设置和缓存
+                                {t('reset.description')}
                             </p>
                         </div>
                     </div>

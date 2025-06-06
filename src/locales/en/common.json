@@ -1352,5 +1352,84 @@
       }
     },
     "complete": "Brewing Complete"
+  },
+  "dataManager": {
+    "title": "Data Management",
+    "description": "Manage your app data, including export, import and reset",
+    "currentVersion": "Current version: v{version}",
+    "export": {
+      "title": "Export All Data",
+      "description": {
+        "native": "Export all data to documents directory",
+        "web": "Download all data as JSON file"
+      },
+      "button": {
+        "idle": "Export All Data",
+        "loading": "Exporting..."
+      },
+      "shareTitle": "Export Data",
+      "shareText": "Please select save location",
+      "shareDialogTitle": "Export Data",
+      "messages": {
+        "exporting": "Exporting data...",
+        "success": "Data exported successfully",
+        "webSuccess": "Data export successful, file downloaded",
+        "saveError": "Save file failed: {error}",
+        "exportError": "Export failed: {error}"
+      }
+    },
+    "import": {
+      "title": "Import Data (Replace)",
+      "description": "Importing data will replace all existing data",
+      "button": {
+        "idle": "Import Data (Replace)",
+        "loading": "Importing..."
+      },
+      "messages": {
+        "importing": "Importing data...",
+        "readError": "Failed to read file",
+        "importError": "Import failed: {error}"
+      }
+    },
+    "reset": {
+      "title": "Reset All Data",
+      "description": "Completely delete all data and restore to initial state, including settings and cache",
+      "button": {
+        "idle": "Reset All Data",
+        "loading": "Resetting..."
+      },
+      "confirm": {
+        "title": "Confirm Reset All Data",
+        "warning": "This operation cannot be undone, all data will be deleted. It is recommended to export a backup before resetting.",
+        "details": "Will completely reset all data, including custom equipment, app settings and navigation state.",
+        "cancel": "Cancel",
+        "confirm": "Confirm Reset"
+      },
+      "messages": {
+        "resetting": "Resetting data...",
+        "resetError": "Reset failed: {error}"
+      }
+    },
+    "status": {
+      "success": "Success",
+      "error": "Error",
+      "info": "Info"
+    },
+    "dataManagerUtil": {
+      "export": {
+        "failed": "Failed to export data"
+      },
+      "import": {
+        "invalidFormat": "Invalid data format, missing data field",
+        "success": "Data imported successfully, export date: {exportDate}",
+        "failed": "Failed to import data: {error}",
+        "unknownDate": "Unknown"
+      },
+      "reset": {
+        "completeSuccess": "All data and settings have been completely reset",
+        "partialSuccess": "Main data has been reset",
+        "failed": "Failed to reset data"
+      }
+    }
   }
 }

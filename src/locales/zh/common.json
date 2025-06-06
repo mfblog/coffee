@@ -1352,5 +1352,84 @@
       }
     },
     "complete": "完成冲煮"
+  },
+  "dataManager": {
+    "title": "数据管理",
+    "description": "管理您的应用数据，包括导出、导入和重置",
+    "currentVersion": "当前版本: v{version}",
+    "export": {
+      "title": "导出所有数据",
+      "description": {
+        "native": "将所有数据导出到文档目录",
+        "web": "将所有数据下载为 JSON 文件"
+      },
+      "button": {
+        "idle": "导出所有数据",
+        "loading": "导出中..."
+      },
+      "shareTitle": "导出数据",
+      "shareText": "请选择保存位置",
+      "shareDialogTitle": "导出数据",
+      "messages": {
+        "exporting": "正在导出数据...",
+        "success": "数据已成功导出",
+        "webSuccess": "数据导出成功，文件已下载",
+        "saveError": "保存文件失败: {error}",
+        "exportError": "导出失败: {error}"
+      }
+    },
+    "import": {
+      "title": "导入数据（替换）",
+      "description": "导入数据将替换所有现有数据",
+      "button": {
+        "idle": "导入数据（替换）",
+        "loading": "导入中..."
+      },
+      "messages": {
+        "importing": "正在导入数据...",
+        "readError": "读取文件失败",
+        "importError": "导入失败: {error}"
+      }
+    },
+    "reset": {
+      "title": "重置所有数据",
+      "description": "完全删除所有数据并恢复到初始状态，包括设置和缓存",
+      "button": {
+        "idle": "重置所有数据",
+        "loading": "重置中..."
+      },
+      "confirm": {
+        "title": "确认重置所有数据",
+        "warning": "此操作无法撤销，所有数据将被删除。建议在重置前先导出备份。",
+        "details": "将彻底重置所有数据，包括自定义器具、应用设置和导航状态。",
+        "cancel": "取消",
+        "confirm": "确认重置"
+      },
+      "messages": {
+        "resetting": "正在重置数据...",
+        "resetError": "重置失败: {error}"
+      }
+    },
+    "status": {
+      "success": "成功",
+      "error": "错误",
+      "info": "信息"
+    },
+    "dataManagerUtil": {
+      "export": {
+        "failed": "导出数据失败"
+      },
+      "import": {
+        "invalidFormat": "导入的数据格式不正确，缺少 data 字段",
+        "success": "数据导入成功，导出日期: {exportDate}",
+        "failed": "导入数据失败: {error}",
+        "unknownDate": "未知"
+      },
+      "reset": {
+        "completeSuccess": "已完全重置所有数据和设置",
+        "partialSuccess": "已重置主要数据",
+        "failed": "重置数据失败"
+      }
+    }
   }
 }

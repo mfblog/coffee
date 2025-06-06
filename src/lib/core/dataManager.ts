@@ -9,6 +9,11 @@ import { db } from "@/lib/core/db";
 // 检查是否在浏览器环境中
 const isBrowser = typeof window !== 'undefined';
 
+// 定义翻译函数接口
+interface TranslationFunction {
+	(key: string, params?: Record<string, string | number>): string;
+}
+
 // 定义导出数据的接口
 interface ExportData {
 	exportDate: string;
@@ -72,9 +77,10 @@ const CUSTOM_PRESETS_KEYS = [
 export const DataManager = {
 	/**
 	 * 导出所有数据
+	 * @param t 翻译函数
 	 * @returns 包含所有数据的JSON字符串
 	 */
-	async exportAllData(): Promise<string> {
+	async exportAllData(t?: TranslationFunction): Promise<string> {
 		try {
 			const exportData: ExportData = {
 				exportDate: new Date().toISOString(),
@@ -195,17 +201,19 @@ export const DataManager = {
 
 			return JSON.stringify(exportData, null, 2);
 		} catch {
-			throw new Error("导出数据失败");
+			throw new Error(t ? t('export.failed') : "导出数据失败");
 		}
 	},
 
 	/**
 	 * 导入所有数据
 	 * @param jsonString 包含所有数据的JSON字符串
+	 * @param t 翻译函数
 	 * @returns 导入结果
 	 */
 	async importAllData(
-		jsonString: string
+		jsonString: string,
+		t?: TranslationFunction
 	): Promise<{ success: boolean; message: string }> {
 		try {
 			const importData = JSON.parse(jsonString) as ImportData;
@@ -214,7 +222,7 @@ export const DataManager = {
 			if (!importData.data) {
 				return {
 					success: false,
-					message: "导入的数据格式不正确，缺少 data 字段",
+					message: t ? t('import.invalidFormat') : "导入的数据格式不正确，缺少 data 字段",
 				};
 			}
 
@@ -308,18 +316,22 @@ export const DataManager = {
 				window.dispatchEvent(dataChangeEvent);
 			}
 			
+			const exportDate = importData.exportDate
+				? new Date(importData.exportDate).toLocaleString()
+				: (t ? t('import.unknownDate') : "未知");
+
 			return {
 				success: true,
-				message: `数据导入成功，导出日期: ${
-					importData.exportDate
-						? new Date(importData.exportDate).toLocaleString()
-						: "未知"
-				}`,
+				message: t
+					? t('import.success', { exportDate })
+					: `数据导入成功，导出日期: ${exportDate}`,
 			};
 		} catch (_error) {
 			return {
 				success: false,
-				message: `导入数据失败: ${(_error as Error).message}`,
+				message: t
+					? t('import.failed', { error: (_error as Error).message })
+					: `导入数据失败: ${(_error as Error).message}`,
 			};
 		}
 	},
@@ -327,10 +339,12 @@ export const DataManager = {
 	/**
 	 * 重置所有数据
 	 * @param completeReset 是否完全重置（包括所有设置和缓存）
+	 * @param t 翻译函数
 	 * @returns 重置结果
 	 */
 	async resetAllData(
-		completeReset = false
+		completeReset = false,
+		t?: TranslationFunction
 	): Promise<{ success: boolean; message: string }> {
 		try {
 			// 清除列表中的数据
@@ -423,14 +437,14 @@ export const DataManager = {
 			return {
 				success: true,
 				message: completeReset
-					? "已完全重置所有数据和设置"
-					: "已重置主要数据",
+					? (t ? t('reset.completeSuccess') : "已完全重置所有数据和设置")
+					: (t ? t('reset.partialSuccess') : "已重置主要数据"),
 			};
 		} catch (_error) {
 			console.error('重置数据失败:', _error);
 			return {
 				success: false,
-				message: "重置数据失败",
+				message: t ? t('reset.failed') : "重置数据失败",
 			};
 		}
 	},
