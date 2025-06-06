@@ -14,16 +14,16 @@ interface AutocompleteInputProps {
     required?: boolean
     unit?: string
     clearable?: boolean
-    matchStartsWith?: boolean // 是否只匹配开头
+    matchStartsWith?: boolean // Whether to match only from the beginning
     onBlur?: () => void
     containerClassName?: string
-    inputType?: 'text' | 'number' | 'tel' | 'email' // 新增输入框类型属性
-    inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url' // 新增输入模式属性
-    disabled?: boolean // 添加禁用属性
-    maxValue?: number // 添加最大值属性，用于限制数字输入
-    allowDecimal?: boolean // 新增：是否允许小数点输入
-    maxDecimalPlaces?: number // 新增：小数点后最多允许的位数
-    // 新增：自定义预设标记和预设删除功能
+    inputType?: 'text' | 'number' | 'tel' | 'email' // Input type attribute
+    inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url' // Input mode attribute
+    disabled?: boolean // Disabled attribute
+    maxValue?: number // Maximum value attribute for limiting numeric input
+    allowDecimal?: boolean // Whether to allow decimal point input
+    maxDecimalPlaces?: number // Maximum decimal places allowed
+    // Custom preset marking and deletion functionality
     isCustomPreset?: (value: string) => boolean
     onRemovePreset?: (value: string) => void
 }
@@ -41,30 +41,30 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     matchStartsWith = false,
     onBlur,
     containerClassName,
-    inputType = 'text', // 默认为text类型
-    inputMode, // 输入模式
-    disabled = false, // 默认为不禁用
+    inputType = 'text', // Default to text type
+    inputMode, // Input mode
+    disabled = false, // Default to not disabled
     maxValue,
-    allowDecimal = false, // 新增：默认不允许小数点
-    maxDecimalPlaces = 2, // 新增：默认小数点后最多2位
-    // 新增：自定义预设标记和预设删除功能
+    allowDecimal = false, // Default to not allow decimal point
+    maxDecimalPlaces = 2, // Default to maximum 2 decimal places
+    // Custom preset marking and deletion functionality
     isCustomPreset = () => false,
     onRemovePreset
 }) => {
     const [open, setOpen] = useState(false)
     const [inputValue, setInputValue] = useState(value)
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([])
-    const [justSelected, setJustSelected] = useState(false) // 跟踪用户是否刚选择过建议项
+    const [justSelected, setJustSelected] = useState(false) // Track whether user just selected a suggestion
     const inputRef = useRef<HTMLInputElement>(null)
     const dropdownRef = useRef<HTMLDivElement>(null)
     const containerRef = useRef<HTMLDivElement>(null)
 
-    // 当外部value变化时更新内部state
+    // Update internal state when external value changes
     useEffect(() => {
         setInputValue(value)
     }, [value])
 
-    // 过滤建议列表
+    // Filter suggestion list
     useEffect(() => {
         if (!inputValue.trim()) {
             setFilteredSuggestions(suggestions.slice(0, 10))
@@ -82,7 +82,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         setFilteredSuggestions(filtered)
     }, [inputValue, suggestions, matchStartsWith])
 
-    // 处理点击外部关闭下拉菜单
+    // Handle clicking outside to close dropdown
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -90,7 +90,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
             }
         }
 
-        // 移动端touch事件特殊处理
+        // Special handling for mobile touch events
         function handleTouchOutside(event: TouchEvent) {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setOpen(false)
@@ -106,32 +106,32 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         }
     }, [])
 
-    // 处理输入变化
+    // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = e.target.value;
-        
-        // 对数字类型输入进行处理
+
+        // Handle numeric type input processing
         if (inputType === 'tel' || inputType === 'number') {
             if (allowDecimal) {
-                // 允许小数点的情况
-                // 1. 移除所有非数字和非小数点字符
+                // Allow decimal point case
+                // 1. Remove all non-numeric and non-decimal characters
                 let filteredValue = newValue.replace(/[^0-9.]/g, '');
-                
-                // 2. 确保只有一个小数点
+
+                // 2. Ensure only one decimal point
                 const dotIndex = filteredValue.indexOf('.');
                 if (dotIndex !== -1) {
                     const beforeDot = filteredValue.substring(0, dotIndex + 1);
                     const afterDot = filteredValue.substring(dotIndex + 1).replace(/\./g, '');
                     
-                    // 3. 限制小数点后位数
-                    const limitedAfterDot = maxDecimalPlaces > 0 
-                        ? afterDot.substring(0, maxDecimalPlaces) 
+                    // 3. Limit decimal places
+                    const limitedAfterDot = maxDecimalPlaces > 0
+                        ? afterDot.substring(0, maxDecimalPlaces)
                         : afterDot;
-                    
+
                     filteredValue = beforeDot + limitedAfterDot;
                 }
-                
-                // 4. 如果设置了maxValue，限制输入的最大值
+
+                // 4. If maxValue is set, limit the maximum input value
                 if (maxValue !== undefined && filteredValue !== '' && filteredValue !== '.') {
                     const numValue = parseFloat(filteredValue);
                     if (numValue > maxValue) {
@@ -140,14 +140,14 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                         newValue = filteredValue;
                     }
                 } else {
-                    // 5. 如果只输入了小数点，自动补充为"0."
+                    // 5. If only decimal point is entered, auto-complete to "0."
                     if (filteredValue === '.') {
                         filteredValue = '0.';
                     }
                     newValue = filteredValue;
                 }
             } else {
-                // 原有逻辑：不允许小数点的情况
+                // Original logic: case where decimal point is not allowed
                 const numericValue = newValue.replace(/[^0-9]/g, '');
                 
                 if (maxValue !== undefined && numericValue !== '') {
@@ -164,9 +164,9 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         }
         
         setInputValue(newValue);
-        setJustSelected(false); // 用户输入时，重置选择状态
+        setJustSelected(false); // Reset selection state when user inputs
 
-        // 立即调用onChange以确保父组件及时获取新值
+        // Immediately call onChange to ensure parent component gets new value promptly
         onChange(newValue);
 
         if (newValue.trim()) {
@@ -174,38 +174,38 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         }
     };
 
-    // 处理选择建议
+    // Handle suggestion selection
     const handleSelectSuggestion = (selectedValue: string) => {
         setInputValue(selectedValue)
         onChange(selectedValue)
         setOpen(false)
-        setFilteredSuggestions([]) // 清空过滤后的建议列表
-        setJustSelected(true) // 标记用户刚选择过建议项
+        setFilteredSuggestions([]) // Clear filtered suggestion list
+        setJustSelected(true) // Mark that user just selected a suggestion
 
-        // 防止选择后立即失焦导致值丢失
+        // Prevent value loss due to immediate blur after selection
         setTimeout(() => {
             inputRef.current?.focus()
         }, 10)
     }
 
-    // 处理失去焦点
+    // Handle blur
     const handleBlur = () => {
-        // 延迟关闭下拉菜单，避免点击选项时错过点击事件
+        // Delay closing dropdown to avoid missing click events when clicking options
         setTimeout(() => {
-            // 检查当前文档焦点是否在下拉菜单内，避免点击下拉菜单项时立即关闭
+            // Check if current document focus is within dropdown to avoid immediate closure when clicking dropdown items
             if (
                 dropdownRef.current &&
                 !dropdownRef.current.contains(document.activeElement) &&
                 document.activeElement !== inputRef.current
             ) {
                 setOpen(false)
-                onChange(inputValue) // 确保更新外部值
+                onChange(inputValue) // Ensure external value is updated
                 onBlur?.()
             }
         }, 150)
     }
 
-    // 处理清除
+    // Handle clear
     const handleClear = (e: React.MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
@@ -215,7 +215,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         inputRef.current?.focus()
     }
 
-    // 处理键盘事件
+    // Handle keyboard events
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && inputValue) {
             onChange(inputValue)
@@ -227,57 +227,57 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         }
     }
 
-    // 处理聚焦
+    // Handle focus
     const handleFocus = () => {
-        // 如果用户刚选择过建议项，则不打开下拉菜单
+        // If user just selected a suggestion, don't open dropdown
         if (justSelected) {
             setJustSelected(false)
             return
         }
 
-        // 否则，如果有建议项，则打开下拉菜单
+        // Otherwise, if there are suggestions, open dropdown
         if (filteredSuggestions.length > 0) {
             setOpen(true)
         }
     }
 
-    // 处理标签点击
+    // Handle label click
     const handleLabelClick = (e: React.MouseEvent) => {
         e.preventDefault()
         inputRef.current?.focus()
     }
 
-    // 阻止下拉菜单的触摸事件传播
+    // Prevent dropdown touch event propagation
     const handleDropdownTouch = (e: React.TouchEvent) => {
         e.stopPropagation()
     }
 
-    // 阻止滑动默认行为
+    // Prevent default scroll behavior
     const handleTouchMove = (e: React.TouchEvent) => {
         if (open) {
             e.stopPropagation()
         }
     }
 
-    // 处理下拉菜单项点击
+    // Handle dropdown item click
     const handleItemClick = (suggestion: string, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
         handleSelectSuggestion(suggestion)
     }
 
-    // 新增：处理删除预设
+    // Handle preset deletion
     const handleRemovePreset = (suggestion: string, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        
-        // 如果当前值等于要删除的预设值，清空输入框
+
+        // If current value equals the preset value to be deleted, clear input
         if (inputValue === suggestion) {
             setInputValue('')
             onChange('')
         }
-        
-        // 调用外部删除函数
+
+        // Call external deletion function
         onRemovePreset?.(suggestion)
     }
 
@@ -352,12 +352,12 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                                 >
                                     <span>{suggestion}</span>
                                     
-                                    {/* 如果是自定义预设且提供了删除函数，显示删除按钮 */}
+                                    {/* Show delete button if it's a custom preset and delete function is provided */}
                                     {isCustomPreset(suggestion) && onRemovePreset && (
                                         <button 
                                             type="button"
                                             onClick={(e) => {
-                                                e.stopPropagation(); // 阻止点击事件冒泡到li元素
+                                                e.stopPropagation(); // Prevent click event from bubbling to li element
                                                 handleRemovePreset(suggestion, e);
                                             }}
                                             className="ml-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 p-1"
