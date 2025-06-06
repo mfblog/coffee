@@ -1,4 +1,9 @@
 {
+  "common": {
+    "rating": "评分",
+    "points": "分",
+    "stars": "星"
+  },
   "nav": {
     "title": "",
     "main": {
@@ -27,7 +32,8 @@
       "share": "分享",
       "back": "返回",
       "done": "完成",
-      "search": "搜索"
+      "search": "搜索",
+      "cancel": "取消"
     },
     "filters": {
       "type": "类型",
@@ -94,7 +100,12 @@
       "noNotesForBean": "没有使用该咖啡豆的冲煮记录",
       "noBrewingRecords": "暂无冲煮记录",
       "loadingNotes": "加载中...",
-      "quickDecrementRecords": "条快捷扣除记录"
+      "quickDecrementRecords": "条快捷扣除记录",
+      "noteDeleted": "笔记已删除",
+      "deleteNoteFailed": "删除笔记失败",
+      "noteUpdated": "笔记已更新",
+      "updateNoteFailed": "更新笔记失败",
+      "exportNotesFailed": "导出笔记失败"
     },
     "stats": {
       "beansCount": "款咖啡豆",
@@ -1088,6 +1099,10 @@
     }
   },
   "notes": {
+    "list": {
+      "recordsCount": "条记录",
+      "consumed": "已消耗"
+    },
     "form": {
       "title": {
         "edit": "编辑记录",
@@ -1132,7 +1147,7 @@
         "acidity": "酸度",
         "sweetness": "甜度",
         "bitterness": "苦度",
-        "body": "口感"
+        "body": "醇厚度"
       },
       "messages": {
         "unknownBean": "未知咖啡豆",
