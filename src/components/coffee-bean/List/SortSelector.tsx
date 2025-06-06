@@ -9,6 +9,7 @@ import {
 } from '../ui/select';
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { SORT_OPTIONS as RANKING_SORT_OPTIONS, RankingSortOption } from '../Ranking';
+import { useTranslations } from 'next-intl';
 
 // 自定义SelectItem，移除右侧指示器
 const CustomSelectItem = React.forwardRef<
@@ -422,7 +423,31 @@ export const SORT_ORDERS = {
 
 export type SortOrder = typeof SORT_ORDERS[keyof typeof SORT_ORDERS];
 
-// 排序方式的显示名称
+// 获取排序方式的翻译标签
+export const getSortTypeLabel = (type: SortType, t: any): string => {
+    switch (type) {
+        case SORT_TYPES.REMAINING_DAYS:
+            return t('filters.remainingDays');
+        case SORT_TYPES.NAME:
+            return t('filters.name');
+        case SORT_TYPES.RATING:
+            return t('filters.rating');
+        case SORT_TYPES.ORIGINAL:
+            return t('filters.original');
+        case SORT_TYPES.REMAINING_AMOUNT:
+            return t('filters.remainingAmount');
+        case SORT_TYPES.ROAST_DATE:
+            return t('filters.roastDate');
+        case SORT_TYPES.PRICE:
+            return t('filters.price');
+        case SORT_TYPES.LAST_MODIFIED:
+            return t('filters.lastModified');
+        default:
+            return type;
+    }
+};
+
+// 排序方式的显示名称（保留用于向后兼容）
 export const SORT_TYPE_LABELS: Record<SortType, string> = {
     [SORT_TYPES.REMAINING_DAYS]: '赏味期',
     [SORT_TYPES.NAME]: '名称',
@@ -519,32 +544,46 @@ export const getSortOption = (type: SortType, order: SortOrder): SortOption => {
     }
 };
 
-// 获取排序顺序的显示标签
-export const getSortOrderLabel = (type: SortType, order: SortOrder): string => {
+// 获取排序顺序的显示标签（支持翻译）
+export const getSortOrderLabel = (type: SortType, order: SortOrder, t?: any): string => {
+    if (!t) {
+        // 向后兼容，如果没有传入翻译函数，使用原来的硬编码文本
+        if (type === SORT_TYPES.REMAINING_DAYS) {
+            return order === SORT_ORDERS.ASC ? '从少到多' : '从多到少';
+        } else if (type === SORT_TYPES.NAME) {
+            return order === SORT_ORDERS.ASC ? '从A到Z' : '从Z到A';
+        } else if (type === SORT_TYPES.RATING) {
+            return order === SORT_ORDERS.ASC ? '从低到高' : '从高到低';
+        } else if (type === SORT_TYPES.REMAINING_AMOUNT) {
+            return order === SORT_ORDERS.ASC ? '从少到多' : '从多到少';
+        } else if (type === SORT_TYPES.ROAST_DATE) {
+            return order === SORT_ORDERS.ASC ? '从早到晚' : '从晚到早';
+        } else if (type === SORT_TYPES.PRICE) {
+            return order === SORT_ORDERS.ASC ? '从低到高' : '从高到低';
+        } else if (type === SORT_TYPES.LAST_MODIFIED) {
+            return order === SORT_ORDERS.ASC ? '从早到晚' : '从晚到早';
+        }
+        return order === SORT_ORDERS.ASC ? '升序' : '降序';
+    }
+
+    // 使用翻译
     if (type === SORT_TYPES.REMAINING_DAYS) {
-        // 赏味期对应的排序顺序标签
-        return order === SORT_ORDERS.ASC ? '从少到多' : '从多到少';
+        return order === SORT_ORDERS.ASC ? t('filters.lessToMore') : t('filters.moreToLess');
     } else if (type === SORT_TYPES.NAME) {
-        // 名称对应的排序顺序标签
-        return order === SORT_ORDERS.ASC ? '从A到Z' : '从Z到A';
+        return order === SORT_ORDERS.ASC ? t('filters.aToZ') : t('filters.zToA');
     } else if (type === SORT_TYPES.RATING) {
-        // 评分对应的排序顺序标签
-        return order === SORT_ORDERS.ASC ? '从低到高' : '从高到低';
+        return order === SORT_ORDERS.ASC ? t('filters.lowToHigh') : t('filters.highToLow');
     } else if (type === SORT_TYPES.REMAINING_AMOUNT) {
-        // 剩余量对应的排序顺序标签 
-        return order === SORT_ORDERS.ASC ? '从少到多' : '从多到少';
+        return order === SORT_ORDERS.ASC ? t('filters.lessToMore') : t('filters.moreToLess');
     } else if (type === SORT_TYPES.ROAST_DATE) {
-        // 烘焙日期对应的排序顺序标签
-        return order === SORT_ORDERS.ASC ? '从早到晚' : '从晚到早';
+        return order === SORT_ORDERS.ASC ? t('filters.earlyToLate') : t('filters.lateToEarly');
     } else if (type === SORT_TYPES.PRICE) {
-        // 价格对应的排序顺序标签
-        return order === SORT_ORDERS.ASC ? '从低到高' : '从高到低';
+        return order === SORT_ORDERS.ASC ? t('filters.lowToHigh') : t('filters.highToLow');
     } else if (type === SORT_TYPES.LAST_MODIFIED) {
-        // 最近变动对应的排序顺序标签
-        return order === SORT_ORDERS.ASC ? '从早到晚' : '从晚到早';
+        return order === SORT_ORDERS.ASC ? t('filters.earlyToLate') : t('filters.lateToEarly');
     }
     // 默认标签
-    return order === SORT_ORDERS.ASC ? '升序' : '降序';
+    return order === SORT_ORDERS.ASC ? t('filters.ascending') : t('filters.descending');
 };
 
 // 根据排序类型获取排序顺序的显示顺序
@@ -617,6 +656,8 @@ export const SortSelector: React.FC<SortSelectorProps> = ({
     onSortChange,
     showSelector = true
 }) => {
+    const t = useTranslations('nav')
+
     if (!showSelector) return null;
 
     const { type: currentType, order: currentOrder } = getSortTypeAndOrder(sortOption);
@@ -653,9 +694,9 @@ export const SortSelector: React.FC<SortSelectorProps> = ({
                 className="w-auto tracking-wide text-neutral-800 dark:text-neutral-100 transition-colors hover:opacity-80 text-right"
             >
                 <div className="flex items-center justify-end w-full">
-                    <span>{SORT_TYPE_LABELS[currentType]}</span>
-                    {currentType === SORT_TYPES.ORIGINAL 
-                        ? SORT_ICONS.ORIGINAL 
+                    <span>{getSortTypeLabel(currentType, t)}</span>
+                    {currentType === SORT_TYPES.ORIGINAL
+                        ? SORT_ICONS.ORIGINAL
                         : (shouldShowSortOrder(currentType) && getSortOrderIcon(currentType, currentOrder))
                     }
                 </div>
@@ -667,7 +708,7 @@ export const SortSelector: React.FC<SortSelectorProps> = ({
             >
                 <div className="py-1">
                     <div className="px-2 py-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                        排序方式
+                        {t('filters.sortBy')}
                     </div>
                     {getAvailableSortTypes(viewMode).map((type) => (
                         <CustomSelectItem
@@ -684,7 +725,7 @@ export const SortSelector: React.FC<SortSelectorProps> = ({
                                         </svg>
                                     )}
                                 </div>
-                                <span>{SORT_TYPE_LABELS[type]}</span>
+                                <span>{getSortTypeLabel(type, t)}</span>
                             </div>
                         </CustomSelectItem>
                     ))}
@@ -694,7 +735,7 @@ export const SortSelector: React.FC<SortSelectorProps> = ({
                         <div className="border-t border-neutral-200 dark:border-neutral-800" />
                         <div className="py-1">
                             <div className="px-2 py-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                排序顺序
+                                {t('filters.sortOrder')}
                             </div>
                             {getSortOrdersForType(currentType).map((order) => (
                                 <CustomSelectItem
@@ -711,7 +752,7 @@ export const SortSelector: React.FC<SortSelectorProps> = ({
                                                 </svg>
                                             )}
                                         </div>
-                                        <span>{getSortOrderLabel(currentType, order)}</span>
+                                        <span>{getSortOrderLabel(currentType, order, t)}</span>
                                         {getSortOrderIcon(currentType, order)}
                                     </div>
                                 </CustomSelectItem>

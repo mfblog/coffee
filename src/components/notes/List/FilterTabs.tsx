@@ -4,6 +4,7 @@ import React, { memo, useRef, useState, useEffect } from 'react'
 import { FilterTabsProps, SORT_OPTIONS, SortOption } from '../types'
 import { X, AlignLeft } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 // Apple风格动画配置
 const FILTER_ANIMATION = {
@@ -99,13 +100,13 @@ const getSortOption = (type: string, order: string): SortOption => {
     return SORT_OPTIONS.TIME_DESC;
 };
 
-const getSortOrderLabel = (type: string, order: string) => {
+const getSortOrderLabel = (type: string, order: string, t: any) => {
     if (type === 'time') {
-        return order === 'desc' ? '最新' : '最早';
+        return order === 'desc' ? t('filters.latest') : t('filters.earliest');
     } else if (type === 'rating') {
-        return order === 'desc' ? '最高' : '最低';
+        return order === 'desc' ? t('filters.highest') : t('filters.lowest');
     }
-    return '最新';
+    return t('filters.latest');
 };
 
 // 筛选模式选择组件
@@ -115,21 +116,23 @@ interface FilterModeSectionProps {
 }
 
 const FilterModeSection: React.FC<FilterModeSectionProps> = ({ filterMode, onFilterModeChange }) => {
+    const t = useTranslations('nav')
+
     return (
         <div>
-            <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">筛选方式</div>
+            <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">{t('filters.filterMode')}</div>
             <div className="flex items-center flex-wrap gap-2">
                 <FilterButton
                     isActive={filterMode === 'equipment'}
                     onClick={() => onFilterModeChange('equipment')}
                 >
-                    按器具
+                    {t('filters.byEquipment')}
                 </FilterButton>
                 <FilterButton
                     isActive={filterMode === 'bean'}
                     onClick={() => onFilterModeChange('bean')}
                 >
-                    按豆子
+                    {t('filters.byBean')}
                 </FilterButton>
             </div>
         </div>
@@ -143,11 +146,12 @@ interface SortSectionProps {
 }
 
 const SortSection: React.FC<SortSectionProps> = ({ sortOption, onSortChange }) => {
+    const t = useTranslations('nav')
     const { type: currentType, order: currentOrder } = getSortTypeAndOrder(sortOption);
 
     return (
         <div>
-            <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">排序</div>
+            <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">{t('filters.sort')}</div>
             <div className="space-y-3">
                 {/* 排序方式 */}
                 <div className="flex items-center flex-wrap gap-2">
@@ -158,7 +162,7 @@ const SortSection: React.FC<SortSectionProps> = ({ sortOption, onSortChange }) =
                             onSortChange(newOption);
                         }}
                     >
-                        时间
+                        {t('filters.time')}
                     </FilterButton>
                     <FilterButton
                         isActive={currentType === 'rating'}
@@ -167,7 +171,7 @@ const SortSection: React.FC<SortSectionProps> = ({ sortOption, onSortChange }) =
                             onSortChange(newOption);
                         }}
                     >
-                        评分
+                        {t('filters.rating')}
                     </FilterButton>
                 </div>
 
@@ -177,13 +181,13 @@ const SortSection: React.FC<SortSectionProps> = ({ sortOption, onSortChange }) =
                         isActive={currentOrder === 'desc'}
                         onClick={() => onSortChange(getSortOption(currentType, 'desc'))}
                     >
-                        {getSortOrderLabel(currentType, 'desc')}
+                        {getSortOrderLabel(currentType, 'desc', t)}
                     </FilterButton>
                     <FilterButton
                         isActive={currentOrder === 'asc'}
                         onClick={() => onSortChange(getSortOption(currentType, 'asc'))}
                     >
-                        {getSortOrderLabel(currentType, 'asc')}
+                        {getSortOrderLabel(currentType, 'asc', t)}
                     </FilterButton>
                 </div>
             </div>
@@ -210,6 +214,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
     sortOption,
     onSortChange
 }) {
+    const t = useTranslations('nav')
     // 搜索输入框引用 - 移到条件语句前面
     const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -326,7 +331,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
                                 className="mr-1"
                                 dataTab="all"
                             >
-                                全部
+                                {t('filters.all')}
                             </TabButton>
 
                             {/* 筛选图标按钮 */}
@@ -373,7 +378,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
                                     value={searchQuery}
                                     onChange={onSearchChange}
                                     onKeyDown={onSearchKeyDown}
-                                    placeholder="搜索笔记..."
+                                    placeholder={t('search.notes')}
                                     className="w-full pr-2 text-xs font-medium bg-transparent border-none outline-hidden text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
                                     autoComplete="off"
                                 />
@@ -396,7 +401,7 @@ const FilterTabs: React.FC<FilterTabsProps> = memo(function FilterTabs({
                                 onClick={handleSearchClick}
                                 className="pb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400 flex items-center whitespace-nowrap"
                             >
-                                <span className="relative">搜索</span>
+                                <span className="relative">{t('actions.search')}</span>
                             </button>
                         </div>
                     )}

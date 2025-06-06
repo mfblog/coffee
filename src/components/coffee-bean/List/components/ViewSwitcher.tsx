@@ -5,12 +5,12 @@ import { ViewOption, VIEW_OPTIONS, BeanType, BloggerBeansYear } from '../types'
 import {
     SortOption,
     SORT_ORDERS,
-    SORT_TYPE_LABELS,
     getSortTypeAndOrder,
     getSortOption,
     getSortOrderLabel,
     getSortOrdersForType,
-    getAvailableSortTypesForView
+    getAvailableSortTypesForView,
+    getSortTypeLabel
 } from '../SortSelector'
 import { X, ArrowUpRight, AlignLeft } from 'lucide-react'
 import { Storage } from '@/lib/core/storage'
@@ -120,7 +120,7 @@ const SortSection: React.FC<SortSectionProps> = ({ viewMode, sortOption, onSortC
                                 onSortChange(newOption)
                             }}
                         >
-                            {SORT_TYPE_LABELS[type]}
+                            {getSortTypeLabel(type, t)}
                         </FilterButton>
                     ))}
                 </div>
@@ -134,7 +134,7 @@ const SortSection: React.FC<SortSectionProps> = ({ viewMode, sortOption, onSortC
                                 isActive={order === currentOrder}
                                 onClick={() => onSortChange(getSortOption(currentType, order))}
                             >
-                                {getSortOrderLabel(currentType, order)}
+                                {getSortOrderLabel(currentType, order, t)}
                             </FilterButton>
                         ))}
                     </div>
