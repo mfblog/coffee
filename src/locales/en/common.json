@@ -339,6 +339,28 @@
       "sponsorEnding": " . and You."
     }
   },
+  "onboarding": {
+    "title": "Welcome",
+    "subtitle": "Please set your preferences to start the perfect experience",
+    "textSize": {
+      "label": "Text Size",
+      "zoomLevel": "Zoom Level: {level}×",
+      "decrease": "−",
+      "increase": "+",
+      "standard": "Standard"
+    },
+    "grinder": {
+      "label": "Grinder Type",
+      "placeholder": "Select Grinder",
+      "description": "Choose your grinder for grind size reference"
+    },
+    "username": {
+      "label": "Username",
+      "placeholder": "Enter your username",
+      "description": "Your username will be displayed when sharing (optional)"
+    },
+    "complete": "Get Started"
+  },
   "beanForm": {
     "steps": {
       "basic": "Basic Info",

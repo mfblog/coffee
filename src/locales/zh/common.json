@@ -339,6 +339,28 @@
       "sponsorEnding": " 。 and You。"
     }
   },
+  "onboarding": {
+    "title": "欢迎使用",
+    "subtitle": "请设置您的偏好，开始完美的使用体验",
+    "textSize": {
+      "label": "文本大小",
+      "zoomLevel": "缩放级别: {level}×",
+      "decrease": "−",
+      "increase": "+",
+      "standard": "标准"
+    },
+    "grinder": {
+      "label": "磨豆机类型",
+      "placeholder": "选择磨豆机",
+      "description": "选择你的磨豆机，方便查看研磨度参考"
+    },
+    "username": {
+      "label": "用户名",
+      "placeholder": "请输入您的用户名",
+      "description": "使用分享功能时，会显示您的用户名（选填）"
+    },
+    "complete": "开始使用"
+  },
   "beanForm": {
     "steps": {
       "basic": "基本信息",

@@ -45,6 +45,21 @@ export interface SettingsOptions {
     }
 }
 
+// 检测系统语言的函数（用于默认设置）
+function getDefaultLanguage(): string {
+    if (typeof window === 'undefined') return 'zh'
+
+    // 获取浏览器语言设置
+    const browserLanguage = navigator.language || navigator.languages?.[0] || 'zh-CN'
+
+    // 简单的语言映射：如果是英文相关的语言代码，返回 'en'，否则返回 'zh'
+    if (browserLanguage.toLowerCase().startsWith('en')) {
+        return 'en'
+    }
+
+    return 'zh'
+}
+
 // 默认设置
 export const defaultSettings: SettingsOptions = {
     notificationSound: true,
@@ -58,7 +73,7 @@ export const defaultSettings: SettingsOptions = {
         alwaysShowTimerInfo: true, // 默认显示计时器信息
         showStageDivider: true // 默认显示阶段分隔线
     },
-    language: 'zh', // 默认使用中文
+    language: getDefaultLanguage(), // 使用系统语言作为默认语言
     showFlowRate: false, // 默认不显示流速
     username: '', // 默认用户名为空
     decrementPresets: [15, 16, 18], // 默认的库存扣除量预设值

@@ -1,12 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Storage } from '@/lib/core/storage'
 import { SettingsOptions, defaultSettings } from '@/components/settings/Settings'
 import textZoomUtils from '@/lib/utils/textZoomUtils'
 import confetti from 'canvas-confetti'
-import { availableGrinders } from '@/lib/core/config'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/coffee-bean/ui/select'
+import { useConfigTranslation } from '@/lib/utils/i18n-config'
 
 // 设置页面界面属性
 interface OnboardingProps {
@@ -16,6 +17,10 @@ interface OnboardingProps {
 
 // 主组件
 const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete }) => {
+    // 翻译 hooks
+    const t = useTranslations('onboarding')
+    const { getTranslatedGrinders } = useConfigTranslation()
+
     // 设置选项
     const [settings, setSettings] = useState<SettingsOptions>(defaultSettings)
     // 检查TextZoom功能是否可用
@@ -109,10 +114,10 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                         <div className="flex flex-col w-full">
                             <div className="text-center mb-6">
                                 <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
-                                    欢迎使用
+                                    {t('title')}
                                 </h2>
                                 <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
-                                    请设置您的偏好，开始完美的使用体验
+                                    {t('subtitle')}
                                 </p>
                             </div>
 
@@ -123,10 +128,10 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                     <div className="flex items-center justify-between bg-neutral-100 dark:bg-neutral-900 p-4 rounded-xl">
                                         <div className="flex flex-col">
                                             <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                                                文本大小
+                                                {t('textSize.label')}
                                             </label>
                                             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                                                缩放级别: {settings.textZoomLevel.toFixed(1)}×
+                                                {t('textSize.zoomLevel', { level: settings.textZoomLevel.toFixed(1) })}
                                             </p>
                                         </div>
                                         <div className="flex items-center space-x-2">
@@ -135,7 +140,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                                 className="w-7 h-7 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
                                                 disabled={settings.textZoomLevel <= 0.8}
                                             >
-                                                <span className="text-base font-semibold">−</span>
+                                                <span className="text-base font-semibold">{t('textSize.decrease')}</span>
                                             </button>
                                             <button
                                                 onClick={() => handleSettingChange('textZoomLevel', 1.0)}
@@ -144,14 +149,14 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                                     : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
                                                     }`}
                                             >
-                                                标准
+                                                {t('textSize.standard')}
                                             </button>
                                             <button
                                                 onClick={() => handleSettingChange('textZoomLevel', Math.min(1.4, settings.textZoomLevel + 0.1))}
                                                 className="w-7 h-7 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
                                                 disabled={settings.textZoomLevel >= 1.4}
                                             >
-                                                <span className="text-base font-semibold">+</span>
+                                                <span className="text-base font-semibold">{t('textSize.increase')}</span>
                                             </button>
                                         </div>
                                     </div>
@@ -160,18 +165,18 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                 {/* 磨豆机选择 */}
                                 <div id="onboarding-grinder-select-wrapper" className="bg-neutral-100 dark:bg-neutral-900 p-4 rounded-xl">
                                     <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-1 block">
-                                        磨豆机类型
+                                        {t('grinder.label')}
                                     </label>
                                     <div className="relative">
                                         <Select
                                             value={settings.grindType}
                                             onValueChange={(value) => handleSettingChange('grindType', value)}
                                         >
-                                            <SelectTrigger 
+                                            <SelectTrigger
                                                 variant="minimal"
                                                 className="w-full py-2 px-3 text-sm font-medium rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 focus:outline-hidden focus:ring-2 focus:ring-neutral-500 border border-neutral-200 dark:border-neutral-700"
                                             >
-                                                <SelectValue placeholder="选择磨豆机" />
+                                                <SelectValue placeholder={t('grinder.placeholder')} />
                                                 <svg 
                                                     className="h-4 w-4 ml-1 text-neutral-500" 
                                                     xmlns="http://www.w3.org/2000/svg" 
@@ -182,36 +187,36 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                                 </svg>
                                             </SelectTrigger>
                                             <SelectContent className="max-h-[40vh] overflow-y-auto">
-                                                {availableGrinders.map((grinder) => (
+                                                {getTranslatedGrinders().map((grinder) => (
                                                     <SelectItem
                                                         key={grinder.id}
                                                         value={grinder.id}
                                                     >
-                                                        {grinder.name}
+                                                        {grinder.translatedName}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
-                                        选择你的磨豆机，方便查看研磨度参考
+                                        {t('grinder.description')}
                                     </p>
                                 </div>
 
                                 {/* 用户名输入 */}
                                 <div className="bg-neutral-100 dark:bg-neutral-900 p-4 rounded-xl">
                                     <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-1 block">
-                                        用户名
+                                        {t('username.label')}
                                     </label>
                                     <input
                                         type="text"
                                         value={settings.username}
                                         onChange={(e) => handleSettingChange('username', e.target.value)}
-                                        placeholder="请输入您的用户名"
+                                        placeholder={t('username.placeholder')}
                                         className="w-full py-2 px-3 mt-1 text-sm font-medium rounded-lg bg-neutral-50 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 appearance-none focus:outline-hidden focus:ring-2 focus:ring-neutral-500"
                                     />
                                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
-                                        使用分享功能时，会显示您的用户名（选填）
+                                        {t('username.description')}
                                     </p>
                                 </div>
                             </div> 
@@ -221,7 +226,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onSettingsChange, onComplete })
                                     onClick={handleComplete}
                                     className="w-full py-3 px-4 bg-neutral-800 dark:bg-neutral-50 text-neutral-100 dark:text-neutral-900 rounded-xl font-medium hover:bg-neutral-700 dark:hover:bg-neutral-200 transition-colors"
                                 >
-                                    开始使用
+                                    {t('complete')}
                                 </button>
                             </div>
                         </div>

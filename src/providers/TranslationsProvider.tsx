@@ -16,6 +16,21 @@ const messages = {
 // 创建自定义事件名称
 export const LANGUAGE_CHANGE_EVENT = 'languageChange'
 
+// 检测系统语言的函数
+function detectSystemLanguage(): string {
+    if (typeof window === 'undefined') return 'zh'
+
+    // 获取浏览器语言设置
+    const browserLanguage = navigator.language || navigator.languages?.[0] || 'zh-CN'
+
+    // 简单的语言映射：如果是英文相关的语言代码，返回 'en'，否则返回 'zh'
+    if (browserLanguage.toLowerCase().startsWith('en')) {
+        return 'en'
+    }
+
+    return 'zh'
+}
+
 // 创建触发语言变化的函数
 export function notifyLanguageChange() {
     // 创建并分发自定义事件
@@ -38,9 +53,16 @@ export function TranslationsProvider({
                 if (settings) {
                     const parsedSettings = JSON.parse(settings)
                     setLocale(parsedSettings.language || 'zh')
+                } else {
+                    // 如果没有保存的设置，使用系统语言
+                    const systemLanguage = detectSystemLanguage()
+                    setLocale(systemLanguage)
                 }
             } catch (error) {
                 console.error('Error loading language settings:', error)
+                // 出错时也使用系统语言
+                const systemLanguage = detectSystemLanguage()
+                setLocale(systemLanguage)
             }
         }
 
