@@ -63,9 +63,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
                 'showDetails': 'Show Error Details',
                 'hideDetails': 'Hide Error Details'
             }
-        }
+        } as const
 
-        return translations[locale as keyof typeof translations]?.[key] || translations.zh[key] || key
+        const currentTranslations = translations[locale as keyof typeof translations] || translations.zh
+        return (currentTranslations as any)[key] || translations.zh[key as keyof typeof translations.zh] || key
     }
 
     static getDerivedStateFromError(error: Error): ErrorBoundaryState {

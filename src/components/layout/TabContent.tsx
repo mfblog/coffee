@@ -300,7 +300,6 @@ const TabContent: React.FC<TabContentProps> = ({
     // 笔记表单包装组件
     const NoteFormWrapper = () => {
         const [equipmentName, setEquipmentName] = useState('');
-        const noteFormT = useTranslations('notes.form');
 
         React.useEffect(() => {
             if (selectedEquipment) {
