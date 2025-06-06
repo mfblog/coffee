@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import AutocompleteInput from '@/components/common/forms/AutocompleteInput';
 import { ExtendedCoffeeBean } from '../types';
 import { pageVariants, pageTransition, FLAVOR_TAGS, FLAVOR_CATEGORIES } from '../constants';
@@ -19,6 +20,9 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
     onAddFlavor,
     onRemoveFlavor,
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('beanForm.flavorInfo')
+    const tConstants = useTranslations('beanConstants')
     return (
         <motion.div
             key="flavor-step"
@@ -31,7 +35,7 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
         >
             <div className="space-y-2 w-full">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    已选风味标签
+                    {t('selectedFlavors.label')}
                 </label>
                 <div className="flex flex-wrap gap-2 pb-2">
                     {bean.flavor && bean.flavor.length > 0 ? (
@@ -52,7 +56,7 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
                         ))
                     ) : (
                         <div className="text-neutral-500 dark:text-neutral-400 text-sm py-1 border-b border-neutral-300 dark:border-neutral-700 w-full">
-                            尚未添加风味标签
+                            {t('selectedFlavors.empty') || '尚未添加风味标签'}
                         </div>
                     )}
                 </div>
@@ -60,14 +64,14 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
 
             <div className="space-y-2 w-full">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    添加风味标签
+                    {t('addFlavor.label')}
                 </label>
                 <div className="flex items-center w-full">
                     <div className="flex-1 border-b border-neutral-300 dark:border-neutral-700">
                         <AutocompleteInput
                             value={flavorInput}
                             onChange={onFlavorInputChange}
-                            placeholder="例如：柑橘"
+                            placeholder={t('addFlavor.placeholder')}
                             suggestions={FLAVOR_TAGS.filter(tag => !bean.flavor?.includes(tag))}
                             className="w-full border-none"
                             onBlur={() => flavorInput.trim() && onAddFlavor()}
@@ -78,20 +82,20 @@ const FlavorInfo: React.FC<FlavorInfoProps> = ({
                         onClick={() => onAddFlavor()}
                         className="ml-3 h-[36px] px-4 flex items-center justify-center text-xs font-medium bg-neutral-800 dark:bg-neutral-200 text-neutral-100 dark:text-neutral-800 rounded-full"
                     >
-                        添加
+                        {t('addFlavor.addButton')}
                     </button>
                 </div>
             </div>
 
             <div className="space-y-4 w-full">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    常用风味标签
+                    {t('commonFlavors.label')}
                 </label>
 
                 {Object.entries(FLAVOR_CATEGORIES).map(([category, tags]) => (
                     <div key={category} className="space-y-2">
                         <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                            {category}
+                            {tConstants(`flavorCategories.${category}`) || category}
                         </div>
                         <div className="flex flex-wrap gap-2 mb-3">
                             {tags.map((flavor) => (

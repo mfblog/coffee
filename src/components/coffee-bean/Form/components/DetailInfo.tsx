@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import AutocompleteInput from '@/components/common/forms/AutocompleteInput';
 import AutoResizeTextarea from '@/components/common/forms/AutoResizeTextarea';
 import BlendComponents from './BlendComponents';
@@ -19,12 +20,6 @@ interface DetailInfoProps {
     toggleFrozenState: () => void;
 }
 
-// 咖啡豆类型选项
-const BEAN_TYPES = [
-    { value: 'filter', label: '手冲' },
-    { value: 'espresso', label: '意式' },
-];
-
 const DetailInfo: React.FC<DetailInfoProps> = ({
     bean,
     onBeanChange,
@@ -33,6 +28,14 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
     autoSetFlavorPeriod,
     toggleFrozenState,
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('beanForm.detailInfo')
+
+    // 咖啡豆类型选项
+    const BEAN_TYPES = [
+        { value: 'filter', label: t('beanType.filter') },
+        { value: 'espresso', label: t('beanType.espresso') },
+    ];
     return (
         <motion.div
             key="detail-step"
@@ -46,7 +49,7 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
             <div className="grid grid-cols-1 gap-6 w-full">
                 <div className="space-y-2">
                     <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                        咖啡豆类型
+                        {t('beanType.label')}
                     </label>
                     <div className="flex w-full border-b border-neutral-300 dark:border-neutral-700">
                         {BEAN_TYPES.map(type => (
@@ -85,7 +88,7 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
                 <div className="space-y-4 w-full">
                     <div className="flex items-center justify-between">
                         <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                            赏味期设置
+                            {t('flavorPeriod.label')}
                         </label>
                         <div className="flex space-x-2">
                             <button
@@ -93,26 +96,26 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
                                 onClick={autoSetFlavorPeriod}
                                 className="text-xs text-neutral-600 dark:text-neutral-400 underline"
                             >
-                                按烘焙度重置
+                                {t('flavorPeriod.resetByRoast')}
                             </button>
                             <button
                                 type="button"
                                 onClick={toggleFrozenState}
                                 className="text-xs text-neutral-600 dark:text-neutral-400 underline"
                             >
-                                设为冰冻状态
+                                {t('flavorPeriod.setFrozen')}
                             </button>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="block text-xs text-neutral-500 dark:text-neutral-400">
-                                养豆期结束 (天)
+                                {t('flavorPeriod.startDay')}
                             </label>
                             <AutocompleteInput
                                 value={bean.startDay ? String(bean.startDay) : ''}
                                 onChange={onBeanChange('startDay')}
-                                placeholder="天数"
+                                placeholder={t('flavorPeriod.startDayPlaceholder')}
                                 clearable={false}
                                 suggestions={[]}
                                 inputType="tel"
@@ -120,12 +123,12 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
                         </div>
                         <div className="space-y-1">
                             <label className="block text-xs text-neutral-500 dark:text-neutral-400">
-                                赏味期结束 (天)
+                                {t('flavorPeriod.endDay')}
                             </label>
                             <AutocompleteInput
                                 value={bean.endDay ? String(bean.endDay) : ''}
                                 onChange={onBeanChange('endDay')}
-                                placeholder="天数"
+                                placeholder={t('flavorPeriod.endDayPlaceholder')}
                                 clearable={false}
                                 suggestions={[]}
                                 inputType="tel"
@@ -133,7 +136,7 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
                         </div>
                     </div>
                     <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                        <p>说明：{bean.startDay}天前为养豆期，{bean.startDay}-{bean.endDay}天为赏味期，{bean.endDay}天后赏味期结束</p>
+                        <p>{t('flavorPeriod.description', { startDay: bean.startDay, endDay: bean.endDay })}</p>
                     </div>
                 </div>
             )}
@@ -142,7 +145,7 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
                 <div className="space-y-4 w-full">
                     <div className="flex items-center justify-between">
                         <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                            状态设置
+                            {t('statusSettings.label')}
                         </label>
                         <div className="flex space-x-2">
                             <button
@@ -150,7 +153,7 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
                                 onClick={toggleFrozenState}
                                 className="text-xs text-neutral-600 dark:text-neutral-400 underline"
                             >
-                                取消冰冻状态
+                                {t('flavorPeriod.cancelFrozen')}
                             </button>
                         </div>
                     </div>
@@ -159,12 +162,12 @@ const DetailInfo: React.FC<DetailInfoProps> = ({
 
             <div className="space-y-2 w-full">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    备注
+                    {t('notes.label')}
                 </label>
                 <AutoResizeTextarea
                     value={bean.notes || ''}
                     onChange={(e) => onBeanChange('notes')(e.target.value)}
-                    placeholder="其他备注信息..."
+                    placeholder={t('notes.placeholder')}
                     className="w-full py-2 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400"
                     minRows={2}
                     maxRows={8}

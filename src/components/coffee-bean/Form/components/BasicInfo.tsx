@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import AutocompleteInput from '@/components/common/forms/AutocompleteInput';
 import AutoResizeTextarea from '@/components/common/forms/AutoResizeTextarea';
 import { ExtendedCoffeeBean } from '../types';
@@ -27,6 +28,9 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
     toggleInTransitState,
     isSimpleMode = false,
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('beanForm.basicInfo')
+    const tConstants = useTranslations('beanConstants')
     // 处理容量和剩余容量的状态
     const [capacityValue, setCapacityValue] = useState('');
     const [remainingValue, setRemainingValue] = useState('');
@@ -149,7 +153,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
         >
             <div className="space-y-2 w-full">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    咖啡豆图片
+                    {t('image.label')}
                 </label>
                 <div className="flex items-center justify-center relative">
                     <div className="w-32 h-32 rounded-lg border-2 border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center overflow-hidden relative">
@@ -157,7 +161,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                             <div className="relative w-full h-full">
                                 <Image
                                     src={bean.image}
-                                    alt="咖啡豆图片"
+                                    alt={t('image.label')}
                                     className="object-contain"
                                     fill
                                     sizes="(max-width: 768px) 100vw, 300px"
@@ -182,8 +186,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-neutral-400 dark:text-neutral-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    <span className="text-xs text-neutral-500 dark:text-neutral-400">选择图片</span>
-                                    <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1">200kb以上将自动压缩</span>
+                                    <span className="text-xs text-neutral-500 dark:text-neutral-400">{t('image.selectImage')}</span>
+                                    <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1">{t('image.compressionNote')}</span>
                                 </div>
                                 
                                 {/* 图片上传按钮组 */}
@@ -198,7 +202,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
-                                            拍照
+                                            {t('image.camera')}
                                         </span>
                                     </button>
                                     <button
@@ -210,7 +214,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                                             <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            相册
+                                            {t('image.gallery')}
                                         </span>
                                     </button>
                                 </div>
@@ -222,19 +226,19 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
 
             <div className="space-y-2 w-full">
                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                    咖啡豆名称 <span className="text-red-500">*</span>
+                    {t('name.label')} <span className="text-red-500">{t('name.required')}</span>
                 </label>
                 <AutocompleteInput
                     value={bean.name || ''}
                     onChange={onBeanChange('name')}
-                    placeholder="输入咖啡豆名称"
+                    placeholder={t('name.placeholder')}
                     suggestions={[]}
                     required
                     clearable
                     inputMode="text"
                     onBlur={() => {
                         if (!bean.name?.trim()) {
-                            onBeanChange('name')('未命名咖啡豆');
+                            onBeanChange('name')(t('name.defaultName'));
                         }
                     }}
                 />
@@ -243,7 +247,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
             <div className="grid grid-cols-2 gap-6 w-full">
                 <div className="space-y-2">
                     <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                        库存量(g)
+                        {t('inventory.label')}
                     </label>
                     <div className="flex items-center justify-start w-full gap-2">
                         <div className="flex-1">
@@ -253,7 +257,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                                 step="0.1"
                                 value={remainingValue}
                                 onChange={(e) => handleRemainingChange(e.target.value)}
-                                placeholder="剩余量"
+                                placeholder={t('inventory.remaining')}
                                 className="bg-transparent outline-none w-full text-center border-b border-neutral-300 dark:border-neutral-700 py-2"
                                 onBlur={validateRemaining}
                             />
@@ -266,7 +270,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                                 step="0.1"
                                 value={capacityValue}
                                 onChange={(e) => handleCapacityChange(e.target.value)}
-                                placeholder="总量"
+                                placeholder={t('inventory.total')}
                                 className="bg-transparent outline-none w-full text-center border-b border-neutral-300 dark:border-neutral-700 py-2"
                             />
                         </div>
@@ -275,12 +279,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
 
                 <div className="space-y-2">
                     <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                        价格(¥)
+                        {t('price.label')}
                     </label>
                     <AutocompleteInput
                         value={bean.price || ''}
                         onChange={onBeanChange('price')}
-                        placeholder="例如：88"
+                        placeholder={t('price.placeholder')}
                         clearable={false}
                         suggestions={[]}
                         inputType="number"
@@ -295,26 +299,26 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                 <div className="grid grid-cols-2 gap-6 w-full">
                     <div className="space-y-2">
                         <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                            烘焙度
+                            {t('roastLevel.label')}
                         </label>
                         <Select
-                            value={bean.roastLevel || '浅度烘焙'}
+                            value={bean.roastLevel || tConstants('roastLevels.浅度烘焙')}
                             onValueChange={(value) => onBeanChange('roastLevel')(value)}
                         >
                             <SelectTrigger
                                 className="w-full py-2 bg-transparent border-0 border-b border-neutral-300 dark:border-neutral-700 focus-within:border-neutral-800 dark:focus-within:border-neutral-400 shadow-none rounded-none h-auto px-0 text-base"
                             >
-                                <SelectValue placeholder="选择烘焙度" />
+                                <SelectValue placeholder={t('roastLevel.placeholder')} />
                             </SelectTrigger>
                             <SelectContent
                                 className="max-h-[40vh] overflow-y-auto border-neutral-200/70 dark:border-neutral-800/70 shadow-lg backdrop-blur-xs bg-white/95 dark:bg-neutral-900/95 rounded-lg"
                             >
-                                <SelectItem value="极浅烘焙">极浅烘焙</SelectItem>
-                                <SelectItem value="浅度烘焙">浅度烘焙</SelectItem>
-                                <SelectItem value="中浅烘焙">中浅烘焙</SelectItem>
-                                <SelectItem value="中度烘焙">中度烘焙</SelectItem>
-                                <SelectItem value="中深烘焙">中深烘焙</SelectItem>
-                                <SelectItem value="深度烘焙">深度烘焙</SelectItem>
+                                <SelectItem value="极浅烘焙">{tConstants('roastLevels.极浅烘焙')}</SelectItem>
+                                <SelectItem value="浅度烘焙">{tConstants('roastLevels.浅度烘焙')}</SelectItem>
+                                <SelectItem value="中浅烘焙">{tConstants('roastLevels.中浅烘焙')}</SelectItem>
+                                <SelectItem value="中度烘焙">{tConstants('roastLevels.中度烘焙')}</SelectItem>
+                                <SelectItem value="中深烘焙">{tConstants('roastLevels.中深烘焙')}</SelectItem>
+                                <SelectItem value="深度烘焙">{tConstants('roastLevels.深度烘焙')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -322,26 +326,26 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                                烘焙日期
+                                {t('roastDate.label')}
                             </label>
                             <button
                                 type="button"
                                 onClick={toggleInTransitState}
                                 className={`text-xs ${bean.isInTransit ? 'text-neutral-700 dark:text-neutral-300' : 'text-neutral-600 dark:text-neutral-400'} underline`}
                             >
-                                {bean.isInTransit ? '取消在途状态' : '设为在途'}
+                                {bean.isInTransit ? t('roastDate.cancelInTransit') : t('roastDate.setInTransit')}
                             </button>
                         </div>
                         <div className="flex items-center justify-start w-full relative">
                             {bean.isInTransit ? (
                                 <div className="w-full py-2 bg-transparent border-b border-neutral-300 dark:border-neutral-700 opacity-50 text-neutral-500 dark:text-neutral-400">
-                                    在途中...
+                                    {t('roastDate.inTransit')}
                                 </div>
                             ) : (
                                 <DatePicker
                                     date={parseRoastDate(bean.roastDate)}
                                     onDateChange={handleDateChange}
-                                    placeholder="选择烘焙日期"
+                                    placeholder={t('roastDate.placeholder')}
                                     className="w-full"
                                 />
                             )}
@@ -353,12 +357,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
             {isSimpleMode && (
                 <div className="space-y-2 w-full">
                     <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                        备注
+                        {t('notes.label')}
                     </label>
                     <AutoResizeTextarea
                         value={bean.notes || ''}
                         onChange={(e) => onBeanChange('notes')(e.target.value)}
-                        placeholder="其他备注信息..."
+                        placeholder={t('notes.placeholder')}
                         className="w-full py-2 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400"
                         minRows={2}
                         maxRows={8}

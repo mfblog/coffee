@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import ReactCrop, { Crop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { recognizeImage, RecognitionError } from '@/services/recognition'
@@ -91,6 +92,8 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
     onImport,
     onClose
 }) => {
+    // 使用翻译钩子
+    const t = useTranslations('beanImport')
     // 导入数据的状态
     const [importData, setImportData] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -350,7 +353,7 @@ const BeanImportModal: React.FC<BeanImportModalProps> = ({
     // 处理导入数据，添加时间戳
     const handleImport = () => {
         if (!importData) {
-            setError('请输入要导入的数据');
+            setError(t('textInput.inputRequired'));
             return;
         }
 
