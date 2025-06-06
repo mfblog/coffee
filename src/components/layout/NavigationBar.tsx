@@ -637,7 +637,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                 const customEquipments = await loadCustomEquipments()
                 updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList, customEquipments)
             } catch (error) {
-                console.error('加载自定义设备失败:', error)
+                console.error('Failed to load custom equipment:', error)
                 updateParameterInfo(detail.step, selectedEquipment, methodForUpdate, equipmentList)
             }
         }
@@ -953,7 +953,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                                                                     <EditableParameter
                                                                         value={espressoUtils.formatTime(espressoUtils.getExtractionTime(selectedMethod))}
                                                                         onChange={(v) => handleTimeChange(v)}
-                                                                        unit="秒"
+                                                                        unit={t('units.seconds')}
                                                                         className=""
                                                                     />
                                                                     <span className="shrink-0">·</span>
