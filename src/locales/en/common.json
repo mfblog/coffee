@@ -27,7 +27,9 @@
       "share": "Share",
       "back": "Back",
       "done": "Done",
-      "search": "Search"
+      "search": "Search",
+      "addManually": "Add Manually",
+      "quickAdd": "Quick Add"
     },
     "filters": {
       "type": "Type",
@@ -94,7 +96,19 @@
       "noNotesForBean": "No brewing records using this coffee bean",
       "noBrewingRecords": "No brewing records yet",
       "loadingNotes": "Loading...",
-      "quickDecrementRecords": "quick decrement records"
+      "quickDecrementRecords": "quick decrement records",
+      "editBeanError": "Error editing coffee bean, please try again",
+      "saveRatingError": "Failed to save rating, please try again",
+      "loadBeansError": "Failed to load coffee bean data",
+      "reloadBeansError": "Failed to reload coffee bean data",
+      "sortMismatchError": "Sorted bean count doesn't match original bean count",
+      "rankingContainerNotFound": "Unable to find ranking data container",
+      "statsContainerNotFound": "Unable to find statistics data container",
+      "parseSettingsError": "Failed to parse user settings",
+      "exportStatsError": "Error exporting statistics data",
+      "generateImageError": "Failed to generate image",
+      "generateRankingImageError": "Failed to generate personal ranking image",
+      "rankingImageSaved": "Personal ranking saved as image"
     },
     "stats": {
       "beansCount": "coffee beans",
@@ -162,6 +176,13 @@
         "notFound": "Statistics view container not found",
         "button": "Share (includes cost data)"
       },
+      "ranking": {
+        "title": "Personal Coffee Bean Ranking",
+        "shareTitle": "My Personal Coffee Bean Ranking",
+        "shareText": "My Personal Coffee Bean Ranking",
+        "shareDialogTitle": "Share My Personal Coffee Bean Ranking",
+        "appSignature": "—— Brew Guide"
+      },
       "consumption": {
         "today": "Today",
         "average": "Average",
@@ -177,8 +198,23 @@
       "pricePerGram": "/g",
       "pieces": "pcs",
       "times": "times",
-      "currency": "¥"
+      "currency": "¥",
+      "days": " days"
     },
+    "beanStatus": {
+      "aging": "Aging",
+      "peak": "Peak Flavor",
+      "decline": "Past Peak",
+      "transit": "In Transit",
+      "frozen": "Frozen",
+      "unknown": "Unknown"
+    },
+    "beanTypes": {
+      "filter": "Pour Over",
+      "espresso": "Espresso"
+    },
+
+
     "status": {
       "inTransit": "In Transit",
       "frozen": "Frozen",
@@ -1079,12 +1115,12 @@
       "龙曝干": "Sun-dried"
     },
     "roastLevels": {
-      "极浅烘焙": "Ultra Light",
-      "浅度烘焙": "Light",
-      "中浅烘焙": "Medium Light",
-      "中度烘焙": "Medium",
-      "中深烘焙": "Medium Dark",
-      "深度烘焙": "Dark"
+      "ultraLight": "Ultra Light",
+      "light": "Light",
+      "mediumLight": "Medium Light",
+      "medium": "Medium",
+      "mediumDark": "Medium Dark",
+      "dark": "Dark"
     }
   },
   "notes": {

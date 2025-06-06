@@ -253,10 +253,10 @@ export const getFlavorInfo = (bean: ExtendedCoffeeBean): { phase: string, remain
 
     // 如果没有自定义值，则根据烘焙度设置默认值
     if (startDay === 0 && endDay === 0) {
-        if (bean.roastLevel?.includes('浅')) {
+        if (bean.roastLevel === 'ultraLight' || bean.roastLevel === 'light') {
             startDay = 7;
             endDay = 30;
-        } else if (bean.roastLevel?.includes('深')) {
+        } else if (bean.roastLevel === 'mediumDark' || bean.roastLevel === 'dark') {
             startDay = 14;
             endDay = 60;
         } else {

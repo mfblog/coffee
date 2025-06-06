@@ -442,14 +442,14 @@ const CoffeeBeanList: React.FC<CoffeeBeanListProps> = ({
                     infoItems.push(formatPricePerGram(bean.price, bean.capacity));
                 }
 
-                // 获取状态圆点的颜色 - 使用原始的中文状态字符串进行比较
+                // 获取状态圆点的颜色 - 使用英文状态键进行比较
                 const getStatusDotColor = (phase: string): string => {
                     switch (phase) {
-                        case '养豆期': return 'bg-amber-400';
-                        case '赏味期': return 'bg-green-400';
-                        case '衰退期': return 'bg-red-400';
-                        case '在途': return 'bg-blue-400';
-                        case '冰冻': return 'bg-cyan-400';
+                        case 'aging': return 'bg-amber-400';
+                        case 'peak': return 'bg-green-400';
+                        case 'decline': return 'bg-red-400';
+                        case 'transit': return 'bg-blue-400';
+                        case 'frozen': return 'bg-cyan-400';
                         default: return 'bg-neutral-400';
                     }
                 };

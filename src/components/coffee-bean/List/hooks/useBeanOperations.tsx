@@ -185,7 +185,7 @@ export const useBeanOperations = () => {
     };
 
     // 处理分享咖啡豆信息
-    const handleShare = async (bean: ExtendedCoffeeBean, copyFunction: (text: string) => void, translateFlavorTag?: (flavor: string) => string) => {
+    const handleShare = async (bean: ExtendedCoffeeBean, copyFunction: (text: string) => void) => {
         try {
             // 创建一个可分享的咖啡豆对象
             const shareableBean: any = {
@@ -193,7 +193,7 @@ export const useBeanOperations = () => {
                 capacity: bean.capacity,
                 roastLevel: bean.roastLevel,
                 roastDate: bean.roastDate,
-                flavor: bean.flavor && translateFlavorTag ? bean.flavor.map(translateFlavorTag) : bean.flavor,
+                flavor: bean.flavor,
                 origin: bean.origin,
                 process: bean.process,
                 variety: bean.variety,

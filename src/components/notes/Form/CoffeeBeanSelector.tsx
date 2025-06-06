@@ -17,15 +17,15 @@ interface CoffeeBeanSelectorProps {
 const getFlavorInfo = (bean: CoffeeBean) => {
   // 处理在途状态
   if (bean.isInTransit) {
-    return { phase: '在途', remainingDays: 0 };
+    return { phase: 'transit', remainingDays: 0 };
   }
 
   // 处理冰冻状态
   if (bean.isFrozen) {
-    return { phase: '冰冻', remainingDays: 0 };
+    return { phase: 'frozen', remainingDays: 0 };
   }
 
-  if (!bean.roastDate) return { phase: '未知', remainingDays: 0 };
+  if (!bean.roastDate) return { phase: 'unknown', remainingDays: 0 };
 
   const today = new Date();
   const roastDate = new Date(bean.roastDate);
@@ -39,10 +39,10 @@ const getFlavorInfo = (bean: CoffeeBean) => {
 
   // 如果没有自定义值，则根据烘焙度设置默认值
   if (startDay === 0 && endDay === 0) {
-    if (bean.roastLevel?.includes('浅')) {
+    if (bean.roastLevel === 'ultraLight' || bean.roastLevel === 'light') {
       startDay = 7;
       endDay = 30;
-    } else if (bean.roastLevel?.includes('深')) {
+    } else if (bean.roastLevel === 'mediumDark' || bean.roastLevel === 'dark') {
       startDay = 14;
       endDay = 60;
     } else {
@@ -54,13 +54,13 @@ const getFlavorInfo = (bean: CoffeeBean) => {
 
   if (daysSinceRoast < startDay) {
     // 养豆期
-    return { phase: '养豆期', remainingDays: startDay - daysSinceRoast };
+    return { phase: 'aging', remainingDays: startDay - daysSinceRoast };
   } else if (daysSinceRoast <= endDay) {
     // 赏味期
-    return { phase: '赏味期', remainingDays: endDay - daysSinceRoast };
+    return { phase: 'peak', remainingDays: endDay - daysSinceRoast };
   } else {
     // 衰退期
-    return { phase: '衰退期', remainingDays: 0 };
+    return { phase: 'decline', remainingDays: 0 };
   }
 }
 

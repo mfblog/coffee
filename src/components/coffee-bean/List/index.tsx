@@ -46,11 +46,7 @@ import { toPng } from 'html-to-image'
 import { useToast } from '@/components/common/feedback/GlobalToast'
 import { Storage } from '@/lib/core/storage'
 import { exportStatsView } from './components/StatsView/StatsExporter'
-import { useLocale } from 'next-intl'
-
-// 导入翻译文件
-import zhTranslations from '@/locales/zh/common.json'
-import enTranslations from '@/locales/en/common.json'
+import { useTranslations } from 'next-intl'
 
 // 重命名导入组件以避免混淆
 const CoffeeBeanRanking = _CoffeeBeanRanking;
@@ -70,21 +66,9 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
     const { copyText, showFailureModal, failureContent, closeFailureModal } = useCopy()
 
     // 翻译钩子
-    const locale = useLocale()
-
-    // 翻译风味标签的函数
-    const translateFlavorTag = (flavor: string): string => {
-        // 直接从翻译文件中查找，避免 useTranslations 的错误
-        const translations = locale === 'en' ? enTranslations : zhTranslations;
-        const flavorTags = translations.beanConstants?.flavorTags;
-
-        if (flavorTags && flavorTags[flavor as keyof typeof flavorTags]) {
-            return flavorTags[flavor as keyof typeof flavorTags];
-        }
-
-        // 如果翻译不存在，返回原始文本
-        return flavor;
-    };
+    const tMessages = useTranslations('nav.messages')
+    const tActions = useTranslations('nav.actions')
+    const tStats = useTranslations('nav.stats')
 
     // 基础状态
     const [beans, setBeans] = useState<ExtendedCoffeeBean[]>(globalCache.beans)
@@ -217,7 +201,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
 
             setIsFirstLoad(false);
         } catch (error) {
-            console.error("加载咖啡豆数据失败:", error);
+            console.error(tMessages('loadBeansError'), error);
             setIsFirstLoad(false);
         } finally {
             isLoadingRef.current = false;
@@ -254,7 +238,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
             setRankingBeansCount(filteredRatedBeans.length);
             globalCache.ratedBeans = filteredRatedBeans;
         } catch (error) {
-            console.error("加载评分咖啡豆失败:", error);
+            console.error(tMessages('loadBeansError'), error);
         }
     }, [viewMode, rankingBeanType]);
 
@@ -272,7 +256,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
             // 更新全局缓存中指定年份的数据
             globalCache.bloggerBeans[bloggerYear] = bloggerBeansData;
         } catch (error) {
-            console.error(`加载博主榜单咖啡豆 (${bloggerYear}) 失败:`, error);
+            console.error(`${tMessages('loadBeansError')} (${bloggerYear}):`, error);
         }
     }, [viewMode, rankingBeanType, bloggerYear]);
 
@@ -300,7 +284,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
     useEffect(() => {
         const handleCoffeeBeanDataChanged = async (event: CustomEvent) => {
             const { action, beanId } = event.detail;
-            console.log('咖啡豆数据变更事件:', { action, beanId });
+            console.log('Coffee bean data change event:', { action, beanId });
 
             // 清除CoffeeBeanManager的缓存，确保获取最新数据
             CoffeeBeanManager.clearCache();
@@ -312,7 +296,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                 globalCache.beans = loadedBeans;
                 updateFilteredBeansAndCategories(loadedBeans);
             } catch (error) {
-                console.error("重新加载咖啡豆数据失败:", error);
+                console.error(tMessages('reloadBeansError'), error);
             }
         };
 
@@ -484,7 +468,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
             if (resultBeans.length === beans.length) {
                 updateFilteredBeansAndCategories(resultBeans);
             } else {
-                console.error('排序后的豆子数量与原始豆子数量不一致', resultBeans.length, beans.length);
+                console.error(tMessages('sortMismatchError'), resultBeans.length, beans.length);
                 updateFilteredBeansAndCategories(beans);
             }
         }
@@ -522,7 +506,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                 setEditingBean(bean);
             }
         } catch (_error) {
-            alert('编辑咖啡豆时出错，请重试');
+            alert(tMessages('editBeanError'));
         }
     };
 
@@ -534,11 +518,11 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                 setShowAddForm(false);
                 setEditingBean(null);
             } else {
-                alert('保存失败，请重试');
+                alert(tMessages('saveFailed'));
             }
         } catch (error) {
-            console.error('保存咖啡豆失败:', error);
-            alert('保存失败，请重试');
+            console.error(tMessages('loadBeansError'), error);
+            alert(tMessages('saveFailed'));
         }
     };
 
@@ -573,7 +557,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
             }
             return null;
         } catch (error) {
-            alert("保存评分失败，请重试");
+            alert(tMessages('saveRatingError'));
             throw error;
         }
     };
@@ -764,7 +748,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
         if (!rankingContainer) {
             toast.showToast({
                 type: 'error',
-                title: '无法找到榜单数据容器'
+                title: tMessages('rankingContainerNotFound')
             });
             return;
         }
@@ -816,7 +800,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
 
             // 添加标题
             const title = document.createElement('h2');
-            title.innerText = '个人咖啡豆榜单';
+            title.innerText = tStats('ranking.title');
             title.style.textAlign = 'left';
             title.style.marginBottom = '8px';
             title.style.fontSize = '12px';
@@ -834,7 +818,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                     const settings = JSON.parse(settingsStr);
                     username = settings.username?.trim() || '';
                 } catch (e) {
-                    console.error('解析用户设置失败', e);
+                    console.error(tMessages('parseSettingsError'), e);
                 }
             }
 
@@ -854,13 +838,13 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                 usernameSpan.innerText = `@${username}`;
 
                 const appNameSpan = document.createElement('span');
-                appNameSpan.innerText = '—— Brew Guide';
+                appNameSpan.innerText = tStats('ranking.appSignature');
 
                 footer.appendChild(usernameSpan);
                 footer.appendChild(appNameSpan);
             } else {
                 // 如果没有用户名，保持原样
-                footer.innerText = '—— Brew Guide';
+                footer.innerText = tStats('ranking.appSignature');
             }
 
             tempContainer.appendChild(footer);
@@ -903,10 +887,10 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
 
                 // 分享文件
                 await Share.share({
-                    title: '我的咖啡豆个人榜单',
-                    text: '我的咖啡豆个人榜单',
+                    title: tStats('ranking.shareTitle'),
+                    text: tStats('ranking.shareText'),
                     files: [uriResult.uri],
-                    dialogTitle: '分享我的咖啡豆个人榜单'
+                    dialogTitle: tStats('ranking.shareDialogTitle')
                 });
             } else {
                 // 在网页上下载图片
@@ -918,13 +902,13 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
 
             toast.showToast({
                 type: 'success',
-                title: '个人榜单已保存为图片'
+                title: tMessages('rankingImageSaved')
             });
         } catch (error) {
-            console.error('生成个人榜单图片失败', error);
+            console.error(tMessages('generateRankingImageError'), error);
             toast.showToast({
                 type: 'error',
-                title: '生成图片失败'
+                title: tMessages('generateImageError')
             });
         } finally {
             setIsExportingRanking(false);
@@ -943,7 +927,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
         if (!statsContainer) {
             toast.showToast({
                 type: 'error',
-                title: '无法找到统计数据容器'
+                title: tMessages('statsContainerNotFound')
             });
             return;
         }
@@ -971,10 +955,10 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                 }
             });
         } catch (error) {
-            console.error('导出统计数据时出错:', error);
+            console.error(tMessages('exportStatsError'), error);
             toast.showToast({
                 type: 'error',
-                title: '生成图片失败'
+                title: tMessages('generateImageError')
             });
             setIsExportingStats(false);
         }
@@ -1109,7 +1093,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                             beans={beans}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
-                            onShare={(bean) => handleShare(bean, copyText, translateFlavorTag)}
+                            onShare={(bean) => handleShare(bean, copyText)}
                             _onRemainingUpdate={handleRemainingUpdate}
                             onQuickDecrement={handleQuickDecrement}
                             isSearching={isSearching}
@@ -1152,7 +1136,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                     buttons={[
                         {
                             icon: '+',
-                            text: '手动添加',
+                            text: tActions('addManually'),
                             onClick: () => {
                                 if (showBeanForm) {
                                     showBeanForm(null);
@@ -1163,7 +1147,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                         },
                         {
                             icon: '↓',
-                            text: '快速添加',
+                            text: tActions('quickAdd'),
                             onClick: () => {
                                 if (onShowImport) onShowImport();
                             }

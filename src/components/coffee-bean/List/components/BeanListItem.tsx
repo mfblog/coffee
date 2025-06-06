@@ -39,6 +39,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
     searchQuery = ''
 }) => {
     const t = useTranslations('nav')
+    const tStatus = useTranslations('nav.beanStatus')
     // 图片查看器状态和错误状态
     const [imageViewerOpen, setImageViewerOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -55,10 +56,10 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
         // 检查是否为在途状态
         if (bean.isInTransit) {
             return {
-                phase: '在途',
+                phase: 'transit',
                 remainingDays: 0,
                 progressPercent: 0,
-                status: '在途',
+                status: 'transit',
                 preFlavorPercent: 0,
                 flavorPercent: 100, // 在途状态下整个进度条显示为在途区域
                 daysSinceRoast: 0,
@@ -69,10 +70,10 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
         }
 
         if (!bean.roastDate) return {
-            phase: '未知',
+            phase: 'unknown',
             remainingDays: 0,
             progressPercent: 0,
-            status: '未知',
+            status: 'unknown',
             preFlavorPercent: 0,
             flavorPercent: 0,
             daysSinceRoast: 0,
@@ -84,10 +85,10 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
         // 检查是否为冰冻状态
         if (bean.isFrozen) {
             return {
-                phase: '冰冻',
+                phase: 'frozen',
                 remainingDays: 0,
                 progressPercent: 0,
-                status: '冰冻',
+                status: 'frozen',
                 preFlavorPercent: 0,
                 flavorPercent: 100, // 冰冻状态下整个进度条显示为赏味期区域
                 daysSinceRoast: 0,
@@ -111,10 +112,10 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
 
         // 如果没有自定义值，则根据烘焙度设置默认值
         if (startDay === 0 && endDay === 0) {
-            if (bean.roastLevel?.includes('浅')) {
+            if (bean.roastLevel === 'ultraLight' || bean.roastLevel === 'light') {
                 startDay = 7;
                 endDay = 30;
-            } else if (bean.roastLevel?.includes('深')) {
+            } else if (bean.roastLevel === 'mediumDark' || bean.roastLevel === 'dark') {
                 startDay = 14;
                 endDay = 60;
             } else {
@@ -132,17 +133,17 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
         const flavorPercent = ((endDay - startDay) / endDay) * 100;
 
         if (daysSinceRoast < startDay) {
-            phase = '养豆期';
+            phase = 'aging';
             remainingDays = startDay - daysSinceRoast;
-            status = `养豆 ${remainingDays}天`;
+            status = `aging-${remainingDays}`;
         } else if (daysSinceRoast <= endDay) {
-            phase = '赏味期';
+            phase = 'peak';
             remainingDays = endDay - daysSinceRoast;
-            status = `赏味 ${remainingDays}天`;
+            status = `peak-${remainingDays}`;
         } else {
-            phase = '衰退期';
+            phase = 'decline';
             remainingDays = 0;
-            status = '已衰退';
+            status = 'decline';
         }
 
         return { phase, remainingDays, progressPercent, preFlavorPercent, flavorPercent, status, daysSinceRoast, endDay, isFrozen: false, isInTransit: false };
@@ -186,20 +187,29 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
     // 获取状态圆点的颜色
     const getStatusDotColor = (phase: string): string => {
         switch (phase) {
-            case '养豆期':
+            case 'aging':
                 return 'bg-amber-400'; // 黄色
-            case '赏味期':
+            case 'peak':
                 return 'bg-green-400'; // 绿色
-            case '衰退期':
+            case 'decline':
                 return 'bg-red-400'; // 红色
-            case '在途':
+            case 'transit':
                 return 'bg-blue-400'; // 蓝色
-            case '冰冻':
+            case 'frozen':
                 return 'bg-cyan-400'; // 冰蓝色
-            case '未知':
+            case 'unknown':
             default:
                 return 'bg-neutral-400'; // 灰色
         }
+    };
+
+    // 格式化状态显示文本
+    const formatStatusText = (status: string): string => {
+        if (status.includes('-')) {
+            const [phase, days] = status.split('-');
+            return `${tStatus(phase)} ${days}${t('units.days')}`;
+        }
+        return tStatus(status);
     };
 
     // 处理卡片点击事件
@@ -302,7 +312,7 @@ const BeanListItem: React.FC<BeanListItemProps> = ({
                             {bean.roastDate && !bean.isInTransit && (
                                 <>
                                     <span className="shrink-0">
-                                        {showFlavorPeriod ? flavorInfo.status : formatDateShort(bean.roastDate)}
+                                        {showFlavorPeriod ? formatStatusText(flavorInfo.status) : formatDateShort(bean.roastDate)}
                                     </span>
                                     {(bean.capacity && bean.remaining) || (bean.price && bean.capacity) ? (
                                         <span className="mx-2 text-neutral-400 dark:text-neutral-600">·</span>

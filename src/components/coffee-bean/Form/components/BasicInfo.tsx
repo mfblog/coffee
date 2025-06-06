@@ -302,7 +302,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                             {t('roastLevel.label')}
                         </label>
                         <Select
-                            value={bean.roastLevel || tConstants('roastLevels.浅度烘焙')}
+                            value={bean.roastLevel || 'light'}
                             onValueChange={(value) => onBeanChange('roastLevel')(value)}
                         >
                             <SelectTrigger
@@ -313,12 +313,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                             <SelectContent
                                 className="max-h-[40vh] overflow-y-auto border-neutral-200/70 dark:border-neutral-800/70 shadow-lg backdrop-blur-xs bg-white/95 dark:bg-neutral-900/95 rounded-lg"
                             >
-                                <SelectItem value="极浅烘焙">{tConstants('roastLevels.极浅烘焙')}</SelectItem>
-                                <SelectItem value="浅度烘焙">{tConstants('roastLevels.浅度烘焙')}</SelectItem>
-                                <SelectItem value="中浅烘焙">{tConstants('roastLevels.中浅烘焙')}</SelectItem>
-                                <SelectItem value="中度烘焙">{tConstants('roastLevels.中度烘焙')}</SelectItem>
-                                <SelectItem value="中深烘焙">{tConstants('roastLevels.中深烘焙')}</SelectItem>
-                                <SelectItem value="深度烘焙">{tConstants('roastLevels.深度烘焙')}</SelectItem>
+                                <SelectItem value="ultraLight">{tConstants('roastLevels.ultraLight')}</SelectItem>
+                                <SelectItem value="light">{tConstants('roastLevels.light')}</SelectItem>
+                                <SelectItem value="mediumLight">{tConstants('roastLevels.mediumLight')}</SelectItem>
+                                <SelectItem value="medium">{tConstants('roastLevels.medium')}</SelectItem>
+                                <SelectItem value="mediumDark">{tConstants('roastLevels.mediumDark')}</SelectItem>
+                                <SelectItem value="dark">{tConstants('roastLevels.dark')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

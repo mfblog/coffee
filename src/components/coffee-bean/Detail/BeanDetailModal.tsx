@@ -9,7 +9,7 @@ import HighlightText from '@/components/common/ui/HighlightText'
 import { Storage } from '@/lib/core/storage'
 import { getEquipmentName } from '@/components/notes/utils'
 import { formatDate, formatRating } from '@/components/notes/utils'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 
 // 导入翻译文件
 import zhTranslations from '@/locales/zh/common.json'
@@ -87,19 +87,19 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
 
     // 翻译钩子
     const locale = useLocale()
+    const t = useTranslations('nav')
+    const tStatus = useTranslations('nav.beanStatus')
+    const tRoast = useTranslations('beanConstants.roastLevels')
 
-    // 翻译风味标签的函数
-    const translateFlavorTag = (flavor: string): string => {
-        // 直接从翻译文件中查找，避免 useTranslations 的错误
-        const translations = locale === 'en' ? enTranslations : zhTranslations;
-        const flavorTags = translations.beanConstants?.flavorTags;
+    // 不再需要翻译风味标签，直接显示保存的值
 
-        if (flavorTags && flavorTags[flavor as keyof typeof flavorTags]) {
-            return flavorTags[flavor as keyof typeof flavorTags];
+    // 格式化状态显示文本
+    const formatStatusText = (status: string): string => {
+        if (status.includes('-')) {
+            const [phase, days] = status.split('-');
+            return `${tStatus(phase)} ${days}${t('units.days')}`;
         }
-
-        // 如果翻译不存在，返回原始文本
-        return flavor;
+        return tStatus(status);
     };
 
     // 重置图片错误状态
@@ -126,10 +126,10 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
 
     // 工具函数：计算赏味期信息
     const getFlavorInfo = () => {
-        if (!bean) return { phase: '未知', status: '加载中...' }
-        if (bean.isInTransit) return { phase: '在途', status: '在途中' }
-        if (bean.isFrozen) return { phase: '冰冻', status: '冰冻保存' }
-        if (!bean.roastDate) return { phase: '未知', status: '未设置烘焙日期' }
+        if (!bean) return { phase: 'unknown', status: 'unknown' }
+        if (bean.isInTransit) return { phase: 'transit', status: 'transit' }
+        if (bean.isFrozen) return { phase: 'frozen', status: 'frozen' }
+        if (!bean.roastDate) return { phase: 'unknown', status: 'unknown' }
 
         const today = new Date()
         const roastTimestamp = parseDateToTimestamp(bean.roastDate)
@@ -142,9 +142,9 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         let endDay = bean.endDay || 0
 
         if (startDay === 0 && endDay === 0) {
-            if (bean.roastLevel?.includes('浅')) {
+            if (bean.roastLevel === 'ultraLight' || bean.roastLevel === 'light') {
                 startDay = 7; endDay = 30
-            } else if (bean.roastLevel?.includes('深')) {
+            } else if (bean.roastLevel === 'mediumDark' || bean.roastLevel === 'dark') {
                 startDay = 14; endDay = 60
             } else {
                 startDay = 10; endDay = 30
@@ -152,11 +152,11 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
         }
 
         if (daysSinceRoast < startDay) {
-            return { phase: '养豆期', status: `还需养豆 ${startDay - daysSinceRoast} 天` }
+            return { phase: 'aging', status: `aging-${startDay - daysSinceRoast}` }
         } else if (daysSinceRoast <= endDay) {
-            return { phase: '赏味期', status: `剩余 ${endDay - daysSinceRoast} 天` }
+            return { phase: 'peak', status: `peak-${endDay - daysSinceRoast}` }
         } else {
-            return { phase: '衰退期', status: '已过赏味期' }
+            return { phase: 'decline', status: 'decline' }
         }
     }
 
@@ -190,7 +190,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             items.push({
                 key: 'roastDate',
                 label: '状态',
-                value: '在途',
+                value: tStatus('transit'),
                 type: 'status',
                 color: 'text-blue-600 dark:text-blue-400'
             })
@@ -208,7 +208,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             items.push({
                 key: 'flavor',
                 label: '状态',
-                value: '冰冻',
+                value: tStatus('frozen'),
                 type: 'status',
                 color: 'text-cyan-600 dark:text-cyan-400'
             })
@@ -216,7 +216,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             items.push({
                 key: 'flavor',
                 label: '赏味期',
-                value: flavorInfo.status,
+                value: formatStatusText(flavorInfo.status),
                 type: 'normal'
             })
         }
@@ -308,7 +308,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
             items.push({
                 key: 'roastLevel',
                 label: '烘焙度',
-                value: bean.roastLevel
+                value: tRoast(bean.roastLevel)
             })
         }
 
@@ -520,7 +520,7 @@ const BeanDetailModal: React.FC<BeanDetailModalProps> = ({
                                                     key={index}
                                                     className="px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-700/50 text-xs text-neutral-700 dark:text-neutral-300"
                                                 >
-                                                    {translateFlavorTag(flavor)}
+                                                    {flavor}
                                                 </span>
                                             ))}
                                         </div>

@@ -163,7 +163,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
             const { id, timestamp, ...beanData } = initialBean;
 
             if (!beanData.roastLevel) {
-                beanData.roastLevel = '浅度烘焙';
+                beanData.roastLevel = 'light';
             }
 
             // 确保有beanType字段，默认为手冲
@@ -177,10 +177,10 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
                 let startDay = 0;
                 let endDay = 0;
 
-                if (beanData.roastLevel.includes('浅')) {
+                if (beanData.roastLevel === 'ultraLight' || beanData.roastLevel === 'light') {
                     startDay = 7;
                     endDay = 30;
-                } else if (beanData.roastLevel.includes('深')) {
+                } else if (beanData.roastLevel === 'mediumDark' || beanData.roastLevel === 'dark') {
                     startDay = 14;
                     endDay = 30;
                 } else {
@@ -199,7 +199,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
             name: '',
             capacity: '',
             remaining: '',
-            roastLevel: '浅度烘焙',
+            roastLevel: 'light',
             roastDate: '',
             flavor: [],
             price: '',
@@ -490,10 +490,10 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
         let startDay = 0;
         let endDay = 0;
 
-        if (bean.roastLevel?.includes('浅')) {
+        if (bean.roastLevel === 'ultraLight' || bean.roastLevel === 'light') {
             startDay = 7;
             endDay = 30;
-        } else if (bean.roastLevel?.includes('深')) {
+        } else if (bean.roastLevel === 'mediumDark' || bean.roastLevel === 'dark') {
             startDay = 14;
             endDay = 60;
         } else {

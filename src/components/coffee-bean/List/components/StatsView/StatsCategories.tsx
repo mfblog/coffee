@@ -3,11 +3,7 @@ import { isBeanEmpty } from '../../globalCache'
 import { StatsData, AnimationStyles } from './types'
 import { formatNumber } from './utils'
 import { StatCategory, StatItem, renderStatsRows } from './StatComponents'
-import { useTranslations, useLocale } from 'next-intl'
-
-// 导入翻译文件
-import zhTranslations from '@/locales/zh/common.json'
-import enTranslations from '@/locales/en/common.json'
+import { useTranslations } from 'next-intl'
 
 interface StatsCategoriesProps {
     stats: StatsData
@@ -25,21 +21,6 @@ const StatsCategories: React.FC<StatsCategoriesProps> = ({
     styles
 }) => {
     const t = useTranslations()
-    const locale = useLocale()
-
-    // 翻译风味标签的函数
-    const translateFlavorTag = (flavor: string): string => {
-        // 直接从翻译文件中查找，避免 useTranslations 的错误
-        const translations = locale === 'en' ? enTranslations : zhTranslations;
-        const flavorTags = translations.beanConstants?.flavorTags;
-
-        if (flavorTags && flavorTags[flavor as keyof typeof flavorTags]) {
-            return flavorTags[flavor as keyof typeof flavorTags];
-        }
-
-        // 如果翻译不存在，返回原始文本
-        return flavor;
-    };
 
     // 为风味标签创建特殊的渲染函数
     const renderFlavorStatsRows = (dataArr: [string, number][], unit?: string) => {
@@ -50,7 +31,7 @@ const StatsCategories: React.FC<StatsCategoriesProps> = ({
             .map(([key, value]) => (
                 <StatItem
                     key={key}
-                    label={translateFlavorTag(key)}
+                    label={key}
                     value={`${value}`}
                     unit={defaultUnit}
                 />
