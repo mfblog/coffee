@@ -16,6 +16,7 @@ import ListView from './ListView'
 import { SortOption } from '../types'
 import { exportSelectedNotes } from '../Share/NotesExporter'
 import NoteFormHeader from '@/components/notes/ui/NoteFormHeader'
+import { useTranslations } from 'next-intl'
 
 // 为Window对象声明类型扩展
 declare global {
@@ -31,6 +32,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
     setAlternativeHeaderContent,
     setShowAlternativeHeader
 }) => {
+    const t = useTranslations('notes.form')
     // 用于跟踪用户选择
     const [sortOption, setSortOption] = useState<SortOption>(globalCache.sortOption)
     const [filterMode, setFilterMode] = useState<'equipment' | 'bean'>(globalCache.filterMode)
@@ -765,7 +767,7 @@ const BrewingHistory: React.FC<BrewingHistoryProps> = ({
                                         (selectedNotes.length === 0 || isSaving) ? 'opacity-50 cursor-not-allowed' : ''
                                     }`}
                                 >
-                                    {isSaving ? '生成中...' : `保存为图片 (${selectedNotes.length})`}
+                                    {isSaving ? t('messages.generating') : `${t('messages.saveAsImage')} (${selectedNotes.length})`}
                                 </button>
                                 <div className="grow border-t border-neutral-200 dark:border-neutral-800"></div>
                             </div>

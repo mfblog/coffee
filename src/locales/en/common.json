@@ -228,5 +228,61 @@
       "sponsorMessage": "Thanks to the following sponsors for their support",
       "sponsorEnding": " . and You."
     }
+  },
+  "notes": {
+    "form": {
+      "title": {
+        "edit": "Edit Record",
+        "new": "New Record"
+      },
+      "fields": {
+        "image": "Note Image",
+        "beanInfo": "Bean Info",
+        "methodParams": "Method Parameters",
+        "flavorRating": "Flavor Rating",
+        "overallRating": "Overall Rating",
+        "notes": "Notes"
+      },
+      "placeholders": {
+        "beanName": "Bean Name",
+        "coffeeAmount": "Coffee Amount (e.g: 15g)",
+        "ratio": "Ratio (e.g: 1:15)",
+        "grindSize": "Grind Size (e.g: Medium Fine)",
+        "temperature": "Temperature (e.g: 92°C)",
+        "notesText": "Record your brewing experience, improvements, etc...",
+        "selectImage": "Select Image",
+        "imageCompress": "Images over 200kb will be compressed"
+      },
+      "buttons": {
+        "save": "Save",
+        "back": "Back",
+        "camera": "Camera",
+        "gallery": "Gallery",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "addManually": "Add Manually"
+      },
+      "roastLevels": {
+        "lightPlus": "Light+",
+        "light": "Light",
+        "mediumLight": "Medium Light",
+        "medium": "Medium",
+        "mediumDark": "Medium Dark",
+        "dark": "Dark"
+      },
+      "flavorAttributes": {
+        "acidity": "Acidity",
+        "sweetness": "Sweetness",
+        "bitterness": "Bitterness",
+        "body": "Body"
+      },
+      "messages": {
+        "unknownBean": "Unknown Bean",
+        "noMethods": "No brewing methods available, please go to \"Brew\" page to add",
+        "selectEquipmentFirst": "Please select equipment first",
+        "generating": "Generating...",
+        "saveAsImage": "Save as Image"
+      }
+    }
   }
 }

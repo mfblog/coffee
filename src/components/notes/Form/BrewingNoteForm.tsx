@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 import type { BrewingNoteData, CoffeeBean } from '@/types/app'
 import AutoResizeTextarea from '@/components/common/forms/AutoResizeTextarea'
@@ -83,11 +84,37 @@ const compressBase64 = (base64: string, quality = 0.7, maxWidth = 800): Promise<
   });
 };
 
-// 标准化烘焙度值
-const normalizeRoastLevel = (roastLevel?: string): string => {
-    if (!roastLevel) return '中度烘焙';
-    if (roastLevel.endsWith('烘焙')) return roastLevel;
+// 标准化烘焙度值 - 现在接受翻译函数作为参数
+const normalizeRoastLevel = (roastLevel?: string, t?: any): string => {
+    const defaultRoast = t ? t('roastLevels.medium') : '中度烘焙';
 
+    if (!roastLevel) return defaultRoast;
+    if (roastLevel.endsWith('烘焙') || roastLevel.endsWith('Light') || roastLevel.endsWith('Dark')) return roastLevel;
+
+    // 如果有翻译函数，使用翻译后的值
+    if (t) {
+        const roastMap: Record<string, string> = {
+            '极浅': t('roastLevels.lightPlus'),
+            '浅度': t('roastLevels.light'),
+            '中浅': t('roastLevels.mediumLight'),
+            '中度': t('roastLevels.medium'),
+            '中深': t('roastLevels.mediumDark'),
+            '深度': t('roastLevels.dark'),
+            'Light+': t('roastLevels.lightPlus'),
+            'Light': t('roastLevels.light'),
+            'Medium Light': t('roastLevels.mediumLight'),
+            'Medium': t('roastLevels.medium'),
+            'Medium Dark': t('roastLevels.mediumDark'),
+            'Dark': t('roastLevels.dark')
+        };
+
+        // 直接匹配或包含匹配
+        return roastMap[roastLevel] ||
+               Object.entries(roastMap).find(([key]) => roastLevel.includes(key))?.[1] ||
+               defaultRoast;
+    }
+
+    // 回退到中文映射
     const roastMap: Record<string, string> = {
         '极浅': '极浅烘焙',
         '浅度': '浅度烘焙',
@@ -97,18 +124,17 @@ const normalizeRoastLevel = (roastLevel?: string): string => {
         '深度': '深度烘焙'
     };
 
-    // 直接匹配或包含匹配
     return roastMap[roastLevel] ||
            Object.entries(roastMap).find(([key]) => roastLevel.includes(key))?.[1] ||
-           '中度烘焙';
+           defaultRoast;
 };
 
-// 获取初始咖啡豆信息
-const getInitialCoffeeBeanInfo = (initialData: BrewingNoteFormProps['initialData']) => {
+// 获取初始咖啡豆信息 - 现在接受翻译函数作为参数
+const getInitialCoffeeBeanInfo = (initialData: BrewingNoteFormProps['initialData'], t?: any) => {
     const beanInfo = initialData.coffeeBean || initialData.coffeeBeanInfo;
     return {
         name: beanInfo?.name || '',
-        roastLevel: normalizeRoastLevel(beanInfo?.roastLevel)
+        roastLevel: normalizeRoastLevel(beanInfo?.roastLevel, t)
     };
 };
 
@@ -134,9 +160,10 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
     onSaveSuccess,
     hideHeader = false,
 }) => {
+    const t = useTranslations('notes.form')
 
     const [formData, setFormData] = useState<FormData>({
-        coffeeBeanInfo: getInitialCoffeeBeanInfo(initialData),
+        coffeeBeanInfo: getInitialCoffeeBeanInfo(initialData, t),
         image: typeof initialData.image === 'string' ? initialData.image : '',
         rating: initialData?.rating || 3,
         taste: {
@@ -244,16 +271,16 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
             const updatedCoffeeBeanInfo = currentCoffeeBean
                 ? {
                     name: currentCoffeeBean.name || '',
-                    roastLevel: normalizeRoastLevel(currentCoffeeBean.roastLevel || '中度烘焙'),
+                    roastLevel: normalizeRoastLevel(currentCoffeeBean.roastLevel || t('roastLevels.medium'), t),
                 }
                 : currentCoffeeBeanInfo
                     ? {
                         name: currentCoffeeBeanInfo.name || '',
-                        roastLevel: normalizeRoastLevel(currentCoffeeBeanInfo.roastLevel || '中度烘焙'),
+                        roastLevel: normalizeRoastLevel(currentCoffeeBeanInfo.roastLevel || t('roastLevels.medium'), t),
                     }
                     : {
                         name: '',
-                        roastLevel: '中度烘焙'
+                        roastLevel: t('roastLevels.medium')
                     };
             
             setFormData(prev => ({
@@ -483,7 +510,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                 {/* 笔记图片 */}
                 <div className="space-y-2 w-full">
                     <label className="block text-xs font-medium tracking-widest text-neutral-500 dark:text-neutral-400">
-                        笔记图片
+                        {t('fields.image')}
                     </label>
                     <div className="flex items-center justify-center relative">
                         <div className="w-32 h-32 rounded-lg border-2 border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center overflow-hidden relative">
@@ -491,7 +518,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                 <div className="relative w-full h-full">
                                     <Image
                                         src={formData.image}
-                                        alt="笔记图片"
+                                        alt={t('fields.image')}
                                         className="object-contain"
                                         fill
                                         sizes="(max-width: 768px) 100vw, 300px"
@@ -516,8 +543,8 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-neutral-400 dark:text-neutral-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">选择图片</span>
-                                        <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1">200kb以上将自动压缩</span>
+                                        <span className="text-xs text-neutral-500 dark:text-neutral-400">{t('placeholders.selectImage')}</span>
+                                        <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1">{t('placeholders.imageCompress')}</span>
                                     </div>
                                     
                                     {/* 图片上传按钮组 */}
@@ -532,7 +559,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
-                                                拍照
+                                                {t('buttons.camera')}
                                             </span>
                                         </button>
                                         <button
@@ -544,7 +571,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
-                                                相册
+                                                {t('buttons.gallery')}
                                             </span>
                                         </button>
                                     </div>
@@ -559,10 +586,10 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                     <div className="text-xs font-medium  tracking-widest text-neutral-500 dark:text-neutral-400">
                         {initialData.coffeeBean ? (
                             // 显示选择的咖啡豆信息，直接在标题后面
-                            <>咖啡豆信息 · {formData.coffeeBeanInfo.name || '未知咖啡豆'}</>
+                            <>{t('fields.beanInfo')} · {formData.coffeeBeanInfo.name || t('messages.unknownBean')}</>
                         ) : (
                             // 只显示标题
-                            '咖啡豆信息'
+                            t('fields.beanInfo')
                         )}
                     </div>
                     {!initialData.coffeeBean && (
@@ -582,7 +609,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                             })
                                         }
                                         className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-hidden transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                        placeholder="咖啡豆名称"
+                                        placeholder={t('placeholders.beanName')}
                                     />
                                 </div>
                                 <div>
@@ -599,12 +626,12 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                         }
                                         className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-hidden transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 text-neutral-800 dark:text-neutral-300"
                                     >
-                                        <option value="极浅烘焙">极浅烘焙</option>
-                                        <option value="浅度烘焙">浅度烘焙</option>
-                                        <option value="中浅烘焙">中浅烘焙</option>
-                                        <option value="中度烘焙">中度烘焙</option>
-                                        <option value="中深烘焙">中深烘焙</option>
-                                        <option value="深度烘焙">深度烘焙</option>
+                                        <option value={t('roastLevels.lightPlus')}>{t('roastLevels.lightPlus')}</option>
+                                        <option value={t('roastLevels.light')}>{t('roastLevels.light')}</option>
+                                        <option value={t('roastLevels.mediumLight')}>{t('roastLevels.mediumLight')}</option>
+                                        <option value={t('roastLevels.medium')}>{t('roastLevels.medium')}</option>
+                                        <option value={t('roastLevels.mediumDark')}>{t('roastLevels.mediumDark')}</option>
+                                        <option value={t('roastLevels.dark')}>{t('roastLevels.dark')}</option>
                                     </select>
                                 </div>
                             </div>
@@ -616,7 +643,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                 {initialData?.id && (
                 <div className="space-y-4">
                     <div className="text-[10px] font-medium tracking-widest text-neutral-500 dark:text-neutral-400">
-                        方案参数
+                        {t('fields.methodParams')}
                     </div>
                     <div className="grid grid-cols-4 gap-6">
                         <div>
@@ -625,7 +652,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                 value={methodParams.coffee}
                                 onChange={(e) => handleCoffeeChange(e.target.value)}
                                 className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-hidden transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                placeholder="咖啡粉量 (如: 15g)"
+                                placeholder={t('placeholders.coffeeAmount')}
                             />
                         </div>
                         <div>
@@ -641,7 +668,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                     }));
                                 }}
                                 className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-hidden transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                placeholder="粉水比 (如: 1:15)"
+                                placeholder={t('placeholders.ratio')}
                             />
                         </div>
                         <div>
@@ -650,7 +677,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                 value={methodParams.grindSize}
                                 onChange={(e) => setMethodParams({...methodParams, grindSize: e.target.value})}
                                 className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-hidden transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                placeholder="研磨度 (如: 中细)"
+                                placeholder={t('placeholders.grindSize')}
                             />
                         </div>
                         <div>
@@ -659,7 +686,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                 value={methodParams.temp}
                                 onChange={(e) => setMethodParams({...methodParams, temp: e.target.value})}
                                 className="w-full border-b border-neutral-200 bg-transparent py-2 text-xs outline-hidden transition-colors focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 rounded-none"
-                                placeholder="水温 (如: 92°C)"
+                                placeholder={t('placeholders.temperature')}
                             />
                         </div>
                     </div>
@@ -670,14 +697,14 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="text-xs font-medium  tracking-widest text-neutral-500 dark:text-neutral-400">
-                            风味评分
+                            {t('fields.flavorRating')}
                         </div>
                         <button
                             type="button"
                             onClick={() => setShowFlavorRatings(!showFlavorRatings)}
                             className="text-xs font-medium tracking-widest text-neutral-500 dark:text-neutral-400"
                         >
-                            [ {showFlavorRatings ? '收起' : '展开'} ]
+                            [ {showFlavorRatings ? t('buttons.collapse') : t('buttons.expand')} ]
                         </button>
                     </div>
                     
@@ -687,14 +714,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                                 <div key={key} className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <div className="text-xs font-medium  tracking-widest text-neutral-500 dark:text-neutral-400">
-                                            {
-                                                {
-                                                    acidity: '酸度',
-                                                    sweetness: '甜度',
-                                                    bitterness: '苦度',
-                                                    body: '口感',
-                                                }[key]
-                                            }
+                                            {t(`flavorAttributes.${key}` as any)}
                                         </div>
                                         <div className="text-xs font-medium tracking-widest text-neutral-500 dark:text-neutral-400">
                                             [ {value || 0} ]
@@ -732,7 +752,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="text-xs font-medium  tracking-widest text-neutral-500 dark:text-neutral-400">
-                            总体评分
+                            {t('fields.overallRating')}
                         </div>
                         <div className="text-xs font-medium tracking-widest text-neutral-500 dark:text-neutral-400">
                             [ {formData.rating.toFixed(1)} ]
@@ -764,7 +784,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                 {/* 笔记 */}
                 <div className="space-y-4">
                     <div className="text-xs font-medium  tracking-widest text-neutral-500 dark:text-neutral-400">
-                        笔记
+                        {t('fields.notes')}
                     </div>
                     <AutoResizeTextarea
                         value={formData.notes}
@@ -775,7 +795,7 @@ const BrewingNoteForm: React.FC<BrewingNoteFormProps> = ({
                             })
                         }
                         className="text-xs font-medium border-b border-neutral-200 focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-600 placeholder:text-neutral-300 dark:placeholder:text-neutral-600 text-neutral-800 dark:text-neutral-300 pb-4"
-                        placeholder="记录一下这次冲煮的感受、改进点等..."
+                        placeholder={t('placeholders.notesText')}
                         minRows={3}
                         maxRows={10}
                     />

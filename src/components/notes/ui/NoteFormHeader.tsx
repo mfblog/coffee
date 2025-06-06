@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 
 interface NoteFormHeaderProps {
     isEditMode: boolean; // 是否是编辑模式（否则为新建模式）
@@ -17,12 +18,13 @@ const NoteFormHeader: React.FC<NoteFormHeaderProps> = ({
     showSaveButton = true,
     timestamp = new Date(),
 }) => {
+    const t = useTranslations('notes.form')
     return (
         <div className="flex items-center justify-between w-full">
             <div 
                 className="cursor-pointer text-xs font-medium tracking-widest text-neutral-500 dark:text-neutral-400 flex items-center"
             >
-                {`${isEditMode ? '编辑记录' : '新建记录'} · ${timestamp.toLocaleString('zh-CN', {
+                {`${isEditMode ? t('title.edit') : t('title.new')} · ${timestamp.toLocaleString('zh-CN', {
                     month: 'numeric',
                     day: 'numeric',
                     hour: 'numeric',
@@ -36,7 +38,7 @@ const NoteFormHeader: React.FC<NoteFormHeaderProps> = ({
                         onClick={onBack}
                         className="text-xs font-medium tracking-widest text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
                     >
-                        返回
+                        {t('buttons.back')}
                     </button>
                 )}
                 {showSaveButton && onSave && (
@@ -45,7 +47,7 @@ const NoteFormHeader: React.FC<NoteFormHeaderProps> = ({
                         onClick={onSave}
                         className="text-xs font-medium tracking-widest text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 font-medium transition-colors"
                     >
-                        保存
+                        {t('buttons.save')}
                     </button>
                 )}
             </div>
