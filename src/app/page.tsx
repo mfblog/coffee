@@ -41,7 +41,7 @@ import CustomEquipmentFormModal from '@/components/equipment/forms/CustomEquipme
 import EquipmentImportModal from '@/components/equipment/import/EquipmentImportModal'
 import DataMigrationModal from '@/components/common/modals/DataMigrationModal'
 import { showToast } from '@/components/common/feedback/GlobalToast'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 // 为Window对象声明类型扩展
 declare global {
@@ -142,6 +142,7 @@ const AppContainer = () => {
 // 手冲咖啡配方页面组件 - 添加初始咖啡豆状态参数
 const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
     const t = useTranslations('nav')
+    const locale = useLocale()
 
     // 使用设置相关状态
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -447,6 +448,17 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
         }
     }, [showViewDropdown, updateBeanButtonPosition]);
 
+    // 监听语言变化，确保视图状态正确
+    useEffect(() => {
+        // 如果当前视图是博主榜单且语言不是中文，自动切换到个人榜单
+        if (currentBeanView === VIEW_OPTIONS.BLOGGER && locale !== 'zh') {
+            setTimeout(() => {
+                setCurrentBeanView(VIEW_OPTIONS.RANKING);
+                saveStringState('coffee-beans', 'viewMode', VIEW_OPTIONS.RANKING);
+            }, 0);
+        }
+    }, [locale, currentBeanView]);
+
     // 在下拉菜单即将显示时预先获取位置
     const handleToggleViewDropdown = useCallback(() => {
         if (!showViewDropdown) {
@@ -464,7 +476,8 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
             case VIEW_OPTIONS.RANKING:
                 return t('views.ranking')
             case VIEW_OPTIONS.BLOGGER:
-                return t('views.blogger')
+                // 非中文环境下，博主榜单应该不可见，如果出现则显示个人榜单
+                return locale !== 'zh' ? t('views.ranking') : t('views.blogger')
             case VIEW_OPTIONS.STATS:
                 return t('views.stats')
             default:
@@ -474,9 +487,12 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
 
     // 处理咖啡豆视图切换
     const handleBeanViewChange = (view: ViewOption) => {
-        setCurrentBeanView(view);
+        // 非中文环境下，如果尝试切换到博主榜单，自动切换到个人榜单
+        const validView = (view === VIEW_OPTIONS.BLOGGER && locale !== 'zh') ? VIEW_OPTIONS.RANKING : view;
+
+        setCurrentBeanView(validView);
         // 保存到本地存储
-        saveStringState('coffee-beans', 'viewMode', view);
+        saveStringState('coffee-beans', 'viewMode', validView);
         // 关闭下拉菜单
         setShowViewDropdown(false);
         // 触感反馈
@@ -1951,7 +1967,13 @@ const PourOverRecipes = ({ initialHasBeans }: { initialHasBeans: boolean }) => {
                                 {/* 其他视图选项 - 统一样式和间距 */}
                                 <div className="flex flex-col">
                                     {Object.values(VIEW_OPTIONS)
-                                        .filter((value) => value !== currentBeanView)
+                                        .filter((value) => {
+                                            // 过滤掉当前视图
+                                            if (value === currentBeanView) return false;
+                                            // 非中文环境下隐藏博主榜单
+                                            if (value === VIEW_OPTIONS.BLOGGER && locale !== 'zh') return false;
+                                            return true;
+                                        })
                                         .map((value, index) => (
                                             <motion.button
                                                 key={value}

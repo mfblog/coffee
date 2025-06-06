@@ -29,7 +29,15 @@
       "done": "完成",
       "search": "搜索",
       "addManually": "手动添加",
-      "quickAdd": "快速添加"
+      "quickAdd": "快速添加",
+      "addRating": "添加评分"
+    },
+    "rating": {
+      "title": "评分",
+      "notes": "备注",
+      "notesPlaceholder": "添加对这款咖啡豆的备注",
+      "cancel": "取消",
+      "save": "保存"
     },
     "filters": {
       "type": "类型",
@@ -38,6 +46,8 @@
       "filter": "手冲",
       "espressoBean": "意式豆",
       "filterBean": "手冲豆",
+      "allBeans": "全部豆子",
+      "pourOver": "手冲豆",
       "sort": "排序",
       "display": "显示",
       "usedUp": "已用完",
@@ -99,6 +109,8 @@
       "quickDecrementRecords": "条快捷扣除记录",
       "editBeanError": "编辑咖啡豆时出错，请重试",
       "saveRatingError": "保存评分失败，请重试",
+      "noRatingData": "暂无咖啡豆评分数据",
+      "unratedBeans": "款未评分咖啡豆",
       "loadBeansError": "加载咖啡豆数据失败",
       "reloadBeansError": "重新加载咖啡豆数据失败",
       "sortMismatchError": "排序后的豆子数量与原始豆子数量不一致",

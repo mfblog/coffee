@@ -10,6 +10,7 @@ import BottomActionBar from '@/components/layout/BottomActionBar'
 import { useCopy } from "@/lib/hooks/useCopy"
 import CopyFailureModal from "../ui/copy-failure-modal"
 import { type SortOption, sortBeans, convertToRankingSortOption as _convertToRankingSortOption } from './SortSelector'
+import { useLocale } from 'next-intl'
 
 // 导入新创建的组件和类型
 import {
@@ -69,6 +70,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
     const tMessages = useTranslations('nav.messages')
     const tActions = useTranslations('nav.actions')
     const tStats = useTranslations('nav.stats')
+    const locale = useLocale()
 
     // 基础状态
     const [beans, setBeans] = useState<ExtendedCoffeeBean[]>(globalCache.beans)
@@ -81,10 +83,19 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
     const [rankingSortOption, setRankingSortOption] = useState<SortOption>(globalCache.rankingSortOption)
     const [bloggerSortOption, setBloggerSortOption] = useState<SortOption>(globalCache.bloggerSortOption)
     // 使用外部传递的视图状态，如果没有则使用内部状态作为后备
-    const viewMode = externalViewMode || globalCache.viewMode;
+    // 非中文环境下，如果当前视图是博主榜单，自动切换到个人榜单
+    const getValidViewMode = (mode: ViewOption): ViewOption => {
+        if (mode === VIEW_OPTIONS.BLOGGER && locale !== 'zh') {
+            return VIEW_OPTIONS.RANKING;
+        }
+        return mode;
+    };
+
+    const viewMode = getValidViewMode(externalViewMode || globalCache.viewMode);
     const setViewMode = onExternalViewChange || ((view: ViewOption) => {
-        globalCache.viewMode = view;
-        saveViewModePreference(view);
+        const validView = getValidViewMode(view);
+        globalCache.viewMode = validView;
+        saveViewModePreference(validView);
     });
 
     // 评分相关状态
@@ -244,7 +255,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
 
     // 加载博主榜单的咖啡豆
     const loadBloggerBeans = React.useCallback(async () => {
-        if (viewMode !== VIEW_OPTIONS.BLOGGER) return;
+        if (viewMode !== VIEW_OPTIONS.BLOGGER || locale !== 'zh') return;
 
         try {
             // 直接调用csvUtils中的函数，传入选定的年份
@@ -258,7 +269,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
         } catch (error) {
             console.error(`${tMessages('loadBeansError')} (${bloggerYear}):`, error);
         }
-    }, [viewMode, rankingBeanType, bloggerYear]);
+    }, [viewMode, rankingBeanType, bloggerYear, locale, tMessages]);
 
     // 优化的数据加载逻辑 - 减少依赖项，避免重复触发
     useEffect(() => {
@@ -335,7 +346,7 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
 
     // 在视图切换时更新数据
     useEffect(() => {
-        if (viewMode === VIEW_OPTIONS.BLOGGER) {
+        if (viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh') {
             loadBloggerBeans();
         } else if (viewMode === VIEW_OPTIONS.RANKING) {
             loadRatedBeans();
@@ -383,10 +394,23 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
     useEffect(() => {
         if (viewMode === VIEW_OPTIONS.RANKING) {
             loadRatedBeans();
-        } else if (viewMode === VIEW_OPTIONS.BLOGGER) {
+        } else if (viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh') {
             loadBloggerBeans();
         }
-    }, [rankingBeanType, bloggerYear, viewMode, loadRatedBeans, loadBloggerBeans]);
+    }, [rankingBeanType, bloggerYear, viewMode, loadRatedBeans, loadBloggerBeans, locale]);
+
+    // 监听语言变化，非中文环境下自动切换博主榜单到个人榜单
+    useEffect(() => {
+        if (viewMode === VIEW_OPTIONS.BLOGGER && locale !== 'zh') {
+            // 使用setTimeout确保状态更新在下一个事件循环中执行，避免DOM操作冲突
+            setTimeout(() => {
+                // 清理博主榜单相关状态
+                setBloggerBeansCount(0);
+                // 切换到个人榜单
+                setViewMode(VIEW_OPTIONS.RANKING);
+            }, 0);
+        }
+    }, [locale, viewMode, setViewMode]);
 
     // 当显示空豆子设置改变时更新全局缓存 - 简化版本
     useEffect(() => {
@@ -591,18 +615,18 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
         if (globalCache.initialized) {
             if (viewMode === VIEW_OPTIONS.RANKING) {
                 loadRatedBeans();
-            } else if (viewMode === VIEW_OPTIONS.BLOGGER) {
+            } else if (viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh') {
                 loadBloggerBeans();
             }
         }
-    }, [rankingBeanType, loadRatedBeans, loadBloggerBeans, viewMode]);
+    }, [rankingBeanType, loadRatedBeans, loadBloggerBeans, viewMode, locale]);
 
     // 当博主榜单年份变更时更新数据
     useEffect(() => {
-        if (globalCache.initialized && viewMode === VIEW_OPTIONS.BLOGGER) {
+        if (globalCache.initialized && viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh') {
             loadBloggerBeans();
         }
-    }, [bloggerYear, loadBloggerBeans, viewMode]);
+    }, [bloggerYear, loadBloggerBeans, viewMode, locale]);
 
     // 组件加载后初始化各视图的排序选项
     useEffect(() => {
@@ -1111,19 +1135,20 @@ const CoffeeBeans: React.FC<CoffeeBeansProps> = ({
                             />
                         </div>
                     )}
-                    {/* 添加榜单和博主榜单视图 */}
-                    {(viewMode === VIEW_OPTIONS.RANKING || viewMode === VIEW_OPTIONS.BLOGGER) && (
-                        <div className="w-full h-full overflow-y-auto scroll-with-bottom-bar">
+                    {/* 添加榜单和博主榜单视图，非中文环境下隐藏博主榜单 */}
+                    {(viewMode === VIEW_OPTIONS.RANKING || (viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh')) && (
+                        <div key={`ranking-${viewMode}-${locale}`} className="w-full h-full overflow-y-auto scroll-with-bottom-bar">
                             <CoffeeBeanRanking
-                                isOpen={viewMode === VIEW_OPTIONS.RANKING || viewMode === VIEW_OPTIONS.BLOGGER}
+                                key={`ranking-component-${viewMode}-${locale}`}
+                                isOpen={viewMode === VIEW_OPTIONS.RANKING || (viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh')}
                                 onShowRatingForm={handleShowRatingForm}
                                 sortOption={convertToRankingSortOption(sortOption, viewMode)}
                                 updatedBeanId={lastRatedBeanId}
                                 hideFilters={true}
                                 beanType={rankingBeanType}
                                 editMode={rankingEditMode}
-                                viewMode={viewMode === VIEW_OPTIONS.BLOGGER ? 'blogger' : 'personal'}
-                                year={viewMode === VIEW_OPTIONS.BLOGGER ? bloggerYear : undefined}
+                                viewMode={viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh' ? 'blogger' : 'personal'}
+                                year={viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh' ? bloggerYear : undefined}
                             />
                         </div>
                     )}

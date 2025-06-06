@@ -594,7 +594,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
             case 'ranking':
                 return t('views.ranking')
             case 'blogger':
-                return t('views.blogger')
+                // 非中文环境下，博主榜单应该不可见，如果出现则显示个人榜单
+                return locale !== 'zh' ? t('views.ranking') : t('views.blogger')
             case 'stats':
                 return t('views.stats')
             default:

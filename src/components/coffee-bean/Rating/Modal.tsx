@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CoffeeBean } from '@/types/app'
 import StarRating from '../ui/StarRating'
 import AutoResizeTextarea from '@/components/common/forms/AutoResizeTextarea'
+import { useTranslations } from 'next-intl'
 
 interface CoffeeBeanRatingModalProps {
     showModal: boolean
@@ -21,6 +22,7 @@ const CoffeeBeanRatingModal: React.FC<CoffeeBeanRatingModalProps> = ({
     onSave,
     onAfterSave
 }) => {
+    const t = useTranslations()
     const [beanType, setBeanType] = useState<'espresso' | 'filter'>('filter')
     const [overallRating, setOverallRating] = useState<number>(0)
     const [ratingNotes, setRatingNotes] = useState<string>('')
@@ -55,7 +57,7 @@ const CoffeeBeanRatingModal: React.FC<CoffeeBeanRatingModalProps> = ({
                 }, 50)
             }
         } catch (error) {
-            console.error('保存评分失败:', error)
+            console.error(t('messages.saveRatingError'), error)
         }
     }
 
@@ -112,7 +114,7 @@ const CoffeeBeanRatingModal: React.FC<CoffeeBeanRatingModalProps> = ({
 
                             {/* 总体评分 */}
                             <div className="space-y-2">
-                                <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">评分</label>
+                                <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">{t('rating.title')}</label>
                                 <StarRating
                                     value={overallRating}
                                     onChange={setOverallRating}
@@ -124,12 +126,12 @@ const CoffeeBeanRatingModal: React.FC<CoffeeBeanRatingModalProps> = ({
                             {/* 评价备注 */}
                             <div className="space-y-2 w-full">
                                 <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                                    备注
+                                    {t('rating.notes')}
                                 </label>
                                 <AutoResizeTextarea
                                     value={ratingNotes}
                                     onChange={(e) => setRatingNotes(e.target.value)}
-                                    placeholder="添加对这款咖啡豆的备注"
+                                    placeholder={t('rating.notesPlaceholder')}
                                     className="w-full py-2 bg-transparent outline-hidden border-b border-neutral-300 dark:border-neutral-700 focus:border-neutral-800 dark:focus:border-neutral-400"
                                     minRows={2}
                                     maxRows={6}
@@ -142,13 +144,13 @@ const CoffeeBeanRatingModal: React.FC<CoffeeBeanRatingModalProps> = ({
                                     onClick={onClose}
                                     className="flex-1 py-2 rounded-md border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-500 dark:text-neutral-400"
                                 >
-                                    取消
+                                    {t('rating.cancel')}
                                 </button>
                                 <button
                                     onClick={handleSave}
                                     className="flex-1 py-2 rounded-md bg-neutral-900 dark:bg-neutral-100 text-xs text-neutral-100 dark:text-neutral-900"
                                 >
-                                    保存
+                                    {t('rating.save')}
                                 </button>
                             </div>
                         </div>

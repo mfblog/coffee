@@ -15,7 +15,7 @@ import {
 import { X, ArrowUpRight, AlignLeft } from 'lucide-react'
 import { Storage } from '@/lib/core/storage'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 // Apple风格动画配置
 const FILTER_ANIMATION = {
@@ -256,6 +256,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
     onToggleImageFlowMode,
 }) => {
     const t = useTranslations('nav')
+    const locale = useLocale()
     // 添加极简模式状态
     const [_isMinimalistMode, setIsMinimalistMode] = useState(false);
 
@@ -439,7 +440,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                     <div className="text-xs font-medium tracking-wide text-neutral-800 dark:text-neutral-100 break-words">
                         {viewMode === VIEW_OPTIONS.INVENTORY
                             ? `${beansCount} ${t('stats.beansCount')}${!hideTotalWeight && totalWeight ? `，${t('stats.totalWeight')} ${totalWeight}` : ''}`
-                            : viewMode === VIEW_OPTIONS.BLOGGER
+                            : viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh'
                                 ? `${bloggerBeansCount || 0} ${t('stats.beansCount')} (${bloggerYear})`
                                 : `${rankingBeansCount || 0} ${t('stats.ratedBeansCount')}`
                         }
@@ -449,9 +450,9 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                 {/* 视图切换功能已移至导航栏 */}
             </div>
 
-            {/* 榜单标签筛选 - 在榜单和博主榜单视图中显示 */}
-            {(viewMode === VIEW_OPTIONS.RANKING || viewMode === VIEW_OPTIONS.BLOGGER) && (
-                <div className="mb-1" ref={filterExpandRef}>
+            {/* 榜单标签筛选 - 在榜单和博主榜单视图中显示，非中文环境下隐藏博主榜单 */}
+            {(viewMode === VIEW_OPTIONS.RANKING || (viewMode === VIEW_OPTIONS.BLOGGER && locale === 'zh')) && (
+                <div key={`ranking-filter-${viewMode}-${locale}`} className="mb-1" ref={filterExpandRef}>
                     {/* 整个分类栏容器 - 下边框在这里 */}
                     <div className="border-b border-neutral-200 dark:border-neutral-800">
                         {/* 豆子筛选选项卡 */}
@@ -508,8 +509,8 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
                             </div>
 
                             <div className="flex items-center">
-                                {/* 年份选择器 - 仅在博主榜单视图中显示 */}
-                                {viewMode === VIEW_OPTIONS.BLOGGER && onBloggerYearChange && (
+                                {/* 年份选择器 - 仅在博主榜单视图中显示，非中文环境下隐藏 */}
+                                {viewMode === VIEW_OPTIONS.BLOGGER && onBloggerYearChange && locale === 'zh' && (
                                     <div className="flex items-center ml-3">
                                         <TabButton
                                             isActive={bloggerYear === 2025}

@@ -29,7 +29,15 @@
       "done": "Done",
       "search": "Search",
       "addManually": "Add Manually",
-      "quickAdd": "Quick Add"
+      "quickAdd": "Quick Add",
+      "addRating": "Rate"
+    },
+    "rating": {
+      "title": "Rating",
+      "notes": "Notes",
+      "notesPlaceholder": "Add notes about this coffee bean",
+      "cancel": "Cancel",
+      "save": "Save"
     },
     "filters": {
       "type": "Type",
@@ -38,6 +46,8 @@
       "filter": "Filter",
       "espressoBean": "Espresso Bean",
       "filterBean": "Filter Bean",
+      "allBeans": "All Beans",
+      "pourOver": "Pour Over",
       "sort": "Sort",
       "display": "Display",
       "usedUp": "Used Up",
@@ -90,6 +100,8 @@
       "copiedToClipboard": "Copied to clipboard",
       "copyFailed": "Copy failed, please try again",
       "noNotes": "No notes yet",
+      "noRatingData": "No rated coffee beans yet",
+      "unratedBeans": "unrated beans",
       "noSearchResultsNotes": "No matching notes found",
       "noNotesForSearch": "No matching brewing records found",
       "noNotesForEquipment": "No brewing records using this equipment",
