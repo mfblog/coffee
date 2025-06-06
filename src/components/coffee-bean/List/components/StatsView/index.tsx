@@ -11,8 +11,10 @@ import { useConsumption } from './useConsumption'
 import { Storage } from '@/lib/core/storage'
 import { ArrowUpRight } from 'lucide-react'
 import type { BrewingNote } from '@/lib/core/config'
+import { useTranslation } from 'react-i18next'
 
 const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsShare }) => {
+    const { t } = useTranslation()
     const statsContainerRef = useRef<HTMLDivElement>(null)
     const [username, setUsername] = useState<string>('')
     const [espressoAverageConsumption, setEspressoAverageConsumption] = useState<number>(0)
@@ -222,7 +224,7 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                         {/* 意式豆统计 */}
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center text-xs">
-                                                <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">意式豆</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">{t('nav.filters.espressoBean')}</span>
                                                 <span className="text-neutral-800 dark:text-white font-mono">
                                                     {formatNumber(stats.espressoStats.remainingWeight)}/{formatNumber(stats.espressoStats.totalWeight)}克
                                                 </span>
@@ -251,15 +253,15 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                             {/* 消耗预估 */}
                                             <div className="space-y-1 text-xs">
                                                 <div className="flex justify-between">
-                                                    <span className="text-neutral-600 dark:text-neutral-400">今日</span>
-                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.espressoStats.todayConsumption)}克</span>
+                                                    <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.today')}</span>
+                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.espressoStats.todayConsumption)}{t('nav.units.grams')}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-neutral-600 dark:text-neutral-400">平均</span>
-                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(espressoAverageConsumption)}克/天</span>
+                                                    <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.average')}</span>
+                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(espressoAverageConsumption)}{t('nav.units.grams')}{t('nav.stats.consumption.perDay')}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-neutral-600 dark:text-neutral-400">预计用完</span>
+                                                    <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.estimatedFinish')}</span>
                                                     <span className="text-neutral-800 dark:text-white font-mono">{espressoFinishDate}</span>
                                                 </div>
                                             </div>
@@ -268,9 +270,9 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                         {/* 手冲豆统计 */}
                                         <div className="space-y-2 border-t border-neutral-200 dark:border-neutral-800 pt-3">
                                             <div className="flex justify-between items-center text-xs">
-                                                <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">手冲豆</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">{t('nav.filters.filterBean')}</span>
                                                 <span className="text-neutral-800 dark:text-white font-mono">
-                                                    {formatNumber(stats.filterStats.remainingWeight)}/{formatNumber(stats.filterStats.totalWeight)}克
+                                                    {formatNumber(stats.filterStats.remainingWeight)}/{formatNumber(stats.filterStats.totalWeight)}{t('nav.units.grams')}
                                                 </span>
                                             </div>
 
@@ -297,15 +299,15 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                             {/* 消耗预估 */}
                                             <div className="space-y-1 text-xs">
                                                 <div className="flex justify-between">
-                                                    <span className="text-neutral-600 dark:text-neutral-400">今日</span>
-                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.filterStats.todayConsumption)}克</span>
+                                                    <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.today')}</span>
+                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.filterStats.todayConsumption)}{t('nav.units.grams')}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-neutral-600 dark:text-neutral-400">平均</span>
-                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(filterAverageConsumption)}克/天</span>
+                                                    <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.average')}</span>
+                                                    <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(filterAverageConsumption)}{t('nav.units.grams')}{t('nav.stats.consumption.perDay')}</span>
                                                 </div>
                                                 <div className="flex justify-between">
-                                                    <span className="text-neutral-600 dark:text-neutral-400">预计用完</span>
+                                                    <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.estimatedFinish')}</span>
                                                     <span className="text-neutral-800 dark:text-white font-mono">{filterFinishDate}</span>
                                                 </div>
                                             </div>
@@ -319,9 +321,9 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                 return (
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center text-xs">
-                                            <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">意式豆</span>
+                                            <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">{t('nav.filters.espressoBean')}</span>
                                             <span className="text-neutral-800 dark:text-white font-mono">
-                                                {formatNumber(stats.espressoStats.remainingWeight)}/{formatNumber(stats.espressoStats.totalWeight)}克
+                                                {formatNumber(stats.espressoStats.remainingWeight)}/{formatNumber(stats.espressoStats.totalWeight)}{t('nav.units.grams')}
                                             </span>
                                         </div>
 
@@ -348,15 +350,15 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                         {/* 消耗预估 */}
                                         <div className="space-y-1 text-xs">
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">今日</span>
-                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.espressoStats.todayConsumption)}克</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.today')}</span>
+                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.espressoStats.todayConsumption)}{t('nav.units.grams')}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">平均</span>
-                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(espressoAverageConsumption)}克/天</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.average')}</span>
+                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(espressoAverageConsumption)}{t('nav.units.grams')}{t('nav.stats.consumption.perDay')}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">预计用完</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.estimatedFinish')}</span>
                                                 <span className="text-neutral-800 dark:text-white font-mono">{espressoFinishDate}</span>
                                             </div>
                                         </div>
@@ -368,9 +370,9 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                 return (
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center text-xs">
-                                            <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">手冲豆</span>
+                                            <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">{t('nav.filters.filterBean')}</span>
                                             <span className="text-neutral-800 dark:text-white font-mono">
-                                                {formatNumber(stats.filterStats.remainingWeight)}/{formatNumber(stats.filterStats.totalWeight)}克
+                                                {formatNumber(stats.filterStats.remainingWeight)}/{formatNumber(stats.filterStats.totalWeight)}{t('nav.units.grams')}
                                             </span>
                                         </div>
 
@@ -397,15 +399,15 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                         {/* 消耗预估 */}
                                         <div className="space-y-1 text-xs">
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">今日</span>
-                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.filterStats.todayConsumption)}克</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.today')}</span>
+                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(stats.filterStats.todayConsumption)}{t('nav.units.grams')}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">平均</span>
-                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(filterAverageConsumption)}克/天</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.average')}</span>
+                                                <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(filterAverageConsumption)}{t('nav.units.grams')}{t('nav.stats.consumption.perDay')}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">预计用完</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.estimatedFinish')}</span>
                                                 <span className="text-neutral-800 dark:text-white font-mono">{filterFinishDate}</span>
                                             </div>
                                         </div>
@@ -417,9 +419,9 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                             return (
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center text-xs">
-                                        <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">容量概览</span>
+                                        <span className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">{t('nav.stats.consumption.capacityOverview')}</span>
                                         <span className="text-neutral-800 dark:text-white font-mono">
-                                            {formatNumber(stats.remainingWeight)}/{formatNumber(stats.totalWeight)}克
+                                            {formatNumber(stats.remainingWeight)}/{formatNumber(stats.totalWeight)}{t('nav.units.grams')}
                                         </span>
                                     </div>
 
@@ -446,15 +448,15 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                                     {/* 消耗预估 */}
                                     <div className="space-y-1 text-xs">
                                         <div className="flex justify-between">
-                                            <span className="text-neutral-600 dark:text-neutral-400">今日</span>
-                                            <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(todayConsumption)}克</span>
+                                            <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.today')}</span>
+                                            <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(todayConsumption)}{t('nav.units.grams')}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-neutral-600 dark:text-neutral-400">平均</span>
-                                            <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(averageConsumption)}克/天</span>
+                                            <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.average')}</span>
+                                            <span className="text-neutral-800 dark:text-white font-mono">{formatNumber(averageConsumption)}{t('nav.units.grams')}{t('nav.stats.consumption.perDay')}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-neutral-600 dark:text-neutral-400">预计用完</span>
+                                            <span className="text-neutral-600 dark:text-neutral-400">{t('nav.stats.consumption.estimatedFinish')}</span>
                                             <span className="text-neutral-800 dark:text-white font-mono">{estimatedFinishDate}</span>
                                         </div>
                                     </div>
@@ -499,7 +501,7 @@ const StatsView: React.FC<StatsViewProps> = ({ beans, showEmptyBeans, onStatsSha
                     onClick={onStatsShare}
                     className="mx-auto text-center pb-1.5 text-[11px] font-medium relative text-neutral-600 dark:text-neutral-400"
             >
-                <span className="relative underline underline-offset-2 decoration-sky-500">分享 (包含费用数据)</span>
+                <span className="relative underline underline-offset-2 decoration-sky-500">{t('nav.stats.share.button')}</span>
                     <ArrowUpRight className="inline-block ml-1 w-3 h-3" />
                 </button>
             </div>

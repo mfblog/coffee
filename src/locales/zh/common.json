@@ -99,12 +99,85 @@
     "stats": {
       "beansCount": "款咖啡豆",
       "totalWeight": "共",
-      "ratedBeansCount": "款已评分咖啡豆"
+      "ratedBeansCount": "款已评分咖啡豆",
+      "categories": {
+        "basicData": "基本数据",
+        "inventory": "库存",
+        "costData": "费用数据",
+        "classification": "分类",
+        "roastLevel": "烘焙程度",
+        "origin": "产地",
+        "process": "处理法",
+        "variety": "品种",
+        "flavor": "风味",
+        "flavorPeriod": "赏味期状态",
+        "espressoCoffee": "意式咖啡",
+        "filterCoffee": "手冲咖啡"
+      },
+      "labels": {
+        "totalBeans": "咖啡豆总数",
+        "activeBeans": "正在使用",
+        "emptyBeans": "已用完",
+        "totalWeight": "总重量",
+        "remainingWeight": "剩余重量",
+        "consumedWeight": "已消耗重量",
+        "consumptionRatio": "消耗比例",
+        "todayConsumption": "今日消耗",
+        "totalCost": "总花费",
+        "remainingCoffeeValue": "剩余咖啡价值",
+        "consumedCoffeeValue": "已消耗咖啡价值",
+        "averageBeanPrice": "平均每包价格",
+        "averageGramPrice": "每克平均价格",
+        "todayCost": "今日花费",
+        "singleOrigin": "单品豆",
+        "blend": "拼配豆",
+        "espressoBeansTotal": "意式豆总数",
+        "filterBeansTotal": "手冲豆总数",
+        "inPeriod": "赏味期内",
+        "beforePeriod": "赏味期前",
+        "afterPeriod": "赏味期后",
+        "unknown": "未知"
+      },
+      "summary": {
+        "preferFilter": "偏爱手冲豆",
+        "preferEspresso": "偏爱意式豆",
+        "balanced": "手冲意式均衡",
+        "mainlyRoast": "以",
+        "roast": "烘焙为主",
+        "flavorPreference": "风味偏爱",
+        "and": "和",
+        "defaultRoast": "中度"
+      },
+      "timeRanges": {
+        "thisWeek": "(本周内)",
+        "thisMonth": "(本月内)",
+        "overOneYear": "1年以上"
+      },
+      "share": {
+        "title": "我的咖啡豆统计数据",
+        "text": "我的咖啡豆统计数据",
+        "dialogTitle": "分享我的咖啡豆统计数据",
+        "success": "统计数据已保存为图片",
+        "error": "生成图片失败",
+        "notFound": "找不到统计视图容器",
+        "button": "分享 (包含费用数据)"
+      },
+      "consumption": {
+        "today": "今日",
+        "average": "平均",
+        "estimatedFinish": "预计用完",
+        "perDay": "/天",
+        "capacityOverview": "容量概览",
+        "capacityRemaining": "容量剩余"
+      }
     },
     "units": {
       "seconds": "秒",
       "grams": "克",
-      "pricePerGram": "元/克"
+      "pricePerGram": "元/克",
+      "pieces": "个",
+      "times": "次",
+      "currency": "元"
     },
     "status": {
       "inTransit": "在途",

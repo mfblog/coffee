@@ -1,6 +1,7 @@
 import React from 'react'
 import { StatItemProps, StatSectionProps, StatCategoryProps } from './types'
 import { formatNumber2Digits } from './utils'
+import { useTranslation } from 'react-i18next'
 
 // 生成统计项，单个值
 export const StatItem: React.FC<StatItemProps> = ({ label, value, unit = '' }) => (
@@ -31,15 +32,18 @@ export const StatCategory: React.FC<StatCategoryProps> = ({ number, title, child
 )
 
 // 从数组生成统计行
-export const renderStatsRows = (dataArr: [string, number][], unit = '个') => {
+export const renderStatsRows = (dataArr: [string, number][], unit?: string) => {
+    // 如果没有提供单位，使用默认单位
+    const defaultUnit = unit || 'pcs'; // 默认使用英文单位，实际使用时会被翻译覆盖
+
     return dataArr
         .sort((a, b) => b[1] - a[1])
         .map(([key, value]) => (
-            <StatItem 
+            <StatItem
                 key={key}
-                label={key} 
-                value={`${value}`} 
-                unit={unit} 
+                label={key}
+                value={`${value}`}
+                unit={defaultUnit}
             />
         ))
-} 
+}
