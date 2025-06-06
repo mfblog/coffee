@@ -39,10 +39,39 @@
       "sort": "Sort",
       "display": "Display",
       "usedUp": "Used Up",
-      "imageFlow": "Image Flow"
+      "imageFlow": "Image Flow",
+      "filterMode": "Filter Mode",
+      "byEquipment": "By Equipment",
+      "byBean": "By Bean",
+      "sortBy": "Sort By",
+      "time": "Time",
+      "rating": "Rating",
+      "latest": "Latest",
+      "earliest": "Earliest",
+      "highest": "Highest",
+      "lowest": "Lowest",
+      "sortOrder": "Sort Order",
+      "remainingDays": "Flavor Period",
+      "name": "Name",
+      "original": "Original",
+      "remainingAmount": "Remaining",
+      "roastDate": "Roast Date",
+      "price": "Price/g",
+      "lastModified": "Last Modified",
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "lowToHigh": "Low to High",
+      "highToLow": "High to Low",
+      "lessToMore": "Less to More",
+      "moreToLess": "More to Less",
+      "aToZ": "A to Z",
+      "zToA": "Z to A",
+      "earlyToLate": "Early to Late",
+      "lateToEarly": "Late to Early"
     },
     "search": {
-      "placeholder": "Enter bean name..."
+      "placeholder": "Enter bean name...",
+      "notes": "Search notes..."
     },
     "messages": {
       "noCustomMethods": "No custom methods for current equipment, please click the button below to add",
@@ -57,7 +86,15 @@
       "saveFailed": "Save failed, please try again",
       "dataUpdated": "Data updated, app will reload data",
       "copiedToClipboard": "Copied to clipboard",
-      "copyFailed": "Copy failed, please try again"
+      "copyFailed": "Copy failed, please try again",
+      "noNotes": "No notes yet",
+      "noSearchResultsNotes": "No matching notes found",
+      "noNotesForSearch": "No matching brewing records found",
+      "noNotesForEquipment": "No brewing records using this equipment",
+      "noNotesForBean": "No brewing records using this coffee bean",
+      "noBrewingRecords": "No brewing records yet",
+      "loadingNotes": "Loading...",
+      "quickDecrementRecords": "quick decrement records"
     },
     "stats": {
       "beansCount": "coffee beans",

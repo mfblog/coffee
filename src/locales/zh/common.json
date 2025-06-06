@@ -39,10 +39,39 @@
       "sort": "排序",
       "display": "显示",
       "usedUp": "已用完",
-      "imageFlow": "图片流"
+      "imageFlow": "图片流",
+      "filterMode": "筛选方式",
+      "byEquipment": "按器具",
+      "byBean": "按豆子",
+      "sortBy": "排序方式",
+      "time": "时间",
+      "rating": "评分",
+      "latest": "最新",
+      "earliest": "最早",
+      "highest": "最高",
+      "lowest": "最低",
+      "sortOrder": "排序顺序",
+      "remainingDays": "赏味期",
+      "name": "名称",
+      "original": "原始",
+      "remainingAmount": "剩余量",
+      "roastDate": "烘焙日期",
+      "price": "克价",
+      "lastModified": "最近变动",
+      "ascending": "升序",
+      "descending": "降序",
+      "lowToHigh": "从低到高",
+      "highToLow": "从高到低",
+      "lessToMore": "从少到多",
+      "moreToLess": "从多到少",
+      "aToZ": "从A到Z",
+      "zToA": "从Z到A",
+      "earlyToLate": "从早到晚",
+      "lateToEarly": "从晚到早"
     },
     "search": {
-      "placeholder": "输入咖啡豆名称..."
+      "placeholder": "输入咖啡豆名称...",
+      "notes": "搜索笔记..."
     },
     "messages": {
       "noCustomMethods": "当前器具暂无自定义方案，请点击下方按钮添加",
@@ -57,7 +86,15 @@
       "saveFailed": "保存失败，请重试",
       "dataUpdated": "数据已更新，应用将重新加载数据",
       "copiedToClipboard": "已复制到剪贴板",
-      "copyFailed": "复制失败，请重试"
+      "copyFailed": "复制失败，请重试",
+      "noNotes": "暂无笔记",
+      "noSearchResultsNotes": "没有找到匹配的笔记",
+      "noNotesForSearch": "没有找到匹配的冲煮记录",
+      "noNotesForEquipment": "没有使用该器具的冲煮记录",
+      "noNotesForBean": "没有使用该咖啡豆的冲煮记录",
+      "noBrewingRecords": "暂无冲煮记录",
+      "loadingNotes": "加载中...",
+      "quickDecrementRecords": "条快捷扣除记录"
     },
     "stats": {
       "beansCount": "款咖啡豆",

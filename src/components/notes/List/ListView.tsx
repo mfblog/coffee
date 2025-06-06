@@ -8,6 +8,7 @@ import NoteItem from './NoteItem'
 import QuickDecrementNoteItem from './QuickDecrementNoteItem'
 import { sortNotes } from '../utils'
 import { SortOption } from '../types'
+import { useTranslations } from 'next-intl'
 
 // 分页配置
 const PAGE_SIZE = 5
@@ -42,6 +43,7 @@ const NotesListView: React.FC<NotesListViewProps> = ({
     isSearching = false,
     preFilteredNotes
 }) => {
+    const t = useTranslations('nav')
     const [_isPending, startTransition] = useTransition()
     const [notes, setNotes] = useState<BrewingNote[]>(globalCache.filteredNotes)
     const [_isFirstLoad, setIsFirstLoad] = useState<boolean>(!globalCache.initialized)
@@ -147,7 +149,7 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                 setHasMore(filteredNotes.length > PAGE_SIZE);
             });
         } catch (error) {
-            console.error("加载笔记数据失败:", error);
+            console.error("Failed to load notes data:", error);
             setIsFirstLoad(false);
             isLoadingRef.current = false;
         }
@@ -259,12 +261,12 @@ const NotesListView: React.FC<NotesListViewProps> = ({
         return (
             <div className="flex h-32 items-center justify-center text-[10px] tracking-widest text-neutral-600 dark:text-neutral-400">
                 {isSearching && searchQuery.trim()
-                    ? `[ 没有找到匹配"${searchQuery.trim()}"的冲煮记录 ]`
+                    ? `[ ${t('messages.noNotesForSearch')} "${searchQuery.trim()}" ]`
                     : (selectedEquipment && filterMode === 'equipment')
-                    ? `[ 没有使用${globalCache.equipmentNames[selectedEquipment] || selectedEquipment}的冲煮记录 ]`
+                    ? `[ ${t('messages.noNotesForEquipment')} ${globalCache.equipmentNames[selectedEquipment] || selectedEquipment} ]`
                     : (selectedBean && filterMode === 'bean')
-                    ? `[ 没有使用${selectedBean}的冲煮记录 ]`
-                    : '[ 暂无冲煮记录 ]'}
+                    ? `[ ${t('messages.noNotesForBean')} ${selectedBean} ]`
+                    : `[ ${t('messages.noBrewingRecords')} ]`}
             </div>
         );
     }
@@ -300,7 +302,7 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                     >
                         <div className="grow border-t border-neutral-200 dark:border-neutral-800"></div>
                         <button className="flex items-center justify-center mx-3 px-2 py-0.5 rounded-sm text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400 transition-colors">
-                            {quickDecrementNotes.length}条快捷扣除记录
+                            {quickDecrementNotes.length}{t('messages.quickDecrementRecords')}
                             <svg
                                 className={`ml-1 w-3 h-3 transition-transform duration-200 ${showQuickDecrementNotes ? 'rotate-180' : ''}`}
                                 viewBox="0 0 24 24"
@@ -338,7 +340,7 @@ const NotesListView: React.FC<NotesListViewProps> = ({
                     ref={loaderRef}
                     className="flex h-16 items-center justify-center text-[10px] tracking-widest text-neutral-400 dark:text-neutral-600"
                 >
-                    {isLoading ? '加载中...' : ''}
+                    {isLoading ? t('messages.loadingNotes') : ''}
                 </div>
             )}
         </div>
